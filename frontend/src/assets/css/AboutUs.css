@@ -6,5 +6,6 @@
     justify-items: center;
 }
 .container .img_first{
+    margin-top: 5%;
     border-top: 2px solid black;
 }
