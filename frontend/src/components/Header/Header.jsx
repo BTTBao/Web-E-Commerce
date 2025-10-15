@@ -4,6 +4,7 @@ import logo from "../../assets/logo2.webp";
 import "./Header.css";
 import { Link } from "react-router-dom"
 import { menuData } from "./data";
+import useCartCount from "../../hooks/useCartCount"
 
 
 const Header = () => {
@@ -11,6 +12,7 @@ const Header = () => {
   const [activeSubMenu, setActiveSubMenu] = useState(null);
   const hideMenuTimeout = useRef(null);
   const hideSubMenuTimeout = useRef(null);
+  const cartCount = useCartCount();
 
   // Delay đóng menu cấp 1
   const handleMenuEnter = (menu) => {

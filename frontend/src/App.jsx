@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import './App.css'
-import HeaderWrapper from './components/Header/HeaderWrapper'
+import Home from './pages/Home/Home'
 
 function App() {
 
   return (
     <>
-      < HeaderWrapper />
+      < Home />
     </>
   )
 }

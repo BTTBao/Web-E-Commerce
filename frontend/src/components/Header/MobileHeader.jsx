@@ -5,12 +5,14 @@ import "./MobileHeader.css";
 import { Link } from "react-router-dom"
 import logo from "../../assets/logo2.webp";
 import { menuData } from "./data";
+import useCartCount from "../../hooks/useCartCount"
 
 
 export default function MobileMenu() {
   const [open, setOpen] = useState(false);
   const [activeMain, setActiveMain] = useState(null);
   const [activeSub, setActiveSub] = useState(null);
+  const cartCount = useCartCount();
 
   const toggleMain = (title) => {
     setActiveMain(activeMain === title ? null : title);
