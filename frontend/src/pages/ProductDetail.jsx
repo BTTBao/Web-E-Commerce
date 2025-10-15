@@ -1,34 +1,25 @@
-import React, { useEffect, useState, useContext } from 'react';
-import { useParams } from 'react-router-dom';
-import productApi from '../api/productApi';
-import Loader from '../components/Loader';
-import { CartContext } from '../context/CartContext';
-import { formatPrice } from '../utils/formatPrice';
+import React from 'react'
+import ProductGallery from '../components/ProductDetails/ProductGallery/ProductGallery'
+import ProductInfo from '../components/ProductDetails/ProductInfo/ProductInfo'
+import ProductRelated from '../components/ProductDetails/ProductRelated/ProductRelated'
+import 'swiper/css'
+import 'swiper/css/navigation'
+import 'swiper/css/thumbs'
 
-export default function ProductDetail(){
-  const { id } = useParams();
-  const [product, setProduct] = useState(null);
-  const [loading,setLoading] = useState(true);
-  const { addToCart } = useContext(CartContext);
-
-  useEffect(()=>{
-    productApi.getById(id).then(res=>setProduct(res.data)).catch(()=>{}).finally(()=>setLoading(false));
-  },[id]);
-
-  if(loading) return <Loader />;
-  if(!product) return <div>Not found</div>;
-
+function ProductDetail() {
   return (
-    <div className="row">
-      <div className="col-md-6">
-        <img src={product.imageURL || '/src/assets/logo.png'} alt={product.name} className="img-fluid" />
+    <>
+      <div className="container row mx-auto my-5">
+        <div className="col-12 col-lg-7">
+          <ProductGallery />
+        </div>
+        <div className="col-12 col-lg-5">
+          <ProductInfo />
+        </div>
+        <ProductRelated />
       </div>
-      <div className="col-md-6">
-        <h2>{product.name}</h2>
-        <p>{formatPrice(product.price)}</p>
-        <p>{product.description}</p>
-        <button className="btn btn-success" onClick={()=>addToCart({productID:product.productID, name:product.name, price:product.price, imageURL:product.imageURL})}>Add to cart</button>
-      </div>
-    </div>
-  );
+    </>
+  )
 }
+
+export default ProductDetail
