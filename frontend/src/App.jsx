@@ -1,3 +1,12 @@
+
+import { useState } from 'react'
+import './App.css'
+import HeaderWrapper from './components/Header/HeaderWrapper'
+
+function App() {
+
+ 
+
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import AboutUs from "./pages/AboutUs";
 import Header from "./components/Header";
