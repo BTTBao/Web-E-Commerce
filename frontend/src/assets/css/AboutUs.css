@@ -1,0 +1,10 @@
+.container img{
+    width: 86%;
+}
+.container{
+    text-align: center;
+    justify-items: center;
+}
+.container .img_first{
+    border-top: 2px solid black;
+}

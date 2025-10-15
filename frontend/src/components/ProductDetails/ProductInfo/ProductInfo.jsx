@@ -6,7 +6,6 @@ import { Link } from 'react-router-dom';
 
 function ProductInfo() {
   const [selectedSize, setSelectedSize] = useState(null);
-  const [quantity, setQuantity] = useState(1);
 
   const sizes = ['S', 'M', 'L', 'XL'];
   return (

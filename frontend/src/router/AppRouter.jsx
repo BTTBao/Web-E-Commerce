@@ -6,6 +6,7 @@ import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
 import Login from "../pages/Login";
+import AboutUs from "../pages/AboutUs";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
 import AdminLayout from "../layouts/AdminLayout";
@@ -19,6 +20,7 @@ export default function AppRouter() {
     <Routes>
       <Route path='/' element={<MainLayout />}>
         <Route index element={<Home />} />
+        <Route path="/about" element={<AboutUs />} />
         {/* <Route path="product/:id" element={<ProductDetail />} /> */}
         <Route path="productDetail" element={<ProductDetail />} />
         <Route path="cart" element={<Cart />} />
