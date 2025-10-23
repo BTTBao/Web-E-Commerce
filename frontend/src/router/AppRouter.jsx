@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
-import Home from "../pages/Home";
+import Home from "../pages/Home/Home";
 import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
@@ -20,7 +20,7 @@ export default function AppRouter() {
     <Routes>
       <Route path='/' element={<MainLayout />}>
         <Route index element={<Home />} />
-        <Route path="/about" element={<AboutUs />} />
+        
         {/* <Route path="product/:id" element={<ProductDetail />} /> */}
         <Route path="productDetail" element={<ProductDetail />} />
         <Route path="cart" element={<Cart />} />
@@ -28,6 +28,7 @@ export default function AppRouter() {
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
         <Route path="profile" element={<Profile />} />
+        <Route path="aboutUs" element={<AboutUs />} />
       </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
