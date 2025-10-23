@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "axios": "^1.12.2",
+
+    "lucide-react": "^0.545.0",
+
     "bootstrap": "^5.3.8",
     "lucide-react": "^0.545.0",
     "react": "^19.1.1",

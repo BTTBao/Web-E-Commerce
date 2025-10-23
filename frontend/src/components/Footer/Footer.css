@@ -1,0 +1,46 @@
+.footer {
+  font-family: "Arial", sans-serif;
+}
+
+.footer p {
+    color: #7c7c7c;
+}
+.footer-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 15px;
+}
+
+.footer-list li,
+.footer-list2 li {
+  margin-bottom: 8px;
+  color: #7c7c7c;
+}
+
+.footer-list2 li:hover {
+    color: #222;
+    cursor: pointer;
+}
+
+
+.social-icons {
+  display: flex;
+  gap: 15px;
+  font-size: 1.5rem;
+}
+
+.social-link {
+  color: #000;
+  transition: 0.3s;
+}
+
+.social-link:hover {
+  color: #ff0000;
+}
+
+.end-ft {
+    background-color: #000;
+    padding: 20px 0px;
+    color: #fff;
+    font-size: 15px;
+}

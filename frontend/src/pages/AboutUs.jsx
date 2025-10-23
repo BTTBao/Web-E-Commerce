@@ -2,14 +2,13 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import '../assets/css/AboutUs.css';
 import HeaderWrapper from '../components/Header/HeaderWrapper'
-export default function AboutUs() {
 
+export default function AboutUs() {
 
     return (
         
         <div>
             <HeaderWrapper />
-      
             <section>
                 <div className="container">
                     <img className='img_first' src="https://bizweb.dktcdn.net/100/369/010/files/dc-about-us.jpg?v=1741677112951" alt=""  />
