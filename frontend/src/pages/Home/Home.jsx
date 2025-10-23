@@ -28,7 +28,7 @@ export default function Home() {
 
   return (
     <>
-      <HeaderWrapper />
+      
 
       {/* 🖼️ Banner */}
         <section className="banner">
