@@ -20,6 +20,9 @@ using System.Reflection;
 
 [assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a3e45ebc3ac827d765f1a003f368843e3d0d189a")]
 
+
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1583223d7766747b4483f5a72be6b63166be283d")]
+
 [assembly: System.Reflection.AssemblyProductAttribute("backend")]
 [assembly: System.Reflection.AssemblyTitleAttribute("backend")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
