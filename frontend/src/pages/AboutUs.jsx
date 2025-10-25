@@ -1,13 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../assets/css/AboutUs.css';
-
+import HeaderWrapper from '../components/Header/HeaderWrapper'
+import Footer from '../components/Footer/Footer';
 export default function AboutUs() {
-
 
     return (
         
         <div>
+
             <section>
                 <div className="container">
                     <img className='img_first' src="https://bizweb.dktcdn.net/100/369/010/files/dc-about-us.jpg?v=1741677112951" alt=""  />
@@ -18,6 +19,7 @@ export default function AboutUs() {
                     <img src="https://bizweb.dktcdn.net/100/369/010/files/artboard-3-ad8ceb62-b4c0-4135-9fed-3b720456f592.jpg?v=1722481569908" alt="" />
                 </div>
             </section>
+            <Footer />
         </div>
     );
 }

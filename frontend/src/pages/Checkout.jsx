@@ -1,10 +1,9 @@
-import React from 'react';
+import React from 'react'
 
-export default function Checkout(){
+function Checkout() {
   return (
-    <div>
-      <h2>Checkout</h2>
-      <p>Checkout flow not implemented in scaffold. Connect to Payments API on backend.</p>
-    </div>
-  );
+    <div>Checkout</div>
+  )
 }
+
+export default Checkout
