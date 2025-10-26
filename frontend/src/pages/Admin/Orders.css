@@ -1,0 +1,192 @@
+/* src/pages/Admin/Orders.css */
+
+.orders-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.page-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* --- Card --- */
+.card {
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: none;
+}
+
+.card-header {
+  padding: 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.card-content {
+  padding: 24px;
+}
+
+/* --- Thanh Lọc và Tìm kiếm --- */
+.filter-bar {
+  display: flex;
+  gap: 16px;
+}
+
+.search-wrapper {
+  position: relative;
+  flex: 1; /* Chiếm nhiều không gian nhất */
+}
+
+.search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: #9ca3af; /* text-gray-400 */
+}
+
+.search-input,
+.filter-select {
+  height: 40px;
+  border: 1px solid #d1d5db; /* border-gray-300 */
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 14px;
+}
+
+.search-input {
+  width: 100%;
+  padding-left: 40px; /* 12px (left) + 16px (icon) + 12px (gap) */
+  padding-right: 12px;
+}
+
+.filter-select {
+  min-width: 200px; /* w-[200px] */
+  padding: 0 12px;
+}
+
+/* --- Bảng (Table) --- */
+.table-wrapper {
+  border: 1px solid #e5e7eb; /* border-gray-200 */
+  border-radius: 8px; /* rounded-lg */
+  overflow-x: auto; /* Cho phép cuộn ngang trên mobile */
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  white-space: nowrap; /* Ngăn text xuống hàng */
+}
+
+th, td {
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  border-bottom: 1px solid #e5e7eb; /* border-gray-200 */
+}
+
+th {
+  background-color: #f9fafb; /* bg-gray-50 */
+  font-weight: 600;
+  color: #6b7280; /* text-gray-500 */
+}
+
+tbody tr:last-child td {
+  border-bottom: none; /* Xóa viền của dòng cuối */
+}
+
+.payment-status {
+  font-size: 14px;
+  color: #4b5563; /* text-gray-600 */
+}
+
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px; /* mr-1 */
+  color: #4b5563; /* text-gray-600 */
+  font-weight: 500;
+}
+.action-button:hover {
+  color: #111827; /* text-gray-900 */
+}
+.action-icon {
+  width: 16px; /* h-4 w-4 */
+  height: 16px;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* --- Badge (Copy từ Dashboard.css) --- */
+.badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 3px 10px;
+  border-radius: 99px;
+  border: 1px solid;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.badge.status-pending {
+  color: #c2410c;
+  border-color: #f59e0b;
+  background-color: #fefce8;
+}
+
+.badge.status-confirmed {
+  color: #1d4ed8;
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+}
+
+.badge.status-shipped {
+  color: #7e22ce; /* purple-700 */
+  border-color: #a855f7; /* purple-400 */
+  background-color: #f5f3ff; /* purple-50 */
+}
+
+.badge.status-delivered {
+  color: #065f46; /* green-800 */
+  border-color: #10b981; /* green-500 */
+  background-color: #f0fdf4; /* green-50 */
+}
+
+.badge.status-cancelled {
+  color: #b91c1c; /* red-700 */
+  border-color: #ef4444; /* red-500 */
+  background-color: #fef2f2; /* red-50 */
+}
+
+
+/* --- Responsive cho mobile --- */
+@media (max-width: 768px) {
+  .filter-bar {
+    flex-direction: column;
+  }
+  .filter-select {
+    min-width: 100%;
+  }
+}

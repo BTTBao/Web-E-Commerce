@@ -14,7 +14,10 @@ import Dashboard from "../pages/Admin/Dashboard";
 import Products from "../pages/Admin/Products";
 import Orders from "../pages/Admin/Orders";
 import Users from "../pages/Admin/Users";
-
+import Categories from "../pages/Admin/categories";
+import OrderDetail from "../pages/Admin/OrderDetail";
+import ProductForm from "../pages/Admin/ProductForm";
+import ChatSupport from "../pages/Admin/ChatSupport";
 export default function AppRouter() {
   return (
     <Routes>
@@ -34,8 +37,13 @@ export default function AppRouter() {
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="products" element={<Products />} />
+        <Route path="products/add" element={<ProductForm />} /> {/* Trang thêm mới */}
+        <Route path="products/edit/:productId" element={<ProductForm />} /> {/* Trang sửa */}
         <Route path="orders" element={<Orders />} />
         <Route path="users" element={<Users />} />
+        <Route path="categories" element={<Categories />} />
+        <Route path="orders/:orderId" element={<OrderDetail />} />
+        <Route path="chat" element={<ChatSupport />} />
       </Route>
     </Routes>
   );

@@ -1,0 +1,80 @@
+/* src/layouts/Header.css */
+
+.header {
+  height: 64px; /* Tương đương h-16 */
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid #e5e7eb; /* Tương đương border-b border-gray-200 */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px; /* Tương đương px-6 */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Tương đương shadow-sm */
+}
+
+.menu-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.menu-toggle:hover {
+  background-color: #f3f4f6;
+}
+
+/* Ẩn nút menu trên desktop */
+@media (min-width: 1024px) {
+  .menu-toggle {
+    display: none;
+  }
+}
+
+.header-spacer {
+  flex: 1; /* Đẩy 2 phần ra xa nhau */
+}
+
+.user-section {
+  
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-details {
+    padding-top: 10%;
+  justify-content: center;
+  text-align: right;
+}
+
+.user-name {
+  margin-top: 10%;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.user-role {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Ẩn chữ "Admin User" trên mobile */
+@media (max-width: 768px) {
+  .user-details {
+    display: none;
+  }
+}
+
+.user-avatar {
+  width: 40px; /* Tương đương w-10 */
+  height: 40px; /* Tương đương h-10 */
+  background: linear-gradient(to bottom right, #3b82f6, #8b5cf6);
+  border-radius: 50%; /* Tương đương rounded-full */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}

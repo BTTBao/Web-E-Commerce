@@ -1,0 +1,35 @@
+/* src/layouts/AdminLayout.css */
+
+.admin-layout {
+  display: flex;
+  height: 100vh;
+  background-color: #f8f9fa; /* Thay thế cho bg-gradient... */
+}
+
+.main-content {
+  flex: 1; /* Chiếm hết phần còn lại */
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Ngăn content bị tràn */
+}
+
+.page-content {
+  flex: 1; /* Chiếm hết phần còn lại bên dưới Header */
+  overflow-y: auto; /* Cho phép cuộn nội dung trang */
+  padding: 24px; /* Thay thế p-6 */
+}
+
+.layout-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  backdrop-filter: blur(2px);
+}
+
+/* Ẩn overlay trên màn hình lớn (desktop) */
+@media (min-width: 1024px) {
+  .layout-overlay {
+    display: none;
+  }
+}
