@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import HeaderWrapper from "../../components/Header/HeaderWrapper";
-import Footer from "../../components/Footer/Footer";
 import "./Home.css";
 
 import slide1 from "../../assets/slide-img1.webp";
@@ -28,7 +26,6 @@ export default function Home() {
 
   return (
     <>
-      
 
       {/* 🖼️ Banner */}
         <section className="banner">
@@ -102,7 +99,6 @@ export default function Home() {
             </div>
         </section>
 
-        <Footer />
 
     </>
   );

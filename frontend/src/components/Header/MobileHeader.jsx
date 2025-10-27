@@ -48,7 +48,7 @@ export default function MobileHeader() {
           <div className="menu-container">
             <div className="menu-header">
               <img src={logo} alt="Logo" className="menu-logo" />
-              <FiX className="close-btn" onClick={() => setOpen(false)} size={26} />
+              <FiX className="close-btn" onClick={() => setOpen(false)} size={26} color="#fff"/>
             </div>
 
             <input className="search-input" placeholder="Tìm kiếm..." />
