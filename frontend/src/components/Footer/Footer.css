@@ -4,17 +4,20 @@
 
 .footer p {
     color: #7c7c7c;
+    text-align: left;
 }
 .footer-title {
   font-weight: 700;
   font-size: 1.05rem;
   margin-bottom: 15px;
+  text-align: left;
 }
 
 .footer-list li,
 .footer-list2 li {
   margin-bottom: 8px;
   color: #7c7c7c;
+  text-align: left;
 }
 
 .footer-list2 li:hover {

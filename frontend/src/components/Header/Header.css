@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #f8f8f8;
+  background: #f1f1f1;
   padding: 16px 40px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   font-family: Arial, sans-serif;
@@ -11,9 +11,10 @@
 
 /* ==== Logo ==== */
 .logo {
-  width: 100px;
-  height: 50px;
+  width: 180px;
+  height: 70px;
   cursor: pointer;
+  object-fit: contain; 
 }
 
 /* ==== Menu ==== */
@@ -33,6 +34,7 @@
   padding-bottom: 4px;
   border-bottom: 2px solid transparent;
   transition: all 0.3s ease;
+  text-decoration: none; 
 }
 
 .menu-text:hover,
@@ -98,11 +100,12 @@
 
 /* ==== Dropdown cấp 2 ==== */
 .sub-dropdown {
+  text-decoration: ;
   position: absolute;
   top: 0;
   left: 100%;
   background: #555;
-  color: #fff;
+  color: #fff !important;
   width: 220px;
   display: flex;
   flex-direction: column;
@@ -143,6 +146,8 @@
   border-bottom: 1px solid rgba(255,255,255,0.2);
   cursor: pointer;
   transition: all 0.3s ease;
+  color: #fff !important;
+  text-decoration: none;
 }
 
 .sub-item:hover {
@@ -212,7 +217,7 @@
   }
 
   .logo {
-    width: 80px;
+    width: 120px;
     height: 40px;
   }
 

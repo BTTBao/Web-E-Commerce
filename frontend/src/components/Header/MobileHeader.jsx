@@ -2,13 +2,12 @@ import React, { useState } from "react";
 import { FiMenu, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import { ShoppingBag } from "lucide-react";
 import "./MobileHeader.css";
-import { Link } from "react-router-dom"
-import logo from "../../assets/logo2.webp";
+import { Link } from "react-router-dom";
+import logo from "../../assets/logo.webp";
 import { menuData } from "./data";
-import useCartCount from "../../hooks/useCartCount"
+import useCartCount from "../../hooks/useCartCount";
 
-
-export default function MobileMenu() {
+export default function MobileHeader() {
   const [open, setOpen] = useState(false);
   const [activeMain, setActiveMain] = useState(null);
   const [activeSub, setActiveSub] = useState(null);
@@ -38,7 +37,7 @@ export default function MobileMenu() {
         <Link to="/cart">
           <div className="cart">
             <ShoppingBag size={22} className="icon" />
-            <span className="cart-count">0</span>
+            <span className="cart-count">{cartCount}</span>
           </div>
         </Link>
       </header>
@@ -48,8 +47,8 @@ export default function MobileMenu() {
         <div className="mobile-menu-overlay">
           <div className="menu-container">
             <div className="menu-header">
-              <img src="/logo.png" alt="Logo" className="menu-logo" />
-              <FiX className="close-btn" onClick={() => setOpen(false)} size={26} />
+              <img src={logo} alt="Logo" className="menu-logo" />
+              <FiX className="close-btn" onClick={() => setOpen(false)} size={26} color="#fff"/>
             </div>
 
             <input className="search-input" placeholder="Tìm kiếm..." />
@@ -57,16 +56,25 @@ export default function MobileMenu() {
             <ul className="menu-list">
               {Object.entries(menuData).map(([mainTitle, data]) => (
                 <li key={mainTitle}>
-                  <div
-                    className="menu-item"
-                    onClick={() =>
-                      data.items ? toggleMain(mainTitle) : console.log("Đi đến", mainTitle)
-                    }
-                  >
-                    <span>{mainTitle}</span>
-                    {data.items &&
-                      (activeMain === mainTitle ? <FiChevronUp /> : <FiChevronDown />)}
-                  </div>
+                  {data.items ? (
+                    // Có submenu (SHOP)
+                    <div
+                      className="menu-item"
+                      onClick={() => toggleMain(mainTitle)}
+                    >
+                      <span>{mainTitle}</span>
+                      {activeMain === mainTitle ? <FiChevronUp /> : <FiChevronDown />}
+                    </div>
+                  ) : (
+                    // Không có submenu → gắn Link
+                    <Link
+                      to={data.path}
+                      className="menu-item"
+                      onClick={() => setOpen(false)}
+                    >
+                      {mainTitle}
+                    </Link>
+                  )}
 
                   {/* Submenu cấp 1 */}
                   {data.items && (
@@ -80,7 +88,9 @@ export default function MobileMenu() {
                           <div
                             className="submenu-item"
                             onClick={() =>
-                              subItems.length > 0 ? toggleSub(subTitle) : console.log(subTitle)
+                              subItems.length > 0
+                                ? toggleSub(subTitle)
+                                : setOpen(false)
                             }
                           >
                             <span>{subTitle}</span>
@@ -99,7 +109,12 @@ export default function MobileMenu() {
                             >
                               {subItems.map((item, idx) => (
                                 <li key={idx} className="sub-item2">
-                                  {item}
+                                  <Link
+                                    to={item.path}
+                                    onClick={() => setOpen(false)}
+                                  >
+                                    {item.name}
+                                  </Link>
                                 </li>
                               ))}
                             </ul>
