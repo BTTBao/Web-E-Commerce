@@ -1,0 +1,70 @@
+/* src/pages/Admin/Products.css */
+
+/* Nút Thêm sản phẩm (vì nó có màu gradient) */
+.button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+.button-primary:hover {
+  opacity: 0.9;
+}
+
+/* Ảnh trong bảng */
+.product-table-image {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #f3f4f6;
+}
+
+/* Tồn kho */
+.stock-low {
+  color: #dc3545; /* Màu đỏ */
+  font-weight: 600;
+}
+.stock-normal {
+  color: #111827;
+}
+
+/* Badge trạng thái */
+.badge.badge-green {
+  color: #065f46;
+  border-color: #10b981;
+  background-color: #f0fdf4;
+}
+
+.badge.badge-gray {
+  color: #4b5563;
+  border-color: #d1d5db;
+  background-color: #f3f4f6;
+}
+
+/* Nút hành động (chỉnh sửa, ẩn) */
+.action-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.action-button-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #6b7280;
+  border-radius: 6px;
+}
+.action-button-icon:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}

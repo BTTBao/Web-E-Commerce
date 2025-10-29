@@ -1,0 +1,80 @@
+/* src/components/ui/Button.css */
+
+/* --- Kiểu dáng CƠ BẢN cho mọi button --- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Khoảng cách giữa icon và chữ (nếu có) */
+  
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+  outline: none;
+}
+
+/* --- Các KÍCH THƯỚC (Size) --- */
+.btn.size-default {
+  height: 36px;
+  padding: 0 16px;
+}
+
+.btn.size-sm {
+  height: 32px;
+  padding: 0 12px;
+  font-size: 13px;
+  border-radius: 5px;
+}
+
+.btn.size-lg {
+  height: 40px;
+  padding: 0 24px;
+  font-size: 16px;
+}
+
+/* --- Các BIẾN THỂ (Variant) --- */
+
+/* 1. Variant: default (màu chính) */
+.btn.variant-default {
+  background-color: #007bff; /* Màu xanh dương làm ví dụ */
+  color: #ffffff;
+}
+.btn.variant-default:hover {
+  background-color: #0056b3;
+}
+
+/* 2. Variant: destructive (màu phá hủy/xóa) */
+.btn.variant-destructive {
+  background-color: #dc3545; /* Màu đỏ làm ví dụ */
+  color: #ffffff;
+}
+.btn.variant-destructive:hover {
+  background-color: #c82333;
+}
+
+/* 3. Variant: outline (chỉ viền) */
+.btn.variant-outline {
+  background-color: #ffffff;
+  color: #333333;
+  border-color: #cccccc;
+}
+.btn.variant-outline:hover {
+  background-color: #f8f8f8;
+}
+
+/* --- Các TRẠNG THÁI (State) --- */
+
+/* Trạng thái khi bị vô hiệu hóa (disabled) */
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Trạng thái khi được focus (bằng bàn phím) */
+.btn:focus-visible {
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.4);
+}
