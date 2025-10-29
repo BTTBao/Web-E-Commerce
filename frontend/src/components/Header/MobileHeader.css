@@ -4,7 +4,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 10px 16px;
-  background: #fff;
+  background: #f1f1f1;
   border-bottom: 1px solid #eee;
 }
 
@@ -47,6 +47,7 @@
 
 .close-btn {
   cursor: pointer;
+  color: #fff !important;
 }
 
 /* ==== Search ==== */
@@ -74,12 +75,18 @@
   font-size: 18px;
   cursor: pointer;
   border-bottom: 1px solid rgba(255,255,255,0.1);
+  color: #fff;
+  text-decoration: none;
 }
 
 .menu-item:hover {
   color: #f57716;
 }
 
+.menu-item.active {
+  color: #ff4d00;
+  font-weight: bold;
+}
 /* ==== Submenu cấp 1 ==== */
 .submenu {
   list-style: none;

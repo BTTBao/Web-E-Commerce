@@ -1,4 +1,3 @@
-import React from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home/Home";
@@ -6,7 +5,6 @@ import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout";
 import Login from "../pages/Login";
-import AboutUs from "../pages/AboutUs";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
 import AdminLayout from "../layouts/AdminLayout";
@@ -20,19 +18,17 @@ import ProductForm from "../pages/Admin/ProductForm";
 import ChatSupport from "../pages/Admin/ChatSupport";
 export default function AppRouter() {
   return (
-    <Routes>
-      <Route path='/' element={<MainLayout />}>
-        <Route index element={<Home />} />
-        
-        {/* <Route path="product/:id" element={<ProductDetail />} /> */}
-        <Route path="productDetail" element={<ProductDetail />} />
-        <Route path="cart" element={<Cart />} />
-        <Route path="checkout" element={<Checkout />} />
-        <Route path="login" element={<Login />} />
-        <Route path="register" element={<Register />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="aboutUs" element={<AboutUs />} />
-      </Route>
+      <Routes>
+        <Route path='/' element={<MainLayout />}>
+          <Route index element={<Home />} />
+          <Route path="product/:id" element={<ProductDetail />} />
+          <Route path="cart" element={<Cart />} />
+          <Route path="checkout" element={<Checkout />} />
+          <Route path="login" element={<Login />} />
+          <Route path="register" element={<Register />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
+
 
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
@@ -46,5 +42,7 @@ export default function AppRouter() {
         <Route path="chat" element={<ChatSupport />} />
       </Route>
     </Routes>
+
+
   );
 }

@@ -1,12 +1,12 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
-import Header from '../components/Header/Header';
-import Footer from '../components/Footer';
+import HeaderWrapper from '../components/Header/HeaderWrapper';
+import Footer from '../components/Footer/Footer';
 
 export default function MainLayout(){
   return (
     <>
-      <Header />
+      <HeaderWrapper />
       <main className="container my-4">
         <Outlet />
       </main>
