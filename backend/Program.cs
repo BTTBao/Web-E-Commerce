@@ -1,43 +1,55 @@
-var builder = WebApplication.CreateBuilder(args);
+﻿using backend.Data;
+using backend.Extensions;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+var builder = WebApplication.CreateBuilder(args);
+var MyAllowSpecificOrigins = "SKYNET_ECOMMERCE";
+
+// CORS cho phép trình duyệt ở domain khác gọi API
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy( name: MyAllowSpecificOrigins,
+        policy => policy
+            .WithOrigins("http://localhost:5173")
+            // .AllowAnyOrigin() // cho phép MỌI domain truy cập
+            //Cho phép MỌI loại header
+            .AllowAnyHeader()
+            //Cho phép MỌI phương thức HTTP
+            .AllowAnyMethod());
+});
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(opt =>
+{
+    opt.SwaggerDoc("v1", new OpenApiInfo { Title = MyAllowSpecificOrigins, Version = "v1" });
+});
+
+//Đăng ký các dịch vụ (Services) vào DI Container
+builder.Services.AddApplicationServices();
+
+//Đăng ký ApplicationDbContext vào DI container.
+builder.Services.AddDbContext<ApplicationDbContext>(options => {
+    options.UseSqlServer(builder.Configuration.GetConnectionString("SKYNET"));
+});
 
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
-
+//Bật middleware tự động chuyển hướng các request HTTP sang HTTPS cho bảo mật.
 app.UseHttpsRedirection();
 
-app.MapGet("/", () => "Welcome to Weather Forecast API!");
+//Áp dụng chính sách CORS đã được định nghĩa ở trên cho tất cả các request.
+app.UseCors(MyAllowSpecificOrigins);
 
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
+//Auth
+app.UseAuthorization();
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
+app.MapControllers();
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
