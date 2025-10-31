@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\dirtycoin-clone\\Web-E-Commerce\\backend\\backend.csproj": {}
+    "D:\\BTL_Web\\Web-E-Commerce\\backend\\backend.csproj": {}
   },
   "projects": {
-    "C:\\dirtycoin-clone\\Web-E-Commerce\\backend\\backend.csproj": {
+    "D:\\BTL_Web\\Web-E-Commerce\\backend\\backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\dirtycoin-clone\\Web-E-Commerce\\backend\\backend.csproj",
+        "projectUniqueName": "D:\\BTL_Web\\Web-E-Commerce\\backend\\backend.csproj",
         "projectName": "backend",
-        "projectPath": "C:\\dirtycoin-clone\\Web-E-Commerce\\backend\\backend.csproj",
-        "packagesPath": "C:\\Users\\Nguyen\\.nuget\\packages\\",
-        "outputPath": "C:\\dirtycoin-clone\\Web-E-Commerce\\backend\\obj\\",
+        "projectPath": "D:\\BTL_Web\\Web-E-Commerce\\backend\\backend.csproj",
+        "packagesPath": "C:\\Users\\Hi\\.nuget\\packages\\",
+        "outputPath": "D:\\BTL_Web\\Web-E-Commerce\\backend\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Nguyen\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Hi\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -53,6 +53,34 @@
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.9, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.10, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[9.0.6, )"
             }
           },
           "imports": [
