@@ -1,0 +1,28 @@
+/* src/components/CategoryList.css */
+.category-list {
+  display: flex;
+  flex-wrap: wrap; /* tự xuống hàng khi hết chỗ */
+  gap: 10px;       /* khoảng cách giữa các item */
+  padding: 0;
+  margin: 0;
+}
+
+/* src/components/CategoryItem.css */
+.category-item {
+  list-style: none;
+  padding: 10px 20px;
+  background-color: #f8f8f8;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  white-space: nowrap; /* giữ text không xuống dòng */
+}
+
+.category-item:hover {
+  background-color: #4f46e5;
+  color: #fff;
+  transform: translateY(-2px);
+}
