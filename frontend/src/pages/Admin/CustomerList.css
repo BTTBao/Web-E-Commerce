@@ -1,0 +1,8 @@
+/* src/pages/Admin/CustomerList.css */
+
+/* Badge (Copy từ Orders.css/Vouchers.css) */
+.badge.badge-red {
+  color: #b91c1c; /* red-700 */
+  border-color: #ef4444; /* red-500 */
+  background-color: #fef2f2; /* red-50 */
+}

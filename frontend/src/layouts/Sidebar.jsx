@@ -12,7 +12,7 @@ const menuItems = [
   { id: 'orders', label: 'Quản lý Đơn hàng', icon: ShoppingCart, path: '/admin/orders' },
   { id: 'products', label: 'Quản lý Sản phẩm', icon: Package, path: '/admin/products' },
   { id: 'categories', label: 'Quản lý Danh mục', icon: FolderTree, path: '/admin/categories' },
-  { id: 'customers', label: 'Quản lý Khách hàng', icon: Users, path: '/admin/users' },
+  { id: 'customers', label: 'Quản lý Khách hàng', icon: Users, path: '/admin/customers' },
   { id: 'vouchers', label: 'Quản lý Vouchers', icon: Tag, path: '/admin/vouchers' },
   { id: 'reviews', label: 'Quản lý Đánh giá', icon: Tag, path: '/admin/reviews' },
   { id: 'chat', label: 'Hỗ trợ Trực tuyến', icon: MessageSquare, path: '/admin/chat' },

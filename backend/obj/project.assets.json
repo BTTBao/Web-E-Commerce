@@ -75,23 +75,23 @@
     ]
   },
   "packageFolders": {
-    "C:\\Users\\Nguyen\\.nuget\\packages\\": {},
+    "C:\\Users\\lucas\\.nuget\\packages\\": {},
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\dirtycoin-clone\\Web-E-Commerce\\backend\\backend.csproj",
+      "projectUniqueName": "C:\\6451071003\\web\\BTL\\Web-E-Commerce\\backend\\backend.csproj",
       "projectName": "backend",
-      "projectPath": "C:\\dirtycoin-clone\\Web-E-Commerce\\backend\\backend.csproj",
-      "packagesPath": "C:\\Users\\Nguyen\\.nuget\\packages\\",
-      "outputPath": "C:\\dirtycoin-clone\\Web-E-Commerce\\backend\\obj\\",
+      "projectPath": "C:\\6451071003\\web\\BTL\\Web-E-Commerce\\backend\\backend.csproj",
+      "packagesPath": "C:\\Users\\lucas\\.nuget\\packages\\",
+      "outputPath": "C:\\6451071003\\web\\BTL\\Web-E-Commerce\\backend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
       ],
       "configFilePaths": [
-        "C:\\Users\\Nguyen\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Users\\lucas\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
@@ -148,8 +148,16 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.304/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.305/PortableRuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1900",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Error occurred while getting package vulnerability data: Unable to load the service index for source https://api.nuget.org/v3/index.json."
+    }
+  ]
 }

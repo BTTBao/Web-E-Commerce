@@ -8,9 +8,8 @@ export default function AboutUs() {
     return (
         
         <div>
-
             <section>
-                <div className="container">
+                <div className="container1">
                     <img className='img_first' src="https://bizweb.dktcdn.net/100/369/010/files/dc-about-us.jpg?v=1741677112951" alt=""  />
                     <img src="https://bizweb.dktcdn.net/100/369/010/files/qua-trinh.jpg?v=1741677143087" alt="" />
                     <img src="https://bizweb.dktcdn.net/100/369/010/files/dirtycoins-flagship-store-dico-the-hood-vie-151f89e2-ece4-499d-ab63-09556f3a7e2a.jpg?v=1759737072330" alt="" />
