@@ -42,7 +42,8 @@ CREATE TABLE Categories (
     CategoryID INT IDENTITY(1,1) PRIMARY KEY,
     CategoryName NVARCHAR(150) NOT NULL,
     ParentCategoryID INT NULL,
-    FOREIGN KEY (ParentCategoryID) REFERENCES Categories(CategoryID) ON DELETE SET NULL
+    -- Đã sửa: Sử dụng NO ACTION để tránh lỗi chu kỳ
+    FOREIGN KEY (ParentCategoryID) REFERENCES Categories(CategoryID) ON DELETE NO ACTION ON UPDATE NO ACTION
 );
 
 -- 👕 Sản phẩm
@@ -95,7 +96,8 @@ CREATE TABLE CartItems (
     AddedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (CartID) REFERENCES Carts(CartID) ON DELETE CASCADE,
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE,
-    FOREIGN KEY (VariantID) REFERENCES ProductVariants(VariantID) ON DELETE SET NULL
+    -- Đã sửa: Dùng NO ACTION để phá vỡ chuỗi cascade xung đột
+    FOREIGN KEY (VariantID) REFERENCES ProductVariants(VariantID) ON DELETE NO ACTION -- ON UPDATE NO ACTION
 );
 
 -- 📦 Đơn hàng
@@ -107,7 +109,8 @@ CREATE TABLE Orders (
     Status NVARCHAR(20) CHECK (Status IN ('Pending','Confirmed','Shipped','Delivered','Cancelled')) DEFAULT 'Pending',
     CreatedAt DATETIME DEFAULT GETDATE(),
     FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID) ON DELETE CASCADE,
-    FOREIGN KEY (AddressID) REFERENCES UserAddresses(AddressID) ON DELETE SET NULL
+    -- Đã sửa: Dùng NO ACTION để phá vỡ chuỗi cascade xung đột
+    FOREIGN KEY (AddressID) REFERENCES UserAddresses(AddressID) ON DELETE NO ACTION -- ON UPDATE NO ACTION
 );
 
 CREATE TABLE OrderDetails (
@@ -120,7 +123,8 @@ CREATE TABLE OrderDetails (
     SubTotal AS (Quantity * UnitPrice) PERSISTED,
     FOREIGN KEY (OrderID) REFERENCES Orders(OrderID) ON DELETE CASCADE,
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE,
-    FOREIGN KEY (VariantID) REFERENCES ProductVariants(VariantID) ON DELETE SET NULL
+    -- Đã sửa: Dùng NO ACTION để phá vỡ chuỗi cascade xung đột
+    FOREIGN KEY (VariantID) REFERENCES ProductVariants(VariantID) ON DELETE NO ACTION -- ON UPDATE NO ACTION
 );
 
 -- 💳 Thanh toán
@@ -175,18 +179,23 @@ CREATE TABLE ChatRooms (
     CreatedAt DATETIME DEFAULT GETDATE(),
     IsClosed BIT DEFAULT 0,
     FOREIGN KEY (CustomerID) REFERENCES Accounts(AccountID) ON DELETE CASCADE,
-    FOREIGN KEY (AdminID) REFERENCES Accounts(AccountID) ON DELETE SET NULL
+    -- Đã sửa: Dùng NO ACTION để phá vỡ chuỗi cascade xung đột
+    FOREIGN KEY (AdminID) REFERENCES Accounts(AccountID) ON DELETE NO ACTION -- ON UPDATE NO ACTION
 );
 
--- 2️⃣ Tin nhắn trong phòng chat
 CREATE TABLE ChatMessages (
     MessageID INT IDENTITY(1,1) PRIMARY KEY,
     RoomID INT NOT NULL,
-    SenderID INT NOT NULL,         -- ai gửi (admin hay khách)
+    SenderID INT NOT NULL,          -- ai gửi (admin hay khách)
     MessageText NVARCHAR(MAX),
     CreatedAt DATETIME DEFAULT GETDATE(),
+
+    -- Giữ cascade này: Xóa phòng thì xóa tin nhắn
     FOREIGN KEY (RoomID) REFERENCES ChatRooms(RoomID) ON DELETE CASCADE,
-    FOREIGN KEY (SenderID) REFERENCES Accounts(AccountID) ON DELETE CASCADE
+    
+    -- Sửa lỗi: Bỏ cascade ở đây để tránh tạo chu kỳ. 
+    -- NO ACTION là mặc định, bạn có thể ghi rõ hoặc bỏ trống.
+    FOREIGN KEY (SenderID) REFERENCES Accounts(AccountID) ON DELETE NO ACTION
 );
 
 -- 3️⃣ (Tuỳ chọn) Đính kèm ảnh hoặc file

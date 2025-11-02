@@ -1,0 +1,238 @@
+/* src/pages/Admin/CategoryList.css */
+
+/* --- Layout chung (Copy từ các file trước) --- */
+.page-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+.page-subtitle {
+  font-size: 16px;
+  color: #6b7280;
+  margin-top: 4px;
+}
+
+/* --- Card (Copy) --- */
+.card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  border: none;
+}
+.card-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #f3f4f6;
+}
+.card-content {
+  padding: 24px;
+}
+.card-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #374151;
+}
+
+/* --- Nút Bấm (Copy) --- */
+.button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  background: linear-gradient(to right, #3b82f6, #8b5cf6);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: opacity 0.2s;
+}
+.button-primary:hover {
+  opacity: 0.9;
+}
+.button-outline {
+  padding: 10px 16px;
+  background-color: #ffffff;
+  color: #1f2937;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+.button-outline:hover {
+  background-color: #f9fafb;
+}
+
+/* Nút hành động (Copy) */
+.action-button-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #6b7280;
+  border-radius: 6px;
+}
+.action-button-icon:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+.action-button-icon-destructive {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #dc2626; /* Màu đỏ */
+  border-radius: 6px;
+}
+.action-button-icon-destructive:hover {
+  background-color: #fee2e2;
+}
+
+/* --- Dialog (Modal) (Copy) --- */
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+.dialog-content {
+  background-color: white;
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 500px;
+  width: 100%;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  animation: dialog-fade-in 0.2s ease-out;
+}
+.dialog-header {
+  padding-bottom: 16px;
+}
+.dialog-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+}
+@keyframes dialog-fade-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* --- Form (Copy) --- */
+.form-group-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+.form-group label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 14px;
+}
+.form-input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box; /* Quan trọng */
+}
+.filter-select {
+  height: 40px;
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background-color: #ffffff;
+  font-size: 14px;
+  padding: 0 12px;
+}
+.form-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid #e5e7eb;
+}
+
+/* --- CÂY DANH MỤC (MỚI) --- */
+.category-tree-wrapper {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.tree-branch:not(:last-child) .tree-item {
+  border-bottom: 1px solid #f3f4f6; 
+}
+.tree-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  transition: background-color 0.2s;
+}
+.tree-item:hover {
+  background-color: #f9fafb;
+}
+.tree-item-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.tree-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.tree-toggle-btn:hover {
+  background-color: #e5e7eb;
+}
+.tree-item-spacer {
+  width: 24px; /* w-6 (bằng kích thước nút toggle) */
+}
+.tree-item-name {
+  color: #111827;
+  font-weight: 500;
+}
+.tree-item-id {
+  font-size: 12px;
+  color: #6b7280;
+}
+.tree-item-actions {
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.tree-item:hover .tree-item-actions {
+  opacity: 1;
+}
+.tree-children {
+  background-color: #fafafa;
+}

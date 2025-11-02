@@ -1,0 +1,72 @@
+/* src/pages/Admin/ReviewList.css */
+
+/* Style cho header của card (flex, justify-between) */
+.review-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Style cho cột Rating */
+.rating-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.star-rating {
+  display: flex;
+}
+.star-filled {
+  color: #f59e0b; /* text-yellow-400 */
+}
+.star-empty {
+  color: #d1d5db; /* text-gray-300 */
+}
+.rating-text {
+  font-size: 14px;
+  color: #4b5563; /* text-gray-600 */
+}
+
+/* Style cho cột Bình luận (cắt ngắn) */
+.comment-cell {
+  max-width: 250px; /* max-w-xs */
+}
+.comment-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 14px;
+}
+
+/* Nút bấm (Dùng chung .action-button từ Orders.css nếu có) */
+.action-button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px; /* mr-1 */
+  color: #4b5563; /* text-gray-600 */
+  font-weight: 500;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+.action-button:hover {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+/* Nút Xóa (Đã có trong Vouchers.css) */
+/*
+.action-button-icon-destructive {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  color: #dc2626;
+  border-radius: 6px;
+}
+.action-button-icon-destructive:hover {
+  background-color: #fee2e2;
+}
+*/
