@@ -12,12 +12,23 @@ import logo2 from "../../assets/brand2.webp";
 import logo3 from "../../assets/brand3.webp";
 import logo4 from "../../assets/brand4.webp";
 
+import CategoryList from "../../components/Category/CategoryList";
+
 export default function Home() {
   const navigate = useNavigate();
   const images = [slide1, slide2, slide3];
   const [current, setCurrent] = useState(0);
-
+  
+  const [categories, setCategories] = useState([]);
   useEffect(() => {
+    fetch('https://localhost:7132/api/category')
+        .then(response => {
+            if (!response.ok) throw new Error('Network response was not ok');
+            return response.json();
+        })
+        .then(data => setCategories(data))
+        .catch(error => console.error('Fetch error:', error));
+
     const interval = setInterval(() => {
       setCurrent((prev) => (prev + 1) % images.length);
     }, 4000);
@@ -26,6 +37,10 @@ export default function Home() {
 
   return (
     <>
+    <div className="container">
+    <h1>Danh mục sản phẩm</h1>
+    <CategoryList categories={categories} />
+    </div>
 
       {/* 🖼️ Banner */}
         <section className="banner">
