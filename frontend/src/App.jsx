@@ -1,16 +1,13 @@
 
 import AppRouter from './router/AppRouter'
 import './App.css'
-import { Routes, Route, Link } from "react-router-dom";
-
-function Home() {
-  return ;
-}
+import { Toaster } from 'sonner';
 
 function App() {
   return (
     <>
-      <AppRouter/>
+      <Toaster position="top-right" richColors />
+      <AppRouter />
     </>
   );
 }

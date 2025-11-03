@@ -1,0 +1,95 @@
+/* Tương ứng với: grid grid-cols-1 lg:grid-cols-3 lg:gap-8 xl:gap-12 */
+.cart-layout {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  /* grid-cols-1 */
+}
+
+/* Tương ứng với: lg:col-span-2 bg-white rounded-lg shadow-md border border-gray-200 */
+.cart-table-container {
+  background-color: #ffffff;
+  /* bg-white */
+  border-radius: 0.5rem;
+  /* rounded-lg */
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  /* shadow-md */
+  border: 1px solid #e5e7eb;
+  /* border border-gray-200 */
+}
+
+.cart-header-row {
+  display: none;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: 1rem;
+  text-align: left;
+  padding: 1rem;
+  font-weight: 600;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.cart-header-product {
+  grid-column: span 3 / span 3;
+}
+
+.cart-header-price {
+  grid-column: span 1 / span 1;
+  text-align: center;
+}
+
+.cart-header-quantity {
+  grid-column: span 2 / span 2;
+  text-align: center;
+}
+
+.cart-header-total{
+  grid-column: span 2 / span 1;
+  text-align: left;
+}
+
+.cart-item-list>*+* {
+  border-top: 1px solid #e5e7eb;
+}
+
+/* Tương ứng với: lg:col-span-1 mt-8 lg:mt-0 */
+.order-summary-container {
+  margin-top: 2rem;
+  /* mt-8 */
+}
+
+/* Breakpoints (lg: 1024px, xl: 1280px) */
+@media (min-width: 1024px) {
+  .cart-layout {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* lg:grid-cols-3 */
+    gap: 2rem;
+    /* lg:gap-8 */
+  }
+
+  .cart-table-container {
+    grid-column: span 2 / span 2;
+    /* lg:col-span-2 */
+  }
+
+  .order-summary-container {
+    grid-column: span 1 / span 1;
+    /* lg:col-span-1 */
+    margin-top: 0;
+    /* lg:mt-0 */
+  }
+}
+
+@media (min-width: 1280px) {
+  .cart-layout {
+    gap: 3rem;
+    /* xl:gap-12 */
+  }
+}
+
+/* Breakpoint (sm: 640px) cho .cart-header-row */
+@media (min-width: 640px) {
+  .cart-header-row {
+    display: grid;
+    /* sm:grid */
+  }
+}
