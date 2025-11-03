@@ -1,0 +1,90 @@
+.page-container {
+    width: 100%;
+    max-width: 1280px;
+    /* Giả định max-width, bạn có thể điều chỉnh */
+    margin-left: auto;
+    margin-right: auto;
+    padding: 3rem 1rem;
+    /* py-12 px-4 */
+}
+
+/* Tương ứng với: flex items-center justify-between mb-8 */
+.page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    /* mb-8 */
+}
+
+/* Tương ứng với: flex items-baseline gap-4 */
+.page-title-group {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    /* gap-4 */
+}
+
+.page-title {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+    color: #111827;
+}
+
+/* Tương ứng với: text-lg text-gray-600 */
+.item-count-text {
+    font-size: 1.125rem;
+    /* text-lg */
+    line-height: 1.75rem;
+    color: #4b5563;
+    /* text-gray-600 */
+}
+
+.continue-shopping-link {
+    display: none;
+    color: #111827;
+    font-weight: 600;
+    transition-property: color;
+    transition-duration: 300ms;
+    white-space: nowrap;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.continue-shopping-link:hover {
+    color: #1d4ed8;
+    /* hover:text-blue-800 */
+}
+
+/* Breakpoints cho .page-container */
+@media (min-width: 640px) {
+    .page-container {
+        padding-left: 1.5rem;
+        /* sm:px-6 */
+        padding-right: 1.5rem;
+    }
+
+    .continue-shopping-link {
+        display: inline-block;
+        /* sm:inline-block */
+    }
+}
+
+@media (min-width: 1024px) {
+    .page-container {
+        padding-left: 2rem;
+        /* lg:px-8 */
+        padding-right: 2rem;
+    }
+}
+
+/* Breakpoint cho .page-title */
+@media (min-width: 768px) {
+    .page-title {
+        font-size: 2.25rem;
+        /* md:text-4xl */
+        line-height: 2.5rem;
+    }
+}
