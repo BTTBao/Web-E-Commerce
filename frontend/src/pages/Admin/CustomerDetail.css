@@ -1,0 +1,139 @@
+/* src/pages/Admin/CustomerDetail.css */
+
+/* --- Layout chung (Copy từ OrderDetail.css) --- */
+.order-detail-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 16px;
+}
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4b5563;
+}
+.back-button:hover {
+  color: #111827;
+}
+.back-icon {
+  width: 16px;
+  height: 16px;
+}
+.order-detail-title {
+  font-size: 20px;
+  font-weight: 600;
+}
+.header-spacer-right {
+  width: 100px; /* Để cân bằng với nút back */
+}
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+.grid-left-col,
+.grid-right-col {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+@media (min-width: 1024px) { /* lg: */
+  .main-grid {
+    grid-template-columns: 2fr 1fr;
+  }
+}
+
+/* --- Thẻ thông tin (Cột phải) (Copy từ OrderDetail.css) --- */
+.info-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.info-label {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 2px;
+}
+.info-value {
+  color: #111827;
+  font-weight: 500;
+}
+.info-row-icon {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.info-icon {
+  color: #6b7280;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  margin-top: 5px; /* Căn chỉnh với label */
+}
+
+/* --- Thống kê (Cột phải) (MỚI) --- */
+.stats-value {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* --- Danh sách địa chỉ (Cột trái) (MỚI) --- */
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.address-block {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 16px;
+}
+.address-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.address-name {
+  font-weight: 600;
+  color: #111827;
+}
+.address-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.address-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: #4b5563;
+}
+.address-line svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: #9ca3af;
+}
+
+/* --- Thêm badge màu tím (cho 'Shipped') (Copy từ Orders.css) --- */
+.badge.badge-purple {
+  color: #7e22ce; /* purple-700 */
+  border-color: #a855f7; /* purple-400 */
+  background-color: #f5f3ff; /* purple-50 */
+}
+.badge.badge-red {
+  color: #b91c1c; /* red-700 */
+  border-color: #ef4444; /* red-500 */
+  background-color: #fef2f2; /* red-50 */
+}
