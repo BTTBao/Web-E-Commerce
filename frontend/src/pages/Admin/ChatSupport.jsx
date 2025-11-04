@@ -5,14 +5,14 @@ import { Send, X, MessageSquare } from 'lucide-react';
 import { HubConnectionBuilder } from '@microsoft/signalr'; // <-- 1. Import SignalR
 
 // Import CSS
-import './Orders.css'; 
+import './Orders.css';
 import './ChatSupport.css';
 
 // --- 2. Cấu hình URL Backend ---
 // (Hãy đảm bảo port 5001 là port bạn thấy,
 // hoặc đổi thành port trong launchSettings.json, ví dụ: https://localhost:7123)
-const API_URL = 'http://localhost:5001/api/chat';
-const HUB_URL = 'http://localhost:5001/chathub';
+const API_URL = 'https://localhost:7132/api/chat';
+const HUB_URL = 'https://localhost:7132/chathub';
 
 
 export default function ChatSupport() {
@@ -20,18 +20,18 @@ export default function ChatSupport() {
     const [rooms, setRooms] = useState([]); // State cho danh sách phòng
     const [messages, setMessages] = useState({}); // State cho tin nhắn { 'CR1': [...], 'CR2': [...] }
     const [hubConnection, setHubConnection] = useState(null); // State cho kết nối SignalR
-    
+
     const [selectedRoom, setSelectedRoom] = useState(null); // Bắt đầu rỗng
     const [message, setMessage] = useState('');
-    const messagesEndRef = useRef(null); 
+    const messagesEndRef = useRef(null);
 
     // --- 4. Dùng State Mới ---
     const activeRooms = useMemo(() => rooms.filter((room) => !room.isClosed), [rooms]);
-    
+
     const currentMessages = useMemo(() => {
         return selectedRoom ? messages[selectedRoom] || [] : [];
     }, [selectedRoom, messages]);
-    
+
     const currentRoom = useMemo(() => {
         return rooms.find((room) => room.id === selectedRoom);
     }, [rooms, selectedRoom]);
@@ -48,8 +48,8 @@ export default function ChatSupport() {
         const connection = new HubConnectionBuilder()
             .withUrl(HUB_URL, {
                 // Thêm option này nếu bạn dùng http và React (localhost:5173) khác port với API (localhost:5001)
-                // skipNegotiation: true,
-                // transport: 1 // HttpTransportType.WebSockets
+                skipNegotiation: true,
+                transport: 1 // HttpTransportType.WebSockets
             })
             .withAutomaticReconnect()
             .build();
@@ -57,7 +57,7 @@ export default function ChatSupport() {
         // Lắng nghe tin nhắn mới từ server
         connection.on('ReceiveMessage', (newMessageDto) => {
             console.log('New message received:', newMessageDto);
-            
+
             // Cập nhật state tin nhắn
             setMessages(prevMessages => {
                 const roomMessages = prevMessages[newMessageDto.roomId] || [];
@@ -72,10 +72,10 @@ export default function ChatSupport() {
             });
 
             // Cập nhật tin nhắn cuối cùng trên danh sách phòng
-            setRooms(prevRooms => prevRooms.map(room => 
+            setRooms(prevRooms => prevRooms.map(room =>
                 room.id === newMessageDto.roomId
-                ? { ...room, lastMessage: newMessageDto.message, lastMessageTime: newMessageDto.timestamp }
-                : room
+                    ? { ...room, lastMessage: newMessageDto.message, lastMessageTime: newMessageDto.timestamp }
+                    : room
             ));
         });
 
@@ -140,45 +140,47 @@ export default function ChatSupport() {
     const handleSendMessage = async () => {
         if (!message.trim() || !selectedRoom) return;
 
+        const now = new Date();
+
         const requestBody = {
             roomId: selectedRoom,
-            message: message.trim()
+            senderId: 1, // hoặc lấy từ session, userId, v.v.
+            senderName: "Admin", // hoặc tên người dùng hiện tại
+            isAdmin: true, // tuỳ bạn gán
+            message: message.trim(),
+            timestamp: now.toISOString()
         };
 
         try {
-            // Gọi API [POST] /api/chat/messages
             const response = await fetch(`${API_URL}/messages`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(requestBody)
             });
 
             if (!response.ok) {
+                const err = await response.text();
+                console.error("Server error:", err);
                 throw new Error('Failed to send message');
             }
-            
-            // KHÔNG cần cập nhật state ở đây nữa!
-            // Server sẽ tự động gửi tin nhắn về qua SignalR
-            // Và hàm connection.on('ReceiveMessage', ...) sẽ xử lý việc cập nhật state.
-            
-            setMessage(''); // Xóa nội dung input
 
+            setMessage('');
         } catch (error) {
             console.error("Error sending message:", error);
         }
     };
 
+
+
     const handleCloseChat = () => {
         if (!selectedRoom) return;
         // TODO: Gọi API để đóng chat
         // (Ví dụ: fetch(`${API_URL}/rooms/${selectedRoom}/close`, { method: 'POST' }) )
-        
+
         console.log('Closing chat room:', selectedRoom);
-        
+
         // Cập nhật UI (tạm thời)
-        setRooms(prevRooms => prevRooms.map(r => 
+        setRooms(prevRooms => prevRooms.map(r =>
             r.id === selectedRoom ? { ...r, isClosed: true } : r
         ));
         setSelectedRoom(null); // Bỏ chọn phòng sau khi đóng
@@ -274,9 +276,9 @@ export default function ChatSupport() {
                                         {currentMessages.map((msg) => (
                                             <div
                                                 key={msg.id}
-                                                className={`message-bubble-wrapper ${msg.isAdmin ? 'admin' : 'customer'}`}
+                                                className={`message-bubble-wrapper ${msg.isAdmin ? 'customer' : 'admin'}`}
                                             >
-                                                <div className={`message-bubble ${msg.isAdmin ? 'admin' : 'customer'}`}>
+                                                <div className={`message-bubble ${msg.isAdmin ? 'customer' : 'admin'}`}>
                                                     <p className="message-text">{msg.message}</p>
                                                     <p className="message-timestamp">{msg.timestamp}</p>
                                                 </div>

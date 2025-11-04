@@ -14,7 +14,7 @@ CREATE TABLE Accounts (
     PasswordHash NVARCHAR(255) NOT NULL,
     Email NVARCHAR(150) UNIQUE,
     Phone NVARCHAR(20),
-    CreatedAt DATETIME DEFAULT GETDATE()
+    CreatedAt DATETIME DEFAULT GETDATE(),
     role int default 0
 );
 
@@ -172,6 +172,7 @@ CREATE TABLE Vouchers (
     StartDate DATETIME,
     EndDate DATETIME
 );
+
 -- 1️⃣ Phòng chat (giữa admin và 1 user)
 CREATE TABLE ChatRooms (
     RoomID INT IDENTITY(1,1) PRIMARY KEY,
@@ -222,3 +223,39 @@ CREATE USER Skynet FOR LOGIN Skynet;
 
 -- 4. Cấp quyền Owner (cao nhất) cho User này trên database
 ALTER ROLE db_owner ADD MEMBER Skynet;
+
+USE Skynet_commerce;
+GO
+
+-- 🧑‍💻 1️⃣ Tài khoản Admin
+INSERT INTO Accounts (Username, PasswordHash, Email, Role)
+VALUES 
+(N'admin1', N'$2a$10$hashedAdminPassword123', N'admin1@skynet.com', 0);
+
+-- 👤 2️⃣ Tài khoản User
+INSERT INTO Accounts (Username, PasswordHash, Email, Role)
+VALUES 
+(N'user1', N'$2a$10$hashedUserPassword123', N'user1@gmail.com', 1);
+
+-- (tuỳ chọn) thêm vào bảng Users
+INSERT INTO Users (AccountID, FullName, Gender, AvatarURL)
+VALUES
+(1, N'Admin Sky', 'Male', N'https://cdn-icons-png.flaticon.com/512/2202/2202112.png'),
+(2, N'Nguyễn Văn User', 'Male', N'https://cdn-icons-png.flaticon.com/512/147/147144.png');
+
+-- 💬 3️⃣ Tạo phòng chat
+INSERT INTO ChatRooms (CustomerID, AdminID, CreatedAt, IsClosed)
+VALUES (2, 1, GETDATE(), 0);
+
+-- 💭 4️⃣ Tạo vài tin nhắn trong phòng
+INSERT INTO ChatMessages (RoomID, SenderID, MessageText, CreatedAt)
+VALUES
+(1, 2, N'Chào admin, mình cần hỗ trợ về đơn hàng!', GETDATE()),
+(1, 1, N'Xin chào, mình là Admin Sky. Bạn cần hỗ trợ đơn nào vậy?', GETDATE()),
+(1, 2, N'Đơn #1023 của mình chưa giao tới.', GETDATE()),
+(1, 1, N'Mình kiểm tra lại giúp bạn ngay nhé.', GETDATE());
+
+-- 📎 5️⃣ (Tuỳ chọn) Thêm file đính kèm mẫu
+INSERT INTO ChatAttachments (MessageID, FileURL, FileType)
+VALUES
+(1, N'https://example.com/screenshot.png', N'image/png');
