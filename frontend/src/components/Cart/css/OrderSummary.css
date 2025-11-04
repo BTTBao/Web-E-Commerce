@@ -1,0 +1,131 @@
+.order-summary-card {
+    background-color: #ffffff;
+    /* bg-white */
+    padding: 1.5rem;
+    /* p-6 */
+    border-radius: 0.5rem;
+    /* rounded-lg */
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    /* shadow-md */
+    border: 1px solid #e5e7eb;
+    /* border border-gray-200 */
+    position: sticky;
+    top: 2rem;
+    /* top-8 */
+}
+
+/* Tương ứng với: text-xl font-bold text-gray-800 mb-6 border-b pb-4 */
+.order-summary-title {
+    font-size: 1.25rem;
+    /* text-xl */
+    line-height: 1.75rem;
+    font-weight: 700;
+    /* font-bold */
+    color: #1f2937;
+    /* text-gray-800 */
+    margin-bottom: 1.5rem;
+    /* mb-6 */
+    border-bottom: 1px solid #e5e7eb;
+    /* border-b (giả định border-gray-200) */
+    padding-bottom: 1rem;
+    /* pb-4 */
+}
+
+/* Tương ứng với: space-y-4 text-gray-600 */
+.order-summary-details {
+    color: #6b7280;
+    /* text-gray-600 */
+}
+
+.order-summary-details>*+* {
+    margin-top: 1rem;
+    /* space-y-4 */
+}
+
+/* Tương ứng với: flex justify-between */
+.order-summary-row {
+    display: flex;
+    justify-content: space-between;
+}
+
+/* Tương ứng với: font-medium text-gray-800 */
+.order-summary-value {
+    font-weight: 500;
+    /* font-medium */
+    color: #1f2937;
+    /* text-gray-800 */
+}
+
+/* Tương ứng với: border-t pt-4 mt-4 flex justify-between font-bold text-lg text-gray-900 */
+.order-summary-total {
+    border-top: 1px solid #e5e7eb;
+    /* border-t (giả định border-gray-200) */
+    padding-top: 1rem;
+    /* pt-4 */
+    margin-top: 1rem;
+    /* mt-4 */
+    display: flex;
+    justify-content: space-between;
+    font-weight: 700;
+    /* font-bold */
+    font-size: 1.125rem;
+    /* text-lg */
+    line-height: 1.75rem;
+    color: #111827;
+    /* text-gray-900 */
+}
+
+/* Tương ứng với: w-full bg-blue-600 text-white font-bold py-3 px-4 rounded-lg mt-8 hover:bg-blue-700 transition-all duration-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 */
+.checkout-button {
+    width: 100%;
+    background-color: #3a424d;
+    color: #ffffff;
+    font-weight: 700;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 2rem;
+    transition-property: all;
+    transition-duration: 300ms;
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    border: none;
+    cursor: pointer;
+}
+
+.checkout-button:hover {
+    background-color: #20262e;
+}
+
+.checkout-button:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #3b82f6;
+}
+
+.clear-cart-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    color: #dc2626;
+    font-weight: 500;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    transition-property: background-color, color;
+    transition-duration: 200ms;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+}
+
+.clear-cart-button:hover {
+    background-color: #fef2f2;
+}
+
+.clear-cart-button:focus {
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px #ef4444;
+    /* focus:ring-2 focus:ring-offset-2 focus:ring-red-500 */
+}
