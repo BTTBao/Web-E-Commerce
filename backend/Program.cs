@@ -1,5 +1,5 @@
 ﻿using backend.Data;
-using backend.Extensions;
+// using backend.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using backend.Hubs;
@@ -26,8 +26,8 @@ builder.Services.AddSwaggerGen(opt =>
     opt.SwaggerDoc("v1", new OpenApiInfo { Title = MyAllowSpecificOrigins, Version = "v1" });
 });
 
-//Đăng ký các dịch vụ (Services) vào DI Container
-builder.Services.AddApplicationServices();
+// //Đăng ký các dịch vụ (Services) vào DI Container
+// builder.Services.AddApplicationServices();
 
 //Đăng ký ApplicationDbContext vào DI container.
 builder.Services.AddDbContext<ApplicationDbContext>(options => {

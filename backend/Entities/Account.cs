@@ -17,6 +17,8 @@ public partial class Account
 
     public DateTime? CreatedAt { get; set; }
 
+    public int? Role { get; set; }
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();
@@ -34,6 +36,4 @@ public partial class Account
     public virtual ICollection<UserAddress> UserAddresses { get; set; } = new List<UserAddress>();
 
     public virtual ICollection<Wishlist> Wishlists { get; set; } = new List<Wishlist>();
-
-    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 }
