@@ -1,4 +1,5 @@
 ﻿using backend.Data;
+using backend.DTOs;
 using backend.Entities;
 using backend.Interfaces.IServices;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ namespace backend.Controllers
 
         // GET: api/Product
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
         {
             var products = await _service.GetAllProducts();
             return Ok(products);
@@ -27,7 +28,7 @@ namespace backend.Controllers
 
         // GET: api/Product/1
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductDto>> GetProduct(int id)
         {
             var product = await _service.GetProductById(id);
 
@@ -41,20 +42,42 @@ namespace backend.Controllers
 
         // PUT: api/Product/1
         [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, Product product)
+        public async Task<IActionResult> PutProduct(int id, ProductDto product)
         {
-            var updated = await _service.UpdateProduct(id, product);
-            if (!updated)
-                return BadRequest("Lỗi khi cập nhật sản phẩm !!");
-            return Ok(new { product, message = "Cập nhật sản phẩm thành công" });
+            try
+            {
+                var updated = await _service.UpdateProduct(id, product);
+                if (!updated)
+                    return NotFound(new { message = "Không tồn tại sản phẩm !!" });
+                return Ok(new { product, message = "Cập nhật sản phẩm thành công" });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Lỗi server, vui lòng thử lại sau" });
+            }
         }
 
         // POST: api/Product
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct(Product product)
+        public async Task<ActionResult<ProductDto>> PostProduct(ProductDto product)
         {
-            var created = await _service.AddProduct(product);
-            return Ok(new {product, message = "Tạo sản phẩm thành công"});
+            try
+            {
+                var created = await _service.AddProduct(product);
+                return Ok(new { product = created, message = "Tạo sản phẩm thành công" });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return StatusCode(500, new { message = "Lỗi server, vui lòng thử lại sau" });
+            }
         }
 
         // DELETE: api/Product/1
