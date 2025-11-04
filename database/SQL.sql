@@ -15,6 +15,7 @@ CREATE TABLE Accounts (
     Email NVARCHAR(150) UNIQUE,
     Phone NVARCHAR(20),
     CreatedAt DATETIME DEFAULT GETDATE()
+    role int default 0
 );
 
 -- 🏠 Thông tin người dùng
@@ -207,3 +208,17 @@ CREATE TABLE ChatAttachments (
     FOREIGN KEY (MessageID) REFERENCES ChatMessages(MessageID) ON DELETE CASCADE
 );
 
+
+-- 1. Tạo Login (Tài khoản để đăng nhập vào Server)
+-- Mật khẩu này phải khớp với mật khẩu trong connection string của bạn
+CREATE LOGIN Skynet WITH PASSWORD = 'MatKhauSuperSecure123!';
+
+-- 2. Chuyển sang database bạn vừa tạo
+USE Skynet_commerce;
+
+-- 3. Tạo User (Tài khoản để dùng trong Database)
+-- và liên kết nó với Login ở trên
+CREATE USER Skynet FOR LOGIN Skynet;
+
+-- 4. Cấp quyền Owner (cao nhất) cho User này trên database
+ALTER ROLE db_owner ADD MEMBER Skynet;

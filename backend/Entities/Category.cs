@@ -1,17 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace backend.Entities
+namespace backend.Entities;
+
+public partial class Category
 {
-    [Table("Categories")]
-    public class Category
-    {
-        [Key]
-        public int CategoryID { get; set; }
+    public int CategoryId { get; set; }
 
-        [Required]
-        [StringLength(100)]
-        public string Name { get; set; }
-        public ICollection<Product> Products { get; set; } = new List<Product>();
-    }
+    public string CategoryName { get; set; } = null!;
+
+    public int? ParentCategoryId { get; set; }
+
+    public virtual ICollection<Category> InverseParentCategory { get; set; } = new List<Category>();
+
+    public virtual Category? ParentCategory { get; set; }
+
+    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
 }
