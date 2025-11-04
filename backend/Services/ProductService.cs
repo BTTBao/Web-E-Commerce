@@ -1,7 +1,9 @@
 ﻿using backend.Data;
+using backend.DTOs;
 using backend.Entities;
 using backend.Interfaces.IRepositories;
 using backend.Interfaces.IServices;
+using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using NuGet.Protocol.Core.Types;
 
@@ -18,28 +20,89 @@ namespace backend.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetAllProducts()
+        public async Task<IEnumerable<ProductDto>> GetAllProducts()
         {
-            return await _repository.GetAllAsync();
+            var products = await _repository.GetAllAsync();
+            return products.Select(MapToDto);
         }
 
-        public async Task<Product?> GetProductById(int id)
+        public async Task<ProductDto?> GetProductById(int id)
         {
-            return await _repository.GetByIdAsync(id);
+            var product = await _repository.GetByIdAsync(id);
+            if (product == null) return null;
+            return MapToDto(product);
         }
 
-        public async Task<Product> AddProduct(Product product)
+        public async Task<ProductDto> AddProduct(ProductDto productDto)
         {
-            await _repository.AddAsync(product);
+            ValidateForCreateOrUpdate(productDto);
+
+            var entity = MapToEntity(productDto);
+            entity.CreatedAt = DateTime.UtcNow;
+
+            await _repository.AddAsync(entity);
             await _context.SaveChangesAsync();
-            return product;
+
+            return MapToDto(entity);
         }
 
-        public async Task<bool> UpdateProduct(int id, Product p)
+        public async Task<bool> UpdateProduct(int id, ProductDto dto)
         {
-            if(id != p.ProductId) 
+            if (id != dto.ProductId)
+                throw new ArgumentException("Id sản phẩm không khớp");
+
+            ValidateForCreateOrUpdate(dto);
+
+            var existing = await _repository.GetByIdAsync(id);
+            if (existing == null)
                 return false;
-            await _repository.UpdateAsync(p);
+
+            // Cập nhật thuộc tính
+            existing.Name = dto.Name;
+            existing.Description = dto.Description;
+            existing.Price = dto.Price;
+            existing.StockQuantity = dto.StockQuantity;
+            existing.SoldCount = dto.SoldCount;
+            existing.Status = dto.Status;
+            existing.CategoryId = dto.CategoryId;
+
+            // Thay thế 
+            existing.ProductImages = dto.ProductImages
+                .Select(pi => new ProductImage
+                {
+                    ImageId = pi.ImageId,
+                    ProductId = pi.ProductId,
+                    ImageUrl = pi.ImageUrl,
+                    IsPrimary = pi.IsPrimary
+                })
+                .ToList();
+
+            existing.ProductVariants = dto.ProductVariants
+                .Select(v => new ProductVariant
+                {
+                    VariantId = v.VariantId,
+                    ProductId = v.ProductId,
+                    VariantName = v.VariantName,
+                    Sku = v.Sku,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity
+                })
+                .ToList();
+
+            existing.Reviews = dto.Reviews
+                .Select(r => new Review
+                {
+                    ReviewId = r.ReviewId,
+                    ProductId = r.ProductId,
+                    AccountId = r.AccountId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt
+                })
+                .ToList();
+
+            await _repository.UpdateAsync(existing);
+
             try
             {
                 await _context.SaveChangesAsync();
@@ -50,6 +113,7 @@ namespace backend.Services
                     return false;
                 throw;
             }
+
             return true;
         }
 
@@ -61,6 +125,97 @@ namespace backend.Services
             await _repository.DeleteAsync(product);
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private static ProductDto MapToDto(Product p)
+        {
+            return new ProductDto
+            {
+                ProductId = p.ProductId,
+                CategoryId = p.CategoryId,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                StockQuantity = p.StockQuantity,
+                SoldCount = p.SoldCount,
+                Status = p.Status,
+                CreatedAt = p.CreatedAt,
+                ProductImages = p.ProductImages?.Select(pi => new ProductImageDto
+                {
+                    ImageId = pi.ImageId,
+                    ProductId = pi.ProductId,
+                    ImageUrl = pi.ImageUrl,
+                    IsPrimary = pi.IsPrimary
+                }).ToList() ?? new List<ProductImageDto>(),
+                ProductVariants = p.ProductVariants?.Select(v => new ProductVariantDto
+                {
+                    VariantId = v.VariantId,
+                    ProductId = v.ProductId,
+                    VariantName = v.VariantName,
+                    Sku = v.Sku,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity
+                }).ToList() ?? new List<ProductVariantDto>(),
+                Reviews = p.Reviews?.Select(r => new ReviewDto
+                {
+                    ReviewId = r.ReviewId,
+                    ProductId = r.ProductId,
+                    AccountId = r.AccountId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt
+                }).ToList() ?? new List<ReviewDto>()
+            };
+        }
+        private static Product MapToEntity(ProductDto dto)
+        {
+            return new Product
+            {
+                ProductId = dto.ProductId,
+                CategoryId = dto.CategoryId,
+                Name = dto.Name,
+                Description = dto.Description,
+                Price = dto.Price,
+                StockQuantity = dto.StockQuantity,
+                SoldCount = dto.SoldCount,
+                Status = dto.Status,
+                CreatedAt = dto.CreatedAt,
+                ProductImages = dto.ProductImages.Select(pi => new ProductImage
+                {
+                    ImageId = pi.ImageId,
+                    ProductId = pi.ProductId,
+                    ImageUrl = pi.ImageUrl,
+                    IsPrimary = pi.IsPrimary
+                }).ToList(),
+                ProductVariants = dto.ProductVariants.Select(v => new ProductVariant
+                {
+                    VariantId = v.VariantId,
+                    ProductId = v.ProductId,
+                    VariantName = v.VariantName,
+                    Sku = v.Sku,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity
+                }).ToList(),
+                Reviews = dto.Reviews.Select(r => new Review
+                {
+                    ReviewId = r.ReviewId,
+                    ProductId = r.ProductId,
+                    AccountId = r.AccountId,
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt
+                }).ToList()
+            };
+        }
+
+        private static void ValidateForCreateOrUpdate(ProductDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(dto.Name))
+                throw new ArgumentException("Tên sản phẩm không được để trống");
+            if (dto.Price.HasValue && dto.Price < 0)
+                throw new ArgumentException("Giá sản phẩm không hợp lệ");
+            if (dto.StockQuantity.HasValue && dto.StockQuantity < 0)
+                throw new ArgumentException("Số lượng tồn kho không hợp lệ");
         }
     }
 }

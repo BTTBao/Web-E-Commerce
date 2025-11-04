@@ -3,6 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using backend.Hubs;
+using backend.Extensions;
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "SKYNET_ECOMMERCE";
 
@@ -29,7 +30,7 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 // //Đăng ký các dịch vụ (Services) vào DI Container
-// builder.Services.AddApplicationServices();
+ builder.Services.AddApplicationServices();
 
 //Đăng ký ApplicationDbContext vào DI container.
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
