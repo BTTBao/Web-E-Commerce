@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # Dịch vụ Backend
+  backend:
+    build:
+      context: ./backend  # Đường dẫn đến thư mục backend
+    ports:
+      - "5001:8080"  # Ánh xạ port 5001 (máy bạn) vào 8080 (container)
+    environment:
+      - ASPNETCORE_URLS=http://+:8080
+      # Nạp connection string "SKYNET" mà code của bạn cần
+      - ConnectionStrings__SKYNET=Server=db;Database=Skynet_commerce;User Id=Skynet;Password=MatKhauSuperSecure123!;TrustServerCertificate=True
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  # Dịch vụ Frontend
+  frontend:
+    build:
+      context: ./frontend # Đường dẫn đến thư mục frontend
+    ports:
+      # RẤT QUAN TRỌNG: Ánh xạ port 5173 (máy bạn)
+      # để khớp với chính sách CORS "http://localhost:5173" của bạn
+      - "5173:80"
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  # Dịch vụ Database
+  db:
+    image: "mcr.microsoft.com/mssql/server:2022-latest"
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=MatKhauSuperSecure123!
+    ports:
+      - "1434:1433"
+    volumes:
+      - sqlserver-data:/var/opt/mssql
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  sqlserver-data:
+    driver: local

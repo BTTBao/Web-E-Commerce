@@ -2,7 +2,7 @@
 using backend.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-
+using backend.Hubs;
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "SKYNET_ECOMMERCE";
 
@@ -52,4 +52,6 @@ app.UseCors(MyAllowSpecificOrigins);
 app.UseAuthorization();
 
 app.MapControllers();
+
+app.MapHub<ChatHub>("/chathub");
 app.Run();

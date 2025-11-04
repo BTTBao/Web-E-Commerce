@@ -38,7 +38,6 @@ export default function AppRouter() {
           <Route path="reviews" element={<ReviewList />} /> 
         </Route>
 
-
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="products" element={<Products />} />
@@ -52,10 +51,8 @@ export default function AppRouter() {
         <Route path="chat" element={<ChatSupport />} />
         <Route path="vouchers" element={<Vouchers />} />
         <Route path="reviews" element={<ReviewList />} />
-        
       </Route>
     </Routes>
-
-
+    
   );
 }

@@ -1,24 +1,17 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System;
+using System.Collections.Generic;
 
-namespace backend.Entities
+namespace backend.Entities;
+
+public partial class ProductImage
 {
-    [Table("ProductImages")]
-    public class ProductImage
-    {
-        [Key]
-        public int ImageID { get; set; }
+    public int ImageId { get; set; }
 
-        // Khóa ngoại cho Product 
-        public int ProductID { get; set; }
+    public int ProductId { get; set; }
 
-        [Required]
-        [StringLength(255)]
-        public string ImageURL { get; set; }
+    public string ImageUrl { get; set; } = null!;
 
-        public bool IsPrimary { get; set; } = false;
+    public bool? IsPrimary { get; set; }
 
-        [ForeignKey("ProductID")]
-        public Product Product { get; set; }
-    }
+    public virtual Product Product { get; set; } = null!;
 }
