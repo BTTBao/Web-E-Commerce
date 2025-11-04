@@ -37,7 +37,7 @@ namespace backend.Services
 
         public async Task<bool> UpdateProduct(int id, Product p)
         {
-            if(id != p.ProductID) 
+            if(id != p.ProductId) 
                 return false;
             await _repository.UpdateAsync(p);
             try

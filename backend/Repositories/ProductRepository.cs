@@ -45,7 +45,7 @@ namespace backend.Repositories
             //any: trả về true / false -> nhanh hơn xíu
             //firstOrDefault: trả về nguyên bản ghi -> chậm hơn
             // => cùng tìm thấy phần tử đầu tiên và dừng
-            return _context.Products.AnyAsync(p => p.ProductID == id);
+            return _context.Products.AnyAsync(p => p.ProductId == id);
         }
     }
 }

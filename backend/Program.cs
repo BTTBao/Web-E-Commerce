@@ -9,17 +9,19 @@ var MyAllowSpecificOrigins = "SKYNET_ECOMMERCE";
 // CORS cho phép trình duyệt ở domain khác gọi API
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy( name: MyAllowSpecificOrigins,
+    options.AddPolicy(name: MyAllowSpecificOrigins,
         policy => policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins("http://localhost:5174")
             // .AllowAnyOrigin() // cho phép MỌI domain truy cập
             //Cho phép MỌI loại header
             .AllowAnyHeader()
             //Cho phép MỌI phương thức HTTP
-            .AllowAnyMethod());
+            .AllowAnyMethod()
+            .AllowCredentials());
 });
 
 builder.Services.AddControllers();
+builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(opt =>
 {

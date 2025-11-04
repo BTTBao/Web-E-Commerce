@@ -1,12 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-
-namespace backend.DTOs
+namespace backend.DTOs;
+public class SendMessageDto
 {
-    public class SendMessageDto
-    {
-        [Required]
-        public string RoomId { get; set; } // "CR001"
-        [Required]
-        public string Message { get; set; }
-    }
+    public string RoomId { get; set; }
+    public string Message { get; set; }
+    public int SenderId { get; set; }
 }
