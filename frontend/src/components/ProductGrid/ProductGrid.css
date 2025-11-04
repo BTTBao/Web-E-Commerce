@@ -1,0 +1,85 @@
+/* ProductGrid.css */
+
+.product-grid-container {
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto; 
+  padding: 0px 80px;
+}
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 20px; 
+  padding: 20px 140px;
+}
+
+
+@media (max-width: 992px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr); 
+  }
+}
+
+@media (max-width: 768px) {
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 15px;
+  }
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: flex-end; 
+  align-items: center;
+  margin-top: 30px;
+  padding: 10px 0;
+  border-top: 1px solid #eee;
+}
+
+.pagination-info {
+  margin-right: 15px;
+  font-size: 14px;
+  color: #666;
+}
+
+.pagination-buttons {
+  display: flex;
+  gap: 5px;
+}
+
+.pagination-button,
+.pagination-number {
+  padding: 8px 15px;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s;
+  font-size: 14px;
+}
+
+.pagination-button:hover,
+.pagination-number:hover:not(.active) {
+  background-color: #f0f0f0;
+  border-color: #aaa;
+}
+
+.pagination-number.active {
+  background-color: #000;
+  color: #fff;
+  border-color: #000;
+  font-weight: bold;
+}
+
+.product-grid-empty {
+    text-align: center;
+    padding: 50px;
+    color: #999;
+}
+
+.pagination-dots {
+  padding: 8px 5px;
+  color: #666;
+  user-select: none; 
+  margin: 0 5px;
+}
