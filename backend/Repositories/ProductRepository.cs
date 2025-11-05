@@ -17,7 +17,7 @@ namespace backend.Repositories
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
             return await _context.Products
-                //.Include(p => p.ProductImages)
+                .Include(p => p.ProductImages)
                 //.Include(p => p.ProductVariants)
                 //.Include(p => p.Reviews)
                 .ToListAsync();
