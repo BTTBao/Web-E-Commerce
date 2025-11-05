@@ -1,294 +1,214 @@
 ﻿/*
-================================================================
-TỆP DỮ LIỆU MẪU CHO DATABASE Skynet_commerce
-CHỦ ĐỀ: THỜI TRANG STREETWEAR (DIRTY COINS)
-================================================================
-Giả định:
-- AccountID 1 là Admin.
-- AccountID 2-10 là Khách hàng.
-- Các ID tự tăng (IDENTITY) sẽ bắt đầu từ 1.
-================================================================
+=================================================
+ SCRIPT CHÈN DỮ LIỆU MẪU CHO SKYNET_COMMERCE
+=================================================
 */
+
 USE Skynet_commerce;
 GO
 
--- 1. 🧍 Tài khoản người dùng (10 bản ghi)
--- Giữ nguyên 10 người dùng cơ bản
-INSERT INTO Accounts (Username, PasswordHash, Email, Phone)
-VALUES
-('admin', 'hash_admin_pw', 'admin@skynet.com', '0900000001'),
-('annguyen', 'hash_user_pw', 'an.nguyen@email.com', '0900000002'),
-('binhle', 'hash_user_pw', 'binh.le@email.com', '0900000003'),
-('chautran', 'hash_user_pw', 'chau.tran@email.com', '0900000004'),
-('duypham', 'hash_user_pw', 'duy.pham@email.com', '0900000005'),
-('giangho', 'hash_user_pw', 'giang.ho@email.com', '0900000006'),
-('huongdo', 'hash_user_pw', 'huong.do@email.com', '0900000007'),
-('khanhvu', 'hash_user_pw', 'khanh.vu@email.com', '0900000008'),
-('linhngo', 'hash_user_pw', 'linh.ngo@email.com', '0900000009'),
-('minhvo', 'hash_user_pw', 'minh.vo@email.com', '0900000010');
+/*
+=================================================
+ 1. CHÈN DỮ LIỆU
+=================================================
+*/
+
+-- 🧍 1. TÀI KHOẢN (ACCOUNTS)
+-- (PasswordHash là giả, bạn phải tạo hash thật khi làm API Đăng ký)
+-- role = 1 (Admin), role = 0 (Customer)
+INSERT INTO Accounts (Email, PasswordHash, Phone, role, IsActive) VALUES
+('admin@skynet.com', 'placeholder_hash', '0900000001', 1, 1), -- ID 1 (Admin)
+('user1@gmail.com', 'placeholder_hash', '0901111111', 0, 1), -- ID 2 (Customer)
+('user2@gmail.com', 'placeholder_hash', '0902222222', 0, 1), -- ID 3
+('user3_locked@gmail.com', 'placeholder_hash', '0903333333', 0, 0), -- ID 4 (Bị khóa)
+('user4@gmail.com', 'placeholder_hash', '0904444444', 0, 1), -- ID 5
+('user5@gmail.com', 'placeholder_hash', '0905555555', 0, 1), -- ID 6
+('user6@gmail.com', 'placeholder_hash', '0906666666', 0, 1), -- ID 7
+('user7@gmail.com', 'placeholder_hash', '0907777777', 0, 1), -- ID 8
+('user8@gmail.com', 'placeholder_hash', '0908888888', 0, 1), -- ID 9
+('user9@gmail.com', 'placeholder_hash', '0909999999', 0, 1); -- ID 10
 GO
 
--- 2. 🏠 Thông tin người dùng (10 bản ghi)
-INSERT INTO Users (AccountID, FullName, Gender, AvatarURL)
-VALUES
-(1, N'Quản Trị Viên', 'Other', 'https://picsum.photos/seed/admin_dc/200'),
-(2, N'Nguyễn Văn An', 'Male', 'https://picsum.photos/seed/annguyen_dc/200'),
-(3, N'Lê Thị Bình', 'Female', 'https://picsum.photos/seed/binhle_dc/200'),
-(4, N'Trần Ngọc Châu', 'Female', 'https://picsum.photos/seed/chautran_dc/200'),
-(5, N'Phạm Minh Duy', 'Male', 'https://picsum.photos/seed/duypham_dc/200'),
-(6, N'Hồ Thu Giang', 'Female', 'https://picsum.photos/seed/giangho_dc/200'),
-(7, N'Đỗ Thái Hương', 'Female', 'https://picsum.photos/seed/huongdo_dc/200'),
-(8, N'Vũ Gia Khánh', 'Male', 'https://picsum.photos/seed/khanhvu_dc/200'),
-(9, N'Ngô Thùy Linh', 'Female', 'https://picsum.photos/seed/linhngo_dc/200'),
-(10, N'Võ An Minh', 'Male', 'https://picsum.photos/seed/minhvo_dc/200');
+-- 🏠 2. THÔNG TIN NGƯỜI DÙNG (USERS)
+-- (Liên kết 1-1 với 10 Accounts ở trên)
+INSERT INTO Users (AccountID, FullName, Gender, DateOfBirth, AvatarURL) VALUES
+(1, N'Admin Skynet', 'Other', '1990-01-01', 'https://i.pravatar.cc/150?img=1'),
+(2, N'Nguyễn Văn A', 'Male', '1992-03-15', 'https://i.pravatar.cc/150?img=5'),
+(3, N'Trần Thị B', 'Female', '1995-07-20', 'https://i.pravatar.cc/150?img=8'),
+(4, N'Lê Văn C (Bị khóa)', 'Male', '1988-11-30', 'https://i.pravatar.cc/150?img=7'),
+(5, N'Phạm Thị D', 'Female', '2000-02-10', 'https://i.pravatar.cc/150?img=10'),
+(6, N'Hoàng Văn E', 'Male', '1998-09-05', 'https://i.pravatar.cc/150?img=11'),
+(7, N'Đặng Thu F', 'Female', '1997-12-25', 'https://i.pravatar.cc/150?img=12'),
+(8, N'Vũ Đình G', 'Male', '1993-06-18', 'https://i.pravatar.cc/150?img=14'),
+(9, N'Bùi Thị H', 'Female', '1999-04-22', 'https://i.pravatar.cc/150?img=15'),
+(10, N'Hồ Văn K', 'Male', '1991-08-12', 'https://i.pravatar.cc/150?img=16');
 GO
 
--- 3. 🏠 Địa chỉ người dùng (12 bản ghi)
-INSERT INTO UserAddresses (AccountID, AddressLine, City, Province, IsDefault)
-VALUES
-(2, N'123 Đường ABC', N'Quận 1', N'TP. Hồ Chí Minh', 1),
-(3, N'456 Đường XYZ', N'Quận Hoàn Kiếm', N'Hà Nội', 1),
-(3, N'789 Đường DEF', N'Quận Ba Đình', N'Hà Nội', 0),
-(4, N'101 Đường GHI', N'Quận Hải Châu', N'Đà Nẵng', 1),
-(5, N'202 Đường JKL', N'Quận 3', N'TP. Hồ Chí Minh', 1),
-(6, N'303 Đường MNO', N'Quận 5', N'TP. Hồ Chí Minh', 1),
-(7, N'404 Đường PQR', N'Quận Cầu Giấy', N'Hà Nội', 1),
-(8, N'505 Đường STU', N'Quận 10', N'TP. Hồ Chí Minh', 1),
-(9, N'606 Đường VWX', N'Quận Tân Bình', N'TP. Hồ Chí Minh', 1),
-(9, N'707 Đường UVW', N'Quận Gò Vấp', N'TP. Hồ Chí Minh', 0),
-(10, N'808 Đường YZ', N'Quận Thanh Khê', N'Đà Nẵng', 1),
-(2, N'909 Đường KTX', N'Quận Thủ Đức', N'TP. Hồ Chí Minh', 0);
+-- 🏠 3. ĐỊA CHỈ (USER ADDRESSES) - ĐÃ SỬA LẠI
+INSERT INTO UserAddresses (
+    AccountID, 
+    AddressName,        -- Tên gợi nhớ (MỚI)
+    ReceiverFullName,   -- Tên người nhận (MỚI)
+    ReceiverPhone,      -- SĐT nhận hàng (MỚI)
+    AddressLine, 
+    Ward,               -- Phường/Xã (MỚI)
+    District,           -- Quận/Huyện (thay cho City)
+    Province, 
+    IsDefault
+) VALUES
+-- (Giả định AccountID 2 là 'Nguyễn Văn User' và SĐT '0901111111')
+(2, N'Nhà riêng', N'Nguyễn Văn User', N'0901111111', N'123 Đường Chính', N'Phường Bến Nghé', N'Quận 1', N'TP. Hồ Chí Minh', 1),
+(2, N'Công ty', N'Nguyễn Văn User', N'0901111111', N'456 Đường Phụ', N'Phường Tân Phong', N'Quận 7', N'TP. Hồ Chí Minh', 0),
+
+-- (Giả định AccountID 3, 5 là các user khác, tôi tự thêm tên và SĐT)
+(3, N'Nhà', N'Trần Thị B', N'0903333333', N'789 Hẻm A', N'Phường 6', N'Quận 3', N'TP. Hồ Chí Minh', 1),
+(5, N'Chung cư B', N'Lê Văn C', N'0905555555', N'101 Chung cư B', N'Phường 22', N'Quận Bình Thạnh', N'TP. Hồ Chí Minh', 1);
 GO
 
--- 4. 🏷️ Danh mục sản phẩm (10 bản ghi) - THEME DIRTY COINS
-INSERT INTO Categories (CategoryName, ParentCategoryID)
-VALUES
-(N'Áo (Tops)', NULL),             -- ID 1
-(N'Quần (Bottoms)', NULL),           -- ID 2
-(N'Áo khoác (Outerwear)', NULL),    -- ID 3
-(N'Phụ kiện (Accessories)', NULL);  -- ID 4
+-- 🏷️ 4. DANH MỤC (CATEGORIES)
+-- (3 danh mục cha, 7 danh mục con)
+INSERT INTO Categories (CategoryName, ParentCategoryID) VALUES
+(N'Thời trang Nam', NULL),   -- ID 1
+(N'Thời trang Nữ', NULL),   -- ID 2
+(N'Phụ kiện', NULL);         -- ID 3
 GO
-INSERT INTO Categories (CategoryName, ParentCategoryID)
-VALUES
-(N'T-Shirts', 1),                -- ID 5
-(N'Hoodies & Sweatshirts', 1),   -- ID 6
-(N'Pants & Shorts', 2),          -- ID 7
-(N'Jackets', 3),                 -- ID 8
-(N'Bags & Backpacks', 4),        -- ID 9
-(N'Caps & Beanies', 4);          -- ID 10
-GO
-
--- 5. 👕 Sản phẩm (13 bản ghi) - THEME DIRTY COINS
--- Giả sử ProductID sẽ từ 1-13
-INSERT INTO Products (CategoryID, Name, Description, Price, StockQuantity, SoldCount, Status)
-VALUES
-(5, N'DirtyCoins Logo T-Shirt - Black', N'Áo thun 100% cotton, in logo "Y" đặc trưng.', 450000, 150, 50, 'Active'), -- ID 1
-(5, N'DirtyCoins Graphic Tee "Chaos" - White', N'Áo thun form oversized, artwork "Chaos" in nổi.', 520000, 100, 30, 'Active'), -- ID 2
-(6, N'DirtyCoins Oversized Hoodie "Signature"', N'Áo hoodie nỉ bông, form rộng, logo "Y" thêu nổi.', 790000, 80, 25, 'Active'), -- ID 3
-(6, N'DirtyCoins Star Sweatshirt - Baby Blue', N'Áo sweatshirt nỉ, họa tiết ngôi sao.', 690000, 60, 15, 'Active'), -- ID 4
-(8, N'DirtyCoins Coach Jacket - Black', N'Áo khoác dù 2 lớp, chống nước nhẹ, logo "Y" in sau lưng.', 1150000, 40, 10, 'Active'), -- ID 5
-(8, N'DirtyCoins Puffer Jacket - Grey', N'Áo khoác phao dày dặn, giữ ấm tốt.', 1490000, 20, 5, 'Active'), -- ID 6
-(7, N'DirtyCoins Cargo Pants - Beige', N'Quần cargo kaki, nhiều túi, form baggy.', 850000, 70, 22, 'Active'), -- ID 7
-(7, N'DirtyCoins Denim Shorts - Washed', N'Quần short jeans, mài rách nhẹ.', 550000, 90, 40, 'Active'), -- ID 8
-(9, N'DirtyCoins Logo Backpack', N'Balo chất liệu polyester, nhiều ngăn, có ngăn laptop.', 750000, 50, 18, 'Active'), -- ID 9
-(9, N'DirtyCoins Mini Bowler Bag', N'Túi trống mini, chất liệu da PU.', 490000, 60, 35, 'Active'), -- ID 10
-(10, N'DirtyCoins "Y" Logo Cap - Black', N'Nón lưỡi trai, logo "Y" thêu 3D.', 390000, 120, 60, 'Active'), -- ID 11
-(10, N'DirtyCoins Beanie - Red', N'Nón len beanie, logo tag may.', 290000, 80, 20, 'Active'), -- ID 12
-(5, N'DirtyCoins Spray Logo Tee - Tan', N'Áo thun hiệu ứng phun sơn.', 480000, 0, 10, 'OutOfStock'); -- ID 13
+INSERT INTO Categories (CategoryName, ParentCategoryID) VALUES
+(N'Áo Nam', 1),              -- ID 4
+(N'Quần Nam', 1),              -- ID 5
+(N'Áo Nữ', 2),                -- ID 6
+(N'Váy Nữ', 2),                -- ID 7
+(N'Đồng hồ', 3),              -- ID 8
+(N'Túi xách', 3),              -- ID 9
+(N'Giày Nam', 1);              -- ID 10
 GO
 
--- 6. 🖼️ Ảnh sản phẩm (32 bản ghi)
-INSERT INTO ProductImages (ProductID, ImageURL, IsPrimary)
-VALUES
-(1, 'https://picsum.photos/seed/dc_tee_black1/600/600', 1),
-(1, 'https://picsum.photos/seed/dc_tee_black2/600/600', 0),
-(2, 'https://picsum.photos/seed/dc_tee_white1/600/600', 1),
-(2, 'https://picsum.photos/seed/dc_tee_white2/600/600', 0),
-(2, 'https://picsum.photos/seed/dc_tee_white3/600/600', 0),
-(3, 'https://picsum.photos/seed/dc_hoodie_sig1/600/600', 1),
-(3, 'https://picsum.photos/seed/dc_hoodie_sig2/600/600', 0),
-(3, 'https://picsum.photos/seed/dc_hoodie_sig3/600/600', 0),
-(4, 'https://picsum.photos/seed/dc_sweat_blue1/600/600', 1),
-(4, 'https://picsum.photos/seed/dc_sweat_blue2/600/600', 0),
-(5, 'https://picsum.photos/seed/dc_coach_jacket1/600/600', 1),
-(5, 'https://picsum.photos/seed/dc_coach_jacket2/600/600', 0),
-(6, 'https://picsum.photos/seed/dc_puffer1/600/600', 1),
-(6, 'https://picsum.photos/seed/dc_puffer2/600/600', 0),
-(7, 'https://picsum.photos/seed/dc_cargo_beige1/600/600', 1),
-(7, 'https://picsum.photos/seed/dc_cargo_beige2/600/600', 0),
-(7, 'https://picsum.photos/seed/dc_cargo_beige3/600/600', 0),
-(8, 'https://picsum.photos/seed/dc_denim_short1/600/600', 1),
-(8, 'https://picsum.photos/seed/dc_denim_short2/600/600', 0),
-(9, 'https://picsum.photos/seed/dc_backpack1/600/600', 1),
-(9, 'https://picsum.photos/seed/dc_backpack2/600/600', 0),
-(9, 'https://picsum.photos/seed/dc_backpack3/600/600', 0),
-(10, 'https://picsum.photos/seed/dc_minibag1/600/600', 1),
-(10, 'https://picsum.photos/seed/dc_minibag2/600/600', 0),
-(11, 'https://picsum.photos/seed/dc_cap_black1/600/600', 1),
-(11, 'https://picsum.photos/seed/dc_cap_black2/600/600', 0),
-(12, 'https://picsum.photos/seed/dc_beanie_red1/600/600', 1),
-(12, 'https://picsum.photos/seed/dc_beanie_red2/600/600', 0),
-(13, 'https://picsum.photos/seed/dc_tee_spray1/600/600', 1),
-(13, 'https://picsum.photos/seed/dc_tee_spray2/600/600', 0),
-(13, 'https://picsum.photos/seed/dc_tee_spray3/600/600', 0),
-(1, 'https://picsum.photos/seed/dc_tee_black3/600/600', 0);
+-- 👕 5. SẢN PHẨM (PRODUCTS)
+INSERT INTO Products (CategoryID, Name, Description, Price, StockQuantity) VALUES
+(4, N'Áo Sơ Mi Nam Trắng Lụa', N'Vải lụa cao cấp, không nhăn, mát mẻ.', 450000, 100), -- ID 1
+(5, N'Quần Jeans Nam Skinny', N'Chất liệu co giãn, thoải mái.', 680000, 50), -- ID 2
+(6, N'Áo Thun Nữ Cổ Tròn', N'100% Cotton, thấm hút mồ hôi.', 250000, 200), -- ID 3
+(7, N'Váy Hoa Nữ Vintage', N'Họa tiết hoa nhí, phong cách Hàn Quốc.', 550000, 70), -- ID 4
+(8, N'Đồng hồ Nam Chronograph', N'Dây thép không gỉ, chống nước 5ATM.', 2300000, 20), -- ID 5
+(9, N'Túi Đeo Chéo Nữ Da Thật', N'Da bò thật 100%, bảo hành 5 năm.', 1200000, 30), -- ID 6
+(10, N'Giày Sneaker Nam Trắng', N'Đế cao su, phù hợp mọi hoạt động.', 850000, 80), -- ID 7
+(4, N'Áo Polo Nam Co Giãn', N'Vải cá sấu 4 chiều.', 380000, 150), -- ID 8
+(5, N'Quần Kaki Nam Ống Đứng', N'Màu be, vải dày dặn.', 520000, 60), -- ID 9
+(6, N'Áo Croptop Nữ Tay Dài', N'Chất liệu len tăm mềm mại.', 310000, 100); -- ID 10
 GO
 
--- 7. 🌈 Biến thể sản phẩm (26 bản ghi) - THEME DIRTY COINS
-INSERT INTO ProductVariants (ProductID, VariantName, SKU, Price, StockQuantity)
-VALUES
--- Áo thun (ID 1, 2)
-(1, N'Size M', 'DC-LOGO-BLK-M', 450000, 50), -- ID 1
-(1, N'Size L', 'DC-LOGO-BLK-L', 450000, 50), -- ID 2
-(1, N'Size XL', 'DC-LOGO-BLK-XL', 450000, 50), -- ID 3
-(2, N'Size M', 'DC-CHAOS-WHT-M', 520000, 50), -- ID 4
-(2, N'Size L', 'DC-CHAOS-WHT-L', 520000, 50), -- ID 5
--- Hoodies (ID 3, 4)
-(3, N'Size M', 'DC-HOOD-SIG-M', 790000, 40), -- ID 6
-(3, N'Size L', 'DC-HOOD-SIG-L', 790000, 40), -- ID 7
-(4, N'Size M', 'DC-SWEAT-STAR-M', 690000, 30), -- ID 8
-(4, N'Size L', 'DC-SWEAT-STAR-L', 690000, 30), -- ID 9
--- Jackets (ID 5, 6)
-(5, N'Size M', 'DC-COACH-BLK-M', 1150000, 20), -- ID 10
-(5, N'Size L', 'DC-COACH-BLK-L', 1150000, 20), -- ID 11
-(6, N'Size L', 'DC-PUFFER-GRY-L', 1490000, 10), -- ID 12
-(6, N'Size XL', 'DC-PUFFER-GRY-XL', 1490000, 10), -- ID 13
--- Quần (ID 7, 8)
-(7, N'Size 29', 'DC-CARGO-BEI-29', 850000, 20), -- ID 14
-(7, N'Size 30', 'DC-CARGO-BEI-30', 850000, 20), -- ID 15
-(7, N'Size 31', 'DC-CARGO-BEI-31', 850000, 30), -- ID 16
-(8, N'Size 29', 'DC-DENIM-WSH-29', 550000, 30), -- ID 17
-(8, N'Size 30', 'DC-DENIM-WSH-30', 550000, 30), -- ID 18
-(8, N'Size 31', 'DC-DENIM-WSH-31', 550000, 30), -- ID 19
--- Áo thun (ID 1) thêm màu
-(1, N'Size M - White', 'DC-LOGO-WHT-M', 450000, 50), -- ID 20
-(1, N'Size L - White', 'DC-LOGO-WHT-L', 450000, 50), -- ID 21
-(1, N'Size XL - White', 'DC-LOGO-WHT-XL', 450000, 50), -- ID 22
--- Áo thun (ID 13) hết hàng
-(13, N'Size M', 'DC-SPRAY-TAN-M', 480000, 0), -- ID 23
-(13, N'Size L', 'DC-SPRAY-TAN-L', 480000, 0), -- ID 24
--- Hoodie (ID 3) thêm màu
-(3, N'Size M - Grey', 'DC-HOOD-SIG-GRY-M', 790000, 30), -- ID 25
-(3, N'Size L - Grey', 'DC-HOOD-SIG-GRY-L', 790000, 30); -- ID 26
+-- 🖼️ 6. ẢNH SẢN PHẨM (PRODUCT IMAGES)
+INSERT INTO ProductImages (ProductID, ImageURL, IsPrimary) VALUES
+(1, N'https://example.com/images/aosomi1_main.jpg', 1),
+(1, N'https://example.com/images/aosomi1_sub1.jpg', 0),
+(1, N'https://example.com/images/aosomi1_sub2.jpg', 0),
+(2, N'https://example.com/images/quanjean1_main.jpg', 1),
+(3, N'https://example.com/images/aothunnu1_main.jpg', 1),
+(4, N'https://example.com/images/vayhoa1_main.jpg', 1),
+(5, N'https://example.com/images/dongho1_main.jpg', 1);
 GO
 
--- 8. 🛒 Giỏ hàng (5 bản ghi)
-INSERT INTO Carts (AccountID)
-VALUES
-(2), (3), (4), (5), (8);
-GO -- Giả sử CartID 1-5
-
--- 9. 🛒 Mặt hàng trong giỏ (8 bản ghi)
-INSERT INTO CartItems (CartID, ProductID, VariantID, Quantity)
-VALUES
-(1, 3, 6, 1),  -- Khách 2: 1 Hoodie Signature M (CartID 1, ProductID 3, VariantID 6)
-(1, 1, 1, 2),  -- Khách 2: 2 T-Shirt Logo Black M (CartID 1, ProductID 1, VariantID 1)
-(2, 8, 18, 1), -- Khách 3: 1 Denim Short 30 (CartID 2, ProductID 8, VariantID 18)
-(3, 10, NULL, 1), -- Khách 4: 1 Mini Bowler Bag (CartID 3, ProductID 10)
-(3, 11, NULL, 1), -- Khách 4: 1 Logo Cap (CartID 3, ProductID 11)
-(4, 5, 11, 1), -- Khách 5: 1 Coach Jacket L (CartID 4, ProductID 5, VariantID 11)
-(5, 7, 15, 1), -- Khách 8: 1 Cargo Pants 30 (CartID 5, ProductID 7, VariantID 15)
-(5, 2, 4, 1);  -- Khách 8: 1 Graphic Tee "Chaos" M (CartID 5, ProductID 2, VariantID 4)
+-- 🌈 7. BIẾN THỂ (PRODUCT VARIANTS)
+INSERT INTO ProductVariants (ProductID, VariantName, SKU, Price, StockQuantity) VALUES
+(1, N'Size M', 'AOSOMI-TRANG-M', 450000, 50), -- ID 1
+(1, N'Size L', 'AOSOMI-TRANG-L', 450000, 50), -- ID 2
+(2, N'Size 30', 'QUANJEAN-SKINNY-30', 680000, 25), -- ID 3
+(2, N'Size 32', 'QUANJEAN-SKINNY-32', 680000, 25), -- ID 4
+(3, N'Màu Trắng', 'AOTHUN-NU-TRANG', 250000, 100), -- ID 5
+(3, N'Màu Đen', 'AOTHUN-NU-DEN', 250000, 100); -- ID 6
 GO
 
--- 10. 📦 Đơn hàng (5 bản ghi)
-INSERT INTO Orders (AccountID, AddressID, TotalAmount, Status)
-VALUES
-(6, 6, 1490000, 'Delivered'), -- Khách 6, AddressID 6
-(7, 7, 1240000, 'Shipped'),   -- Khách 7, AddressID 7
-(9, 9, 850000, 'Confirmed'), -- Khách 9, AddressID 9
-(10, 11, 780000, 'Pending'),   -- Khách 10, AddressID 11
-(6, 6, 450000, 'Cancelled'); -- Khách 6, AddressID 6 (đơn khác)
-GO -- Giả sử OrderID 1-5
-
--- 11. 📦 Chi tiết đơn hàng (8 bản ghi)
-INSERT INTO OrderDetails (OrderID, ProductID, VariantID, Quantity, UnitPrice)
-VALUES
--- Order 1 (Total 1.49M)
-(1, 6, 12, 1, 1490000), -- 1 Puffer Jacket L
--- Order 2 (Total 1.24M)
-(2, 4, 8, 1, 690000),  -- 1 Sweatshirt Star M
-(2, 1, 20, 1, 450000), -- 1 T-Shirt Logo White M
--- Order 3 (Total 850k)
-(3, 7, 14, 1, 850000),  -- 1 Cargo Pants 29
--- Order 4 (Total 780k)
-(4, 11, NULL, 2, 390000), -- 2 Logo Cap
--- Order 5 (Cancelled)
-(5, 1, 1, 1, 450000);  -- 1 T-Shirt Logo Black M
+-- 🛒 8. GIỎ HÀNG (CARTS) VÀ CHI TIẾT (CART ITEMS)
+INSERT INTO Carts (AccountID) VALUES (2), (3), (5); -- Carts for User A, B, D (CartID 1, 2, 3)
+GO
+INSERT INTO CartItems (CartID, ProductID, VariantID, Quantity) VALUES
+(1, 1, 2, 1), -- User A (Cart 1) muốn 1 Áo Sơ Mi (Size L)
+(1, 2, 3, 1), -- User A (Cart 1) muốn 1 Quần Jeans (Size 30)
+(2, 3, 5, 2), -- User B (Cart 2) muốn 2 Áo Thun (Màu Trắng)
+(3, 10, NULL, 1); -- User D (Cart 3) muốn 1 Áo Croptop (ko có variant)
 GO
 
--- 12. 💳 Thanh toán (4 bản ghi)
-INSERT INTO Payments (OrderID, Method, Amount, PaymentStatus)
-VALUES
-(1, 'CreditCard', 1490000, 'Paid'),
-(2, 'COD', 1240000, 'Pending'),
-(3, 'BankTransfer', 850000, 'Paid'),
-(4, 'COD', 780000, 'Pending');
+-- 📦 9. ĐƠN HÀNG (ORDERS) VÀ CHI TIẾT (ORDER DETAILS)
+-- Order 1 (Delivered) cho User A (AccountID 2), dùng Address 1
+INSERT INTO Orders (AccountID, AddressID, TotalAmount, Status) 
+VALUES (2, 1, 1130000, 'Delivered'); -- OrderID 1
+INSERT INTO OrderDetails (OrderID, ProductID, VariantID, Quantity, UnitPrice) VALUES
+(1, 1, 2, 1, 450000), -- Áo Sơ Mi (Size L)
+(1, 2, 3, 1, 680000); -- Quần Jeans (Size 30)
+
+-- Order 2 (Shipped) cho User B (AccountID 3), dùng Address 3
+INSERT INTO Orders (AccountID, AddressID, TotalAmount, Status) 
+VALUES (3, 3, 750000, 'Shipped'); -- OrderID 2
+INSERT INTO OrderDetails (OrderID, ProductID, VariantID, Quantity, UnitPrice) VALUES
+(2, 3, 5, 3, 250000); -- 3 Áo Thun (Màu Trắng)
+
+-- Order 3 (Pending) cho User A (AccountID 2), dùng Address 1
+INSERT INTO Orders (AccountID, AddressID, TotalAmount, Status) 
+VALUES (2, 1, 550000, 'Pending'); -- OrderID 3
+INSERT INTO OrderDetails (OrderID, ProductID, VariantID, Quantity, UnitPrice) VALUES
+(3, 4, NULL, 1, 550000); -- 1 Váy Hoa (ko có variant)
+
+-- Order 4 (Cancelled) cho User D (AccountID 5)
+INSERT INTO Orders (AccountID, AddressID, TotalAmount, Status) 
+VALUES (5, 4, 310000, 'Cancelled'); -- OrderID 4
+INSERT INTO OrderDetails (OrderID, ProductID, VariantID, Quantity, UnitPrice) VALUES
+(4, 10, NULL, 1, 310000); -- 1 Áo Croptop
 GO
 
--- 13. ⭐ Đánh giá (5 bản ghi) - THEME DIRTY COINS
-INSERT INTO Reviews (ProductID, AccountID, Rating, Comment)
-VALUES
-(6, 6, 5, N'Áo phao ấm, form đẹp, đáng tiền. Giao hàng nhanh.'), -- Đơn 1
-(4, 7, 4, N'Sweatshirt màu xinh, nỉ bông hơi mỏng tí nhưng mặc Sài Gòn ok.'), -- Đơn 2
-(1, 7, 5, N'Áo thun cơ bản, chất vải dày dặn, logo in đẹp.'), -- Đơn 2
-(9, 2, 5, N'Balo đựng được laptop 15.6 inch, nhiều ngăn tiện lợi. Rất ưng.'),
-(10, 4, 3, N'Túi hơi nhỏ so với tưởng tượng, chỉ đựng được điện thoại, ví tiền.');
+-- 💳 10. THANH TOÁN (PAYMENTS)
+INSERT INTO Payments (OrderID, Method, Amount, PaymentStatus) VALUES
+(1, 'CreditCard', 1130000, 'Paid'),
+(2, 'COD', 750000, 'Pending'),
+(3, 'BankTransfer', 550000, 'Paid'),
+(4, 'COD', 310000, 'Failed');
 GO
 
--- 14. 💖 Wishlist (6 bản ghi)
-INSERT INTO Wishlists (AccountID, ProductID)
-VALUES
-(2, 3),  -- Khách 2 thích Hoodie Signature
-(2, 5),  -- Khách 2 thích Coach Jacket
-(3, 7),  -- Khách 3 thích Cargo Pants
-(4, 13), -- Khách 4 thích Spray Logo Tee (đang hết hàng)
-(5, 6),  -- Khách 5 thích Puffer Jacket
-(8, 1);  -- Khách 8 thích T-Shirt Logo
+-- ⭐ 11. ĐÁNH GIÁ (REVIEWS)
+INSERT INTO Reviews (ProductID, AccountID, Rating, Comment) VALUES
+(1, 2, 5, N'Áo rất đẹp, vải mịn, không nhăn. Rất hài lòng!'),
+(2, 2, 4, N'Quần co giãn tốt, mặc thoải mái.'),
+(3, 3, 5, N'Áo thun chất lượng, giao hàng nhanh.'),
+(1, 3, 3, N'Áo cũng được, nhưng size L hơi rộng so với mình.'),
+(4, 2, 5, N'Váy xinh, mặc lên tôn dáng.'),
+(5, 2, 5, N'Đồng hồ xịn, đáng tiền.');
 GO
 
--- 15. 🎁 Voucher (4 bản ghi)
-INSERT INTO Vouchers (Code, Description, DiscountPercent, MinOrderAmount, StartDate, EndDate)
-VALUES
-('DCSALE10', N'Giảm 10% cho đơn hàng trên 1 triệu', 10.00, 1000000, '2025-10-15', '2025-11-15'),
-('FREESHIP', N'Miễn phí vận chuyển toàn quốc', 0, 500000, '2025-01-01', '2025-12-31'),
-('HELLO_DC', N'Giảm 50K cho khách hàng mới', 0, 300000, '2025-01-01', '2025-12-31'),
-('BLACKFRIDAY', N'Voucher Black Friday (hết hạn)', 30.00, 0, '2024-11-20', '2024-11-27');
+-- 💖 12. WISHLIST
+INSERT INTO Wishlists (AccountID, ProductID) VALUES
+(2, 5), -- User A thích Đồng hồ
+(2, 6), -- User A thích Túi xách
+(3, 1), -- User B thích Áo Sơ Mi
+(5, 7); -- User D thích Giày
 GO
 
--- 16. 💬 Phòng chat (3 bản ghi)
-INSERT INTO ChatRooms (CustomerID, AdminID, IsClosed)
-VALUES
-(2, 1, 0), -- Khách 'annguyen' (ID 2) chat với Admin (ID 1)
-(3, 1, 0), -- Khách 'binhle' (ID 3) chat với Admin (ID 1)
-(4, NULL, 0); -- Khách 'chautran' (ID 4) chat, chưa có admin nhận
-GO -- Giả sử RoomID 1-3
-
--- 17. 💬 Tin nhắn (10 bản ghi) - THEME DIRTY COINS
-INSERT INTO ChatMessages (RoomID, SenderID, MessageText)
-VALUES
--- Room 1 (Khách 2 & Admin 1)
-(1, 2, N'Chào shop, cho mình hỏi áo Hoodie Signature (ID 3) size L còn màu xám không?'),
-(1, 1, N'Chào bạn, Hoodie Signature xám (Mã 26) size L shop còn hàng ạ. Bạn đặt ngay nhé.'),
-(1, 2, N'Ok, mình lên đơn liền.'),
--- Room 2 (Khách 3 & Admin 1)
-(2, 3, N'Shop ơi, mình muốn hỏi về đơn hàng #2'),
-(2, 1, N'Dạ, Skynet chào bạn. Đơn hàng #2 của bạn trạng thái đang được vận chuyển, dự kiến 1-2 ngày nữa bạn nhận được ạ.'),
-(2, 3, N'Ok shop, mình cảm ơn.'),
--- Room 3 (Khách 4)
-(3, 4, N'Mình muốn đổi size áo T-shirt Chaos (ID 2)'),
-(3, 4, N'Mình đặt nhầm size L, muốn đổi sang M'),
-(3, 1, N'Chào bạn, shop đã nhận được yêu cầu. Bạn vui lòng gửi hàng về địa chỉ...'),
-(3, 4, N'Cảm ơn shop');
+-- 🎁 13. VOUCHER
+INSERT INTO Vouchers (Code, Description, DiscountPercent, MinOrderAmount, StartDate, EndDate) VALUES
+('GIAM10', N'Giảm 10% cho đơn hàng từ 500k', 10.00, 500000, GETDATE(), DATEADD(month, 1, GETDATE())),
+('FREESHIP', N'Miễn phí vận chuyển', 0.00, 200000, GETDATE(), DATEADD(month, 1, GETDATE())),
+('BLACKFRIDAY', N'Giảm 50% (đã hết hạn)', 50.00, 1000000, DATEADD(year, -1, GETDATE()), DATEADD(month, -11, GETDATE())),
+('WELCOME', N'Giảm 50k cho thành viên mới', 0.00, 300000, GETDATE(), DATEADD(month, 3, GETDATE()));
 GO
 
--- 18. 📎 Đính kèm (2 bản ghi)
+-- 💬 14. CHAT (ROOMS, MESSAGES, ATTACHMENTS)
+-- Room 1 (User A vs Admin)
+INSERT INTO ChatRooms (CustomerID, AdminID, IsClosed) VALUES (2, 1, 0); -- RoomID 1
+INSERT INTO ChatMessages (RoomID, SenderID, MessageText) VALUES
+(1, 2, N'Shop ơi, đơn hàng #3 của mình sao rồi?'),
+(1, 1, N'Chào bạn, đơn #3 đang được đóng gói ạ.'),
+(1, 2, N'Ok shop, cảm ơn.');
+
+-- Room 2 (User B vs Admin)
+INSERT INTO ChatRooms (CustomerID, AdminID, IsClosed) VALUES (3, 1, 0); -- RoomID 2
+INSERT INTO ChatMessages (RoomID, SenderID, MessageText) VALUES
+(2, 3, N'Tôi muốn hỏi về chính sách bảo hành đồng hồ'),
+(2, 1, N'Dạ, shop bảo hành 12 tháng cho tất cả sản phẩm đồng hồ ạ.'),
+(2, 1, N'Bạn cần file PDF chi tiết không?');
 INSERT INTO ChatAttachments (MessageID, FileURL, FileType)
-VALUES
-(8, 'https://example.com/images/screenshot_size_guide.jpg', 'image/jpeg'),
-(8, 'https://example.com/images/product_error.png', 'image/png');
+VALUES (6, 'https://example.com/baohanh.pdf', 'application/pdf'); -- Đính kèm vào tin nhắn ID 6
+
+-- Room 3 (User D, chưa có admin rep)
+INSERT INTO ChatRooms (CustomerID, AdminID, IsClosed) VALUES (5, NULL, 0); -- RoomID 3
+INSERT INTO ChatMessages (RoomID, SenderID, MessageText) VALUES
+(3, 5, N'Túi xách da thật (ID 6) có hàng không shop?');
 GO
 
-PRINT '================================================'
-PRINT 'ĐÃ CHÈN DỮ LIỆU MẪU (THEME DIRTY COINS) THÀNH CÔNG!'
-PRINT '================================================'
+PRINT '*** HOÀN TẤT CHÈN 100+ DỮ LIỆU MẪU ***';

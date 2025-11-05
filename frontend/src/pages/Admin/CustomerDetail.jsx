@@ -1,49 +1,30 @@
 // src/pages/Admin/CustomerDetail.jsx
 
-import React from 'react';
+// Thêm useState, useEffect
+import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Mail, Phone, MapPin } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-// Import file CSS (Cần file CSS chung VÀ file CSS riêng)
-import './Vouchers.css'; // Dùng chung .card, .table, .badge...
-import './CustomerDetail.css'; // Dùng cho style riêng của trang này
+// Import file CSS
+import './Vouchers.css';
+import './CustomerDetail.css';
 
-// Dữ liệu mẫu (giữ nguyên)
-const customerData = {
-  U001: {
-    id: 'U001',
-    username: 'nguyenvana',
-    email: 'nguyenvana@email.com',
-    phone: '0901234567',
-    fullName: 'Nguyễn Văn A',
-    registeredDate: '2025-01-15',
-    isActive: true,
-    addresses: [
-      { id: 1, name: 'Địa chỉ nhà riêng', address: '123 Nguyễn Huệ, Quận 1, TP.HCM', phone: '0901234567', isDefault: true },
-      { id: 2, name: 'Địa chỉ công ty', address: '456 Lê Lợi, Quận 3, TP.HCM', phone: '0901234567', isDefault: false },
-    ],
-    orders: [
-      { id: 'DH001', date: '2025-10-25', total: 1500000, status: 'Delivered' },
-      { id: 'DH015', date: '2025-10-18', total: 2300000, status: 'Delivered' },
-      { id: 'DH032', date: '2025-10-10', total: 890000, status: 'Delivered' },
-    ],
-  },
-  // Thêm data cho các user khác nếu cần
-};
+// --- CẤU HÌNH API ---
+const API_URL = 'https://localhost:7132/api/customers';
 
-// Hàm lấy class CSS
+// --- CÁC HÀM HỖ TRỢ (Giữ nguyên) ---
+
 const getStatusColor = (status) => {
   switch (status) {
     case 'Pending': return 'badge-orange';
     case 'Confirmed': return 'badge-blue';
-    case 'Shipped': return 'badge-purple'; // Cần định nghĩa .badge-purple
+    case 'Shipped': return 'badge-purple';
     case 'Delivered': return 'badge-green';
     case 'Cancelled': return 'badge-red';
     default: return 'badge-gray';
   }
 };
 
-// Hàm lấy text
 const getStatusLabel = (status) => {
   switch (status) {
     case 'Pending': return 'Chờ xử lý';
@@ -55,17 +36,61 @@ const getStatusLabel = (status) => {
   }
 };
 
-// Bỏ props, dùng hook
 export default function CustomerDetail() {
   const { customerId } = useParams(); // Lấy ID từ URL
-  const navigate = useNavigate(); // Dùng để quay lại
-  
-  // Lấy data khách hàng
-  const customer = customerId ? customerData[customerId] : null;
+  const navigate = useNavigate();
+
+  // --- STATE MỚI ĐỂ LẤY DỮ LIỆU TỪ API ---
+  const [customer, setCustomer] = useState(null); // State cho dữ liệu khách hàng
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // --- [EFFECT] GỌI API KHI COMPONENT MỞ RA ---
+  useEffect(() => {
+    if (!customerId) return;
+
+    setLoading(true);
+    fetch(`${API_URL}/${customerId}`)
+      .then(res => {
+        if (res.status === 404) {
+          throw new Error(`Không tìm thấy khách hàng với ID: ${customerId}`);
+        }
+        if (!res.ok) {
+          throw new Error('Không thể tải chi tiết khách hàng. Lỗi server.');
+        }
+        return res.json();
+      })
+      .then(data => {
+        setCustomer(data); // Lưu dữ liệu khách hàng vào state
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi fetch chi tiết:", err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [customerId]);
 
   const handleBack = () => {
-    navigate(-1); // Quay lại trang trước
+    navigate(-1);
   };
+
+  // --- RENDER LOADING VÀ LỖI ---
+  if (loading) {
+    return <div className="page-container">Đang tải chi tiết khách hàng...</div>;
+  }
+
+  if (error) {
+    return (
+      <div className="page-container">
+        <button className="back-button" onClick={handleBack}>
+          <ArrowLeft className="back-icon" />
+          Quay lại
+        </button>
+        <p className="error-message">Lỗi: {error}</p>
+      </div>
+    );
+  }
 
   if (!customer) {
     return (
@@ -74,15 +99,18 @@ export default function CustomerDetail() {
           <ArrowLeft className="back-icon" />
           Quay lại
         </button>
-        <p>Không tìm thấy khách hàng với ID: {customerId}</p>
+        <p>Không tìm thấy dữ liệu khách hàng.</p>
       </div>
     );
   }
 
-  // Tính toán
-  const totalSpent = customer.orders.reduce((sum, order) => sum + order.total, 0);
-  const avgOrderValue = totalSpent > 0 ? totalSpent / customer.orders.length : 0;
+  // --- TÍNH TOÁN (Kiểm tra 'orders' và 'addresses' có tồn tại không) ---
+  const orders = customer.orders || [];
+  const addresses = customer.addresses || [];
+  const totalSpent = orders.reduce((sum, order) => sum + order.total, 0);
+  const avgOrderValue = totalSpent > 0 ? totalSpent / orders.length : 0;
 
+  // --- RENDER DỮ LIỆU TỪ STATE 'customer' ---
   return (
     <div className="page-container">
       <div className="order-detail-header">
@@ -114,7 +142,7 @@ export default function CustomerDetail() {
                     </tr>
                   </thead>
                   <tbody>
-                    {customer.orders.map((order) => (
+                    {orders.map((order) => (
                       <tr key={order.id}>
                         <td>{order.id}</td>
                         <td>{new Date(order.date).toLocaleDateString('vi-VN')}</td>
@@ -138,7 +166,7 @@ export default function CustomerDetail() {
               <h3 className="card-title">Địa chỉ</h3>
             </div>
             <div className="card-content address-list">
-              {customer.addresses.map((address) => (
+              {addresses.map((address) => (
                 <div key={address.id} className="address-block">
                   <div className="address-header">
                     <h4 className="address-name">{address.name}</h4>
@@ -175,8 +203,8 @@ export default function CustomerDetail() {
                 <p className="info-value">{customer.fullName}</p>
               </div>
               <div className="info-row">
-                <p className="info-label">Username</p>
-                <p className="info-value">{customer.username}</p>
+                <p className="info-label">Username (Email)</p>
+                <p className="info-value">{customer.email}</p>
               </div>
               <div className="info-row-icon">
                 <Mail width={16} height={16} className="info-icon" />
@@ -213,7 +241,7 @@ export default function CustomerDetail() {
             <div className="card-content info-card-content">
               <div className="info-row">
                 <p className="info-label">Tổng đơn hàng</p>
-                <p className="stats-value">{customer.orders.length}</p>
+                <p className="stats-value">{orders.length}</p>
               </div>
               <div className="info-row">
                 <p className="info-label">Tổng chi tiêu</p>

@@ -1,6 +1,3 @@
-create database Skynet_commerce
-
-use Skynet_commerce;
 
 -- Xóa và tạo lại database
 DROP DATABASE IF EXISTS Skynet_commerce;
@@ -10,14 +7,16 @@ GO
 USE Skynet_commerce;
 GO
 
+
 -- 🧍 Tài khoản người dùng
 CREATE TABLE Accounts (
     AccountID INT IDENTITY(1,1) PRIMARY KEY,
     PasswordHash NVARCHAR(255) NOT NULL,
     Email NVARCHAR(150) UNIQUE,
-    Phone NVARCHAR(20),
+    Phone NVARCHAR(10) UNIQUE,
     CreatedAt DATETIME DEFAULT GETDATE(),
-    role int default 0
+    role int default 0,
+    IsActive BIT NOT NULL DEFAULT 1
 );
 
 -- 🏠 Thông tin người dùng
@@ -31,16 +30,23 @@ CREATE TABLE Users (
     DateOfBirth DATE,  -- thêm cột ngày sinh
     FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID) ON DELETE CASCADE
 );
-
 CREATE TABLE UserAddresses (
     AddressID INT IDENTITY(1,1) PRIMARY KEY,
     AccountID INT NOT NULL,
-    AddressLine NVARCHAR(255) NOT NULL,
-    City NVARCHAR(100),
-    Province NVARCHAR(100),
+
+    AddressName NVARCHAR(100) DEFAULT N'Địa chỉ', -- Tên gợi nhớ: "Nhà riêng", "Công ty"
+    ReceiverFullName NVARCHAR(150) NOT NULL,   -- Tên người nhận tại địa chỉ này
+    ReceiverPhone NVARCHAR(10) NOT NULL,       -- SĐT người nhận tại địa chỉ này
+
+    AddressLine NVARCHAR(255) NOT NULL, -- Số nhà, tên đường
+    Ward NVARCHAR(100) NOT NULL,         -- Phường/Xã
+    District NVARCHAR(100) NOT NULL,     -- Quận/Huyện
+    Province NVARCHAR(100) NOT NULL,     -- Tỉnh/Thành phố
+    
     IsDefault BIT DEFAULT 0,
     FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID) ON DELETE CASCADE
 );
+GO
 
 -- 🏷️ Danh mục sản phẩm
 CREATE TABLE Categories (
@@ -265,3 +271,4 @@ VALUES
 (1, N'https://example.com/screenshot.png', N'image/png');
 
 select * from Accounts
+
