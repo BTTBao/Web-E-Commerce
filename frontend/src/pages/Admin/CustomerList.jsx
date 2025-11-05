@@ -1,86 +1,109 @@
-// src/pages/Admin/CustomerList.jsx
-
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react'; // Thêm useState, useEffect
 import { Eye, Search, Lock, Unlock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // Thêm hook
+import { useNavigate } from 'react-router-dom';
 
-// Import file CSS chung VÀ file CSS riêng
-import './Vouchers.css'; // Dùng chung .card, .table, .badge, .search-input...
-import './CustomerList.css'; // Dùng cho .badge-red
+// Import CSS
+import './Vouchers.css';
+import './CustomerList.css';
 
-// Dữ liệu mẫu (giữ nguyên)
-const customers = [
-  {
-    id: 'U001',
-    username: 'nguyenvana',
-    email: 'nguyenvana@email.com',
-    phone: '0901234567',
-    fullName: 'Nguyễn Văn A',
-    registeredDate: '2025-01-15',
-    isActive: true,
-    totalOrders: 12,
-  },
-  {
-    id: 'U002',
-    username: 'tranthib',
-    email: 'tranthib@email.com',
-    phone: '0912345678',
-    fullName: 'Trần Thị B',
-    registeredDate: '2025-02-20',
-    isActive: true,
-    totalOrders: 8,
-  },
-  {
-    id: 'U003',
-    username: 'levanc',
-    email: 'levanc@email.com',
-    phone: '0923456789',
-    fullName: 'Lê Văn C',
-    registeredDate: '2025-03-10',
-    isActive: true,
-    totalOrders: 5,
-  },
-  {
-    id: 'U004',
-    username: 'phamthid',
-    email: 'phamthid@email.com',
-    phone: '0934567890',
-    fullName: 'Phạm Thị D',
-    registeredDate: '2025-04-05',
-    isActive: false,
-    totalOrders: 3,
-  },
-  {
-    id: 'U005',
-    username: 'hoangvane',
-    email: 'hoangvane@email.com',
-    phone: '0945678901',
-    fullName: 'Hoàng Văn E',
-    registeredDate: '2025-05-12',
-    isActive: true,
-    totalOrders: 15,
-  },
-];
+// --- CẤU HÌNH API ---
+// (Sử dụng port 7132 mà bạn đã đề cập ở các lỗi trước)
+const API_URL = 'https://localhost:7132/api/customers';
 
-// Bỏ props, dùng hook
 export default function CustomerList() {
+  // --- STATE MỚI ---
+  const [allCustomers, setAllCustomers] = useState([]); // State cho danh sách gốc
   const [searchTerm, setSearchTerm] = useState('');
-  const navigate = useNavigate(); // Khởi tạo hook
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
-  // Logic lọc (giữ nguyên)
-  const filteredCustomers = customers.filter((customer) => {
-    const matchesSearch =
-      customer.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.phone.includes(searchTerm);
-    return matchesSearch;
-  });
+  // --- 1. [EFFECT] GỌI API ĐỂ LẤY DỮ LIỆU ---
+  useEffect(() => {
+    setLoading(true);
+    fetch(API_URL)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Không thể tải danh sách khách hàng. Lỗi CORS hoặc server sập?');
+        }
+        return res.json();
+      })
+      .then(data => {
+        setAllCustomers(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi fetch:", err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []); // [] = Chỉ chạy 1 lần khi component mount
 
-  // Hàm điều hướng mới
-  const handleViewCustomer = (customerId) => {
-    navigate(`/admin/customers/${customerId}`); // Cần router cho '/admin/customers/:id'
+  // --- 2. [HÀM] GỌI API ĐỂ KHÓA/MỞ KHÓA ---
+  const handleToggleStatus = (customerId) => {
+    // Tìm customer hiện tại để biết trạng thái của nó
+    const customer = allCustomers.find(c => c.id === customerId);
+    if (!customer) return;
+
+    // Gửi yêu cầu PATCH đến API
+    fetch(`${API_URL}/${customerId}/toggle-status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    })
+    .then(res => {
+      if (!res.ok) {
+        throw new Error('Cập nhật trạng thái thất bại.');
+      }
+      return res.json();
+    })
+    .then(data => {
+      // data trả về là { newStatus: true/false }
+      
+      // Cập nhật lại state của `allCustomers`
+      setAllCustomers(prevCustomers =>
+        prevCustomers.map(c =>
+          c.id === customerId
+            ? { ...c, isActive: data.newStatus } // Cập nhật trạng thái mới
+            : c
+        )
+      );
+    })
+    .catch(err => {
+      console.error('Lỗi khi cập nhật trạng thái:', err);
+      // (Trong tương lai, bạn có thể thêm thông báo toast tại đây)
+    });
   };
+
+  // Logic lọc (dùng state 'allCustomers' thay vì mock data)
+  const filteredCustomers = useMemo(() => 
+    allCustomers.filter((customer) => {
+      const search = searchTerm.toLowerCase();
+      // (Dùng 'email' thay cho 'username' vì DB của bạn không có username)
+      return (
+        customer.email.toLowerCase().includes(search) ||
+        (customer.fullName && customer.fullName.toLowerCase().includes(search)) ||
+        (customer.phone && customer.phone.includes(search))
+      );
+    }),
+    [allCustomers, searchTerm]
+  );
+
+  // Hàm điều hướng (giữ nguyên)
+  const handleViewCustomer = (customerId) => {
+    navigate(`/admin/customers/${customerId}`);
+  };
+
+  // --- RENDER ---
+  
+  if (loading) {
+    return <div className="page-container">Đang tải dữ liệu khách hàng...</div>;
+  }
+
+  if (error) {
+    return <div className="page-container error-message">Lỗi: {error}</div>;
+  }
 
   return (
     <div className="page-container">
@@ -97,7 +120,7 @@ export default function CustomerList() {
             <Search className="search-icon" />
             <input
               type="text"
-              placeholder="Tìm kiếm theo tên, email, số điện thoại..."
+              placeholder="Tìm kiếm theo email, họ tên, số điện thoại..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="search-input"
@@ -109,8 +132,7 @@ export default function CustomerList() {
             <table>
               <thead>
                 <tr>
-                  <th>Username</th>
-                  <th>Email</th>
+                  <th>Email (Username)</th>
                   <th>Số điện thoại</th>
                   <th>Họ tên</th>
                   <th>Ngày đăng ký</th>
@@ -122,10 +144,9 @@ export default function CustomerList() {
               <tbody>
                 {filteredCustomers.map((customer) => (
                   <tr key={customer.id}>
-                    <td>{customer.username}</td>
                     <td>{customer.email}</td>
-                    <td>{customer.phone}</td>
-                    <td>{customer.fullName}</td>
+                    <td>{customer.phone || 'N/A'}</td>
+                    <td>{customer.fullName || 'N/A'}</td>
                     <td>{new Date(customer.registeredDate).toLocaleDateString('vi-VN')}</td>
                     <td>{customer.totalOrders}</td>
                     <td>
@@ -146,7 +167,11 @@ export default function CustomerList() {
                           <Eye width={16} height={16} />
                           Xem
                         </button>
-                        <button className="action-button">
+                        {/* Cập nhật onClick cho nút Khóa/Mở */}
+                        <button 
+                          className="action-button"
+                          onClick={() => handleToggleStatus(customer.id)}
+                        >
                           {customer.isActive ? (
                             <>
                               <Lock width={16} height={16} />

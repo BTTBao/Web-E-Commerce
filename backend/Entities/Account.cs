@@ -17,6 +17,8 @@ public partial class Account
 
     public int? Role { get; set; }
 
+    public bool IsActive { get; set; }
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<ChatMessage> ChatMessages { get; set; } = new List<ChatMessage>();

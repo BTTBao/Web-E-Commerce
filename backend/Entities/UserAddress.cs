@@ -9,11 +9,19 @@ public partial class UserAddress
 
     public int AccountId { get; set; }
 
+    public string? AddressName { get; set; }
+
+    public string ReceiverFullName { get; set; } = null!;
+
+    public string ReceiverPhone { get; set; } = null!;
+
     public string AddressLine { get; set; } = null!;
 
-    public string? City { get; set; }
+    public string Ward { get; set; } = null!;
 
-    public string? Province { get; set; }
+    public string District { get; set; } = null!;
+
+    public string Province { get; set; } = null!;
 
     public bool? IsDefault { get; set; }
 
