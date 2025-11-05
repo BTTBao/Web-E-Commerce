@@ -5,6 +5,7 @@ import "./Header.css";
 import { Link } from "react-router-dom";
 import { menuData } from "./data";
 import useCartCount from "../../hooks/useCartCount";
+import { useNavigate } from 'react-router-dom';
 
 const Header = () => {
   const [activeMenu, setActiveMenu] = useState(null);
@@ -12,7 +13,7 @@ const Header = () => {
   const hideMenuTimeout = useRef(null);
   const hideSubMenuTimeout = useRef(null);
   const cartCount = useCartCount();
-
+  const navigator = useNavigate();
   // Delay đóng menu cấp 1
   const handleMenuEnter = (menu) => {
     clearTimeout(hideMenuTimeout.current);
@@ -38,6 +39,12 @@ const Header = () => {
     }, 250);
   };
 
+  const HandleLogin = () =>{
+    if(localStorage.getItem('token') != null)
+    {
+      navigator('/profile');
+    }else navigator('/login')
+  }
   return (
     <header className="header">
       {/* Logo */}
@@ -120,9 +127,8 @@ const Header = () => {
         </div>
 
         {/* Icon đăng nhập */}
-        <Link to="/login">
-          <User size={22} className="icon" />
-        </Link>
+        <User size={22} className="icon" onClick={e =>{e.preventDefault(); HandleLogin();}} />
+
 
         {/* Icon giỏ hàng */}
         <Link to="/cart">

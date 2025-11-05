@@ -1,37 +1,50 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useEffect, } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+
+
 
 export default function Login(){
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const { login } = useContext(AuthContext);
-  const nav = useNavigate();
 
-  const submit = async (e) => {
-    e.preventDefault();
-    try{
-      await login({ username, password });
-      nav('/');
-    }catch(err){
-      alert('Login failed');
-    }
-  };
-  
+  const [userName, setUser] = useState('');
+  const [passWord, setPass] = useState('');
+  const navigator = useNavigate();
+  const HandleLogin = () => {
+    fetch(`https://localhost:7132/api/Account/login?username=${userName}&password=${passWord}`)
+    .then(res => {
+      if(!res.ok){
+        alert('sai mật khẩu hoặc user');
+        throw new Error('sai mật khẩu/user');
+      }else{
+        return res.json();
+      }
+    }).then(data =>{
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('account', JSON.stringify(data.account));
+      navigator('/');
+    })
+    .catch(error =>{
+      console.log(error);
+    })
+  }
+
+
   return (
     <div className="row justify-content-center">
       <div className="col-md-4">
-        <h3>Login</h3>
-        <form onSubmit={submit}>
+        <h3 className='text-center'>Login</h3>
+        <form>
           <div className="mb-3">
             <label>Username</label>
-            <input className="form-control" value={username} onChange={e=>setUsername(e.target.value)} />
+            <input className="form-control" value={userName} onChange={e => {setUser(e.target.value)}}/>
           </div>
           <div className="mb-3">
             <label>Password</label>
-            <input type="password" className="form-control" value={password} onChange={e=>setPassword(e.target.value)} />
+            <input type="password" className="form-control" value={passWord}  onChange={e => {setPass(e.target.value)}}/>
           </div>
-          <button className="btn btn-primary">Login</button>
+          <a className='text-decoration-none text-black' href='https://www.facebook.com/pham.thuan.954331'><span>Quên thông tin tài khoản?</span></a>
+          <button className="btn btn-primary bg-black border-0 w-100 rounded-0"
+            style={{height:50, marginTop:20}} onClick={e =>{e.preventDefault();HandleLogin();}}>Login</button>
+          <a href='/register' className='text-decoration-none text-black'><span style={{marginTop:20, display:'flex', justifyContent:'center'}}>Bạn chưa có tài khoản? Đăng ký ngay!</span></a>
         </form>
       </div>
     </div>
