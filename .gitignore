@@ -439,6 +439,7 @@ dist-ssr
 *.suo
 *.ntvs*
 *.njsproj
+*.sln
 *.sw?
 **/[Bb]in/
 **/[Oo]bj/
