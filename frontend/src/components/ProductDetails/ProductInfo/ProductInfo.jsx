@@ -3,18 +3,19 @@ import './ProductInfo.css'
 import { useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { formatPrice } from '../../../utils/formatPrice';
 
-function ProductInfo() {
+function ProductInfo({product}) {
   const [selectedSize, setSelectedSize] = useState(null);
-
-  const sizes = ['S', 'M', 'L', 'XL'];
+  const variants = product.productVariants || ['S','M','L','XL'] // fallback
+  
   return (
     <div class="product-info">
       <div class="product-header">
-        <h1>DirtyCoins Patch In Heart T-Shirt Black</h1>
+        <h1>{product.name}</h1>
         <div class="price-section">
-          <span class="price">395.000₫</span>
-          <span class="old-price">550.000₫</span>
+          <span class="price">{formatPrice(product.price)}</span>
+          <span class="old-price">{formatPrice(product.price * 0.9)}</span>
         </div>
       </div>
 
@@ -24,14 +25,14 @@ function ProductInfo() {
           <label>Chọn kích cỡ</label>
         </div>
         <div class="size-options">
-          {sizes.map((size) => (
+          {variants.map((size) => (
             <button
-              key={size}
+              key={size.variantId}
               type="button"
-              onClick={() => setSelectedSize(size)}
-              className={selectedSize === size ? 'size-btn active' : 'size-btn'}
+              onClick={() => setSelectedSize(size.variantName)}
+              className={selectedSize === size.variantName ? 'size-btn active' : 'size-btn'}
             >
-              {size}
+              {size.variantName.substring(size.variantName.indexOf(" ") + 1)}
             </button>
           ))}
         </div>
