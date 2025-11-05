@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using backend.Models;
-using Microsoft.EntityFrameworkCore;
-using backend.Data;
+﻿using backend.Data;
 using backend.Entities;
 using backend.DTOs;
+
+using Microsoft.AspNetCore.Authorization;
+
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
@@ -164,7 +166,7 @@ namespace backend.Controllers
 
             // 4️⃣ Thực hiện xóa
             _context.Categories.Remove(category);
-            await _context.SaveChangesAsync();
+            _ = await _context.SaveChangesAsync();
 
             // 5️⃣ Trả phản hồi
             return Ok(new

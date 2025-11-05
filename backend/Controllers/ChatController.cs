@@ -33,9 +33,9 @@ namespace backend.Controllers
                 .Select(r => new
                 {
                     r.RoomId,
-                    CustomerName = r.Customer.User != null ? r.Customer.User.FullName : r.Customer.Username,
+                    CustomerName = r.Customer.User != null ? r.Customer.User.FullName : r.Customer.Phone,
                     AdminName = r.Admin != null
-                        ? (r.Admin.User != null ? r.Admin.User.FullName : r.Admin.Username)
+                        ? (r.Admin.User != null ? r.Admin.User.FullName : r.Admin.Phone)
                         : null,
                     r.IsClosed,
                     LastMessageText = r.ChatMessages
@@ -84,7 +84,7 @@ namespace backend.Controllers
                     Id = m.MessageId,
                     RoomId = "CR" + m.RoomId,
                     SenderId = m.SenderId, // <-- SỬA 1: Giữ nguyên là int
-                    SenderName = m.Sender.User != null ? m.Sender.User.FullName : m.Sender.Username,
+                    SenderName = m.Sender.User != null ? m.Sender.User.FullName : m.Sender.Phone,
                     IsAdmin = m.Sender.Role == 1,
                     Message = m.MessageText ?? "",
                     Timestamp = m.CreatedAt.HasValue ? m.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : ""
@@ -135,7 +135,7 @@ namespace backend.Controllers
                 Id = message.MessageId,
                 RoomId = "CR" + roomId,
                 SenderId = senderId, // <-- SỬA 3: Giữ nguyên là int
-                SenderName = sender.User != null ? sender.User.FullName : sender.Username,
+                SenderName = sender.User != null ? sender.User.FullName : sender.Phone,
                 IsAdmin = sender.Role == 1,
                 Message = message.MessageText ?? "",
                 Timestamp = message.CreatedAt?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""

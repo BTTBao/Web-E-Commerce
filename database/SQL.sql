@@ -1,3 +1,6 @@
+create database Skynet_commerce
+
+use Skynet_commerce;
 
 -- Xóa và tạo lại database
 DROP DATABASE IF EXISTS Skynet_commerce;
@@ -10,7 +13,6 @@ GO
 -- 🧍 Tài khoản người dùng
 CREATE TABLE Accounts (
     AccountID INT IDENTITY(1,1) PRIMARY KEY,
-    Username NVARCHAR(100) UNIQUE NOT NULL,
     PasswordHash NVARCHAR(255) NOT NULL,
     Email NVARCHAR(150) UNIQUE,
     Phone NVARCHAR(20),
@@ -19,12 +21,14 @@ CREATE TABLE Accounts (
 );
 
 -- 🏠 Thông tin người dùng
+
 CREATE TABLE Users (
     UserID INT IDENTITY(1,1) PRIMARY KEY,
     AccountID INT UNIQUE,
     FullName NVARCHAR(150),
     Gender NVARCHAR(10) CHECK (Gender IN ('Male','Female','Other')),
     AvatarURL NVARCHAR(255),
+    DateOfBirth DATE,  -- thêm cột ngày sinh
     FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID) ON DELETE CASCADE
 );
 
@@ -259,3 +263,5 @@ VALUES
 INSERT INTO ChatAttachments (MessageID, FileURL, FileType)
 VALUES
 (1, N'https://example.com/screenshot.png', N'image/png');
+
+select * from Accounts

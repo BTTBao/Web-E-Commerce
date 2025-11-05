@@ -2,7 +2,16 @@
 // using backend.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+
 using backend.Hubs;
+using backend.Extensions;
+
+
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+
+
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "SKYNET_ECOMMERCE";
 
@@ -11,7 +20,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy => policy
-            .WithOrigins("http://localhost:5174")
+            .WithOrigins("http://localhost:5173")
             // .AllowAnyOrigin() // cho phép MỌI domain truy cập
             //Cho phép MỌI loại header
             .AllowAnyHeader()
@@ -20,6 +29,27 @@ builder.Services.AddCors(options =>
             .AllowCredentials());
 });
 
+// 🧩 Đọc key từ appsettings.json
+var jwtSettings = builder.Configuration.GetSection("Jwt");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+// 🧠 Đăng ký Authentication với JWT
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtSettings["Issuer"],
+            ValidAudience = jwtSettings["Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(key)
+        };
+    });
+
+builder.Services.AddAuthorization();
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 builder.Services.AddEndpointsApiExplorer();
@@ -29,7 +59,7 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 // //Đăng ký các dịch vụ (Services) vào DI Container
-// builder.Services.AddApplicationServices();
+ builder.Services.AddApplicationServices();
 
 //Đăng ký ApplicationDbContext vào DI container.
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
@@ -51,6 +81,7 @@ app.UseHttpsRedirection();
 app.UseCors(MyAllowSpecificOrigins);
 
 //Auth
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

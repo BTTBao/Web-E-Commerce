@@ -16,14 +16,22 @@ namespace backend.Repositories
 
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
-            return await _context.Products.ToListAsync();
+            return await _context.Products
+                //.Include(p => p.ProductImages)
+                //.Include(p => p.ProductVariants)
+                //.Include(p => p.Reviews)
+                .ToListAsync();
         }
 
         public async Task<Product?> GetByIdAsync(int id)
         {
             //Find: dựa theo mỗi khoá chính
             //FirstOrDefault: dựa theo bất kì cột nào
-            return await _context.Products.FindAsync(id);
+            return await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Reviews)
+                .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
         public async Task AddAsync(Product product)
