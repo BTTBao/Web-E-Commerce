@@ -148,6 +148,6 @@
 }
 
 .size-chart-image img {
-    width: 100%;
+    width: 100% !important;
     display: block;
 }

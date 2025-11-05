@@ -1,11 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import ProductCard from './ProductCard'; 
 import './ProductGrid.css';
+import ProductCard from '../ProductCard/ProductCard';
 
 const ROWS_PER_PAGE = 7; 
 const MAX_VISIBLE_PAGES = 4; 
 
 const ProductGrid = ({ products }) => {
+  console.log(products)
   const [currentPage, setCurrentPage] = useState(1);
   
   const ITEMS_PER_ROW = 4;
@@ -96,7 +97,7 @@ const ProductGrid = ({ products }) => {
     <div className="product-grid-container">
       <div className="product-grid">
         {currentProducts.map(product => (
-          <ProductCard key={product.id} product={product} />
+          <ProductCard key={product.productId} product={product} />
         ))}
       </div>
 
