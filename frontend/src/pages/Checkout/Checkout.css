@@ -1,0 +1,45 @@
+.checkout-page {
+  background-color: #f9fafb;
+}
+
+.checkout-container {
+  padding: 3rem 1rem;
+}
+
+.back-button {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4b5563;
+  font-weight: 500;
+  margin-bottom: 1.5rem;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.back-button:hover {
+  color: #1f2937;
+}
+
+.back-button-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  .checkout-container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .checkout-container {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .back-button {
+    display: none;
+  }
+}

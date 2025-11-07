@@ -1,0 +1,112 @@
+.shipping-form-box {
+    background: #fff;
+    padding: 24px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+
+.shipping-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: #2d2d2d;
+    margin-bottom: 20px;
+}
+
+/* Label chung */
+.form-label-custom {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 4px;
+    display: block;
+}
+
+/* Input + Select chung */
+.form-input,
+.shipping-form-box select {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    transition: 0.2s;
+    background: #fff;
+}
+
+.form-input:focus,
+.shipping-form-box select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    outline: none;
+}
+
+/* wrapper của input/select */
+.form-group-custom {
+    width: 100%;
+}
+
+/* label chung */
+.form-label-custom {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 4px;
+    display: block;
+}
+
+/* input chung */
+.form-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+    transition: 0.2s;
+}
+
+.form-input:focus {
+    border-color: #3b82f6;
+    background: #fff;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    outline: none;
+}
+
+/* select chung */
+.form-select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+    appearance: none;
+    transition: 0.2s;
+    padding-right: 32px;
+    /* chừa chỗ icon */
+}
+
+.form-select:disabled {
+    background: #f3f4f6;
+}
+
+.form-select:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.3);
+    outline: none;
+}
+
+/* icon mũi tên */
+.select-wrapper {
+    position: relative;
+}
+
+.select-icon {
+    position: absolute;
+    right: 10px;
+    top: 38px;
+    /* canh chuẩn theo input */
+    color: #9ca3af;
+    pointer-events: none;
+}
