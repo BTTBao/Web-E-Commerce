@@ -3,7 +3,7 @@ import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home/Home";
 import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
-import Checkout from "../pages/Checkout";
+import Checkout from "../pages/Checkout/Checkout";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
 import Profile from "../pages/Profile";
@@ -24,19 +24,19 @@ import Vouchers from "../pages/Admin/Vouchers";
 
 export default function AppRouter() {
   return (
-      <Routes>
-        <Route path='/' element={<MainLayout />}>
-          <Route index element={<Home />} />
-          <Route path="product/:id" element={<ProductDetail />} />
-          <Route path="cart" element={<Cart />} />
-          <Route path="checkout" element={<Checkout />} />
-          <Route path="login" element={<Login />} />
-          <Route path="register" element={<Register />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="aboutUs" element={<AboutUs />} />
-          <Route path="vouchers" element={<VoucherList />} />
-          <Route path="reviews" element={<ReviewList />} /> 
-        </Route>
+    <Routes>
+      <Route path='/' element={<MainLayout />}>
+        <Route index element={<Home />} />
+        <Route path="product/:id" element={<ProductDetail />} />
+        <Route path="cart" element={<Cart />} />
+        <Route path="checkout" element={<Checkout />} />
+        <Route path="login" element={<Login />} />
+        <Route path="register" element={<Register />} />
+        <Route path="profile" element={<Profile />} />
+        <Route path="aboutUs" element={<AboutUs />} />
+        <Route path="vouchers" element={<VoucherList />} />
+        <Route path="reviews" element={<ReviewList />} />
+      </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
         <Route index element={<Dashboard />} />
@@ -53,6 +53,6 @@ export default function AppRouter() {
         <Route path="reviews" element={<ReviewList />} />
       </Route>
     </Routes>
-    
+
   );
 }

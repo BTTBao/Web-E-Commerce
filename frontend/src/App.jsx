@@ -6,7 +6,19 @@ import { Toaster } from 'sonner';
 function App() {
   return (
     <>
-      <Toaster position="top-right" richColors />
+      <Toaster
+        position="bottom-right"
+        richColors
+        toastOptions={{
+          style: {
+            fontSize: "16px",     
+            padding: "20px 24px",  
+            minWidth: "500px",     
+            textAlign: "center",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.2)", 
+          },
+        }}
+      />
       <AppRouter />
     </>
   );

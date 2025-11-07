@@ -1,16 +1,26 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import HeaderWrapper from '../components/Header/HeaderWrapper';
 import Footer from '../components/Footer/Footer';
 
-export default function MainLayout(){
+export default function MainLayout() {
+
+  // không dùng footer
+  const location = useLocation();
+  const noFooterRouters = ["/cart", "/checkout", "/product"]
+
+  const hideFooter = noFooterRouters.some((path) =>
+    location.pathname.startsWith(path)
+  );
+  // end
+
   return (
     <>
       <HeaderWrapper />
       <main className="container my-4">
         <Outlet />
       </main>
-      <Footer />
+      {!hideFooter && <Footer />}
     </>
   );
 }
