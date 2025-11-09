@@ -19,7 +19,7 @@ namespace backend.Controllers
         {
             var orders = _context.Orders
                 .Where(o => o.AccountId == accountId)
-                .Include(o => o.Address)
+                .Include(o => o.Address) // đây là navigation property UserAddress
                 .Include(o => o.OrderDetails)
                     .ThenInclude(od => od.Product)
                 .OrderByDescending(o => o.CreatedAt)
@@ -29,10 +29,11 @@ namespace backend.Controllers
                     o.TotalAmount,
                     o.Status,
                     CreatedAt = o.CreatedAt.HasValue ? o.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : null,
-                    Address = o.Address != null ? new
+                    ShippingAddress = o.Address != null ? new
                     {
                         o.Address.AddressLine,
-                        o.Address.City,
+                        o.Address.Ward,
+                        o.Address.District,
                         o.Address.Province,
                         o.Address.IsDefault
                     } : null,

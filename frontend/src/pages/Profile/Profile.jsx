@@ -10,7 +10,16 @@ export default function Profile() {
   const [page, setPage] = useState(1);
   const [address, setAddress] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [newAddress, setNewAddress] = useState({ addressLine: '', city: '', province: '', isDefault: false });
+  const [newAddress, setNewAddress] = useState({
+    receiverFullName: '',
+    receiverPhone: '',
+    addressLine: '',
+    ward: '',
+    district: '',
+    province: '',
+    isDefault: false,
+  });
+
   const user = JSON.parse(localStorage.getItem('account')) || {};
 
   const LoadAddress = () => {
@@ -40,15 +49,16 @@ export default function Profile() {
 const HandleAddAddress = async (e) => {
   e.preventDefault();
 
-  // Đảm bảo key đúng kiểu PascalCase (tránh lowercase sai)
   const body = {
     AccountId: user.accountId,
+    ReceiverFullName: newAddress.receiverFullName,
+    ReceiverPhone: newAddress.receiverPhone,
     AddressLine: newAddress.addressLine,
-    City: newAddress.city,
+    Ward: newAddress.ward,
+    District: newAddress.district,
     Province: newAddress.province,
     IsDefault: newAddress.isDefault,
   };
-
   console.log('Gửi địa chỉ:', body);
 
   try {
@@ -64,7 +74,15 @@ const HandleAddAddress = async (e) => {
     if (res.ok) {
       alert("Thêm địa chỉ thành công!");
       setShowForm(false);
-      setNewAddress({ addressLine: '', city: '', province: '', isDefault: false });
+      setNewAddress({
+        receiverFullName: '',
+        receiverPhone: '',
+        addressLine: '',
+        ward: '',
+        district: '',
+        province: '',
+        isDefault: false,
+      });
       LoadAddress();
     } else {
       // Nên show lỗi chi tiết server trả về
@@ -175,45 +193,107 @@ const HandleAddAddress = async (e) => {
           )}
           {activeTab === 'address' && (
             <div>
-              {address.length === 0 ? <p>Không có địa chỉ nào!</p> : (
+              {address.length === 0 ? (
+                <p>Không có địa chỉ nào!</p>
+              ) : (
                 <div className='add-bg'>
                   {address.map(a => (
                     <div key={a.addressId} className='add-item'>
                       <b>{a.isDefault ? 'Mặc định' : ''}</b>
-                      <p>{a.addressLine}, {a.province}, {a.city}</p>
+                      <p><strong>Người nhận:</strong> {a.receiverFullName}</p>
+                      <p><strong>SĐT người nhận:</strong> {a.receiverPhone}</p>
+                      <p><strong>Địa chỉ:</strong> {a.addressLine}, {a.ward}, {a.district}, {a.province}</p>
+
                       <div className='d-flex gap-2 justify-content-center'>
                         <button className='btn btn-danger' onClick={() => HandleDeleteAddress(a.addressId)}>Xóa</button>
-                        <button className='btn btn-success' onClick={() => HandleSetDefault(a.addressId)}>Đặt mặc định</button>
+                        {!a.isDefault && (
+                          <button className='btn btn-success' onClick={() => HandleSetDefault(a.addressId)}>Đặt mặc định</button>
+                        )}
                       </div>
                     </div>
                   ))}
                 </div>
+
               )}
 
               <button className='btn btn-primary mt-3' onClick={() => setShowForm(true)}>Thêm địa chỉ</button>
 
               {showForm && (
                 <form className='border p-3 rounded bg-light mt-3' onSubmit={HandleAddAddress}>
-                  <input className='form-control mb-2' placeholder='Địa chỉ' value={newAddress.addressLine}
-                    onChange={e => setNewAddress({ ...newAddress, addressLine: e.target.value })} required />
-                  <input className='form-control mb-2' placeholder='Tỉnh/Thành phố' value={newAddress.province}
-                    onChange={e => setNewAddress({ ...newAddress, province: e.target.value })} required />
-                  <input className='form-control mb-2' placeholder='Quận/Huyện' value={newAddress.city}
-                    onChange={e => setNewAddress({ ...newAddress, city: e.target.value })} />
+                  <h4>Thêm địa chỉ mới</h4>
+                  <input
+                    className='form-control mb-2'
+                    placeholder='Tên người nhận'
+                    value={newAddress.receiverFullName || ''}
+                    onChange={e => setNewAddress({ ...newAddress, receiverFullName: e.target.value })}
+                    required
+                  />
+                  <input
+                    className='form-control mb-2'
+                    placeholder='Số điện thoại người nhận'
+                    value={newAddress.receiverPhone || ''}
+                    onChange={e => setNewAddress({ ...newAddress, receiverPhone: e.target.value })}
+                    required
+                    type="tel"
+                  />
+                  <input
+                    className='form-control mb-2'
+                    placeholder='Địa chỉ'
+                    value={newAddress.addressLine || ''}
+                    onChange={e => setNewAddress({ ...newAddress, addressLine: e.target.value })}
+                    required
+                  />
+                  <input
+                    className='form-control mb-2'
+                    placeholder='Phường/Xã'
+                    value={newAddress.ward || ''}
+                    onChange={e => setNewAddress({ ...newAddress, ward: e.target.value })}
+                    required
+                  />
+                  <input
+                    className='form-control mb-2'
+                    placeholder='Quận/Huyện'
+                    value={newAddress.district || ''}
+                    onChange={e => setNewAddress({ ...newAddress, district: e.target.value })}
+                    required
+                  />
+                  <input
+                    className='form-control mb-2'
+                    placeholder='Tỉnh/Thành phố'
+                    value={newAddress.province || ''}
+                    onChange={e => setNewAddress({ ...newAddress, province: e.target.value })}
+                    required
+                  />
                   <div className='form-check mb-2'>
-                    <input type='checkbox' className='form-check-input'
-                      checked={newAddress.isDefault}
-                      onChange={e => setNewAddress({ ...newAddress, isDefault: e.target.checked })} />
-                    <label className='form-check-label'>Đặt làm mặc định</label>
+                    <input
+                      type='checkbox'
+                      className='form-check-input'
+                      checked={newAddress.isDefault || false}
+                      onChange={e => setNewAddress({ ...newAddress, isDefault: e.target.checked })}
+                      id='defaultAddressCheckbox'
+                    />
+                    <label className='form-check-label' htmlFor='defaultAddressCheckbox'>Đặt làm mặc định</label>
                   </div>
                   <div className='d-flex gap-2'>
                     <button type='submit' className='btn btn-success'>Lưu</button>
-                    <button type='button' className='btn btn-secondary' onClick={() => setShowForm(false)}>Hủy</button>
+                    <button type='button' className='btn btn-secondary' onClick={() => {
+                      setShowForm(false);
+                      setNewAddress({
+                        receiverFullName: '',
+                        receiverPhone: '',
+                        addressLine: '',
+                        ward: '',
+                        district: '',
+                        province: '',
+                        isDefault: false,
+                      });
+                    }}>Hủy</button>
                   </div>
                 </form>
               )}
             </div>
           )}
+
         </div>
       </div>
     </div>

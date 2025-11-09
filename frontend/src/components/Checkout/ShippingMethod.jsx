@@ -1,7 +1,7 @@
 import { CheckCircleIcon, TruckIcon } from 'lucide-react'
 import React, { useState } from 'react'
 import { formatPrice } from '../../utils/formatPrice'
-import './css/ShippingMethod.css'
+// import './css/ShippingMethod.css'
 
 const shippingOptions = [
     {

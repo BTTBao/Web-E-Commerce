@@ -7,11 +7,15 @@ namespace backend.Controllers
     public class UserAddressDto
     {
         public int AccountId { get; set; }
-        public string AddressLine { get; set; } = null!;
-        public string? City { get; set; }
-        public string? Province { get; set; }
+        public string ReceiverFullName { get; set; }
+        public string ReceiverPhone { get; set; }
+        public string AddressLine { get; set; }
+        public string Ward { get; set; }
+        public string District { get; set; }
+        public string Province { get; set; }
         public bool? IsDefault { get; set; }
     }
+
 
     [Route("api/[controller]")]
     [ApiController]
@@ -67,26 +71,40 @@ namespace backend.Controllers
         [HttpPost("add")]
         public IActionResult AddAddress([FromBody] UserAddressDto newAddressDto)
         {
-            if (newAddressDto == null || newAddressDto.AccountId == 0)
+            if (newAddressDto == null || newAddressDto.AccountId == 0 ||
+                string.IsNullOrWhiteSpace(newAddressDto.ReceiverFullName) ||
+                string.IsNullOrWhiteSpace(newAddressDto.ReceiverPhone) ||
+                string.IsNullOrWhiteSpace(newAddressDto.AddressLine) ||
+                string.IsNullOrWhiteSpace(newAddressDto.Ward) ||
+                string.IsNullOrWhiteSpace(newAddressDto.District) ||
+                string.IsNullOrWhiteSpace(newAddressDto.Province))
+            {
                 return BadRequest(new { message = "Dữ liệu không hợp lệ!" });
+            }
 
             var newAddress = new UserAddress
             {
                 AccountId = newAddressDto.AccountId,
+                ReceiverFullName = newAddressDto.ReceiverFullName,
+                ReceiverPhone = newAddressDto.ReceiverPhone,
                 AddressLine = newAddressDto.AddressLine,
-                City = newAddressDto.City,
+                Ward = newAddressDto.Ward,
+                District = newAddressDto.District,
                 Province = newAddressDto.Province,
-                IsDefault = newAddressDto.IsDefault,
+                IsDefault = newAddressDto.IsDefault ?? false,
             };
 
             if (newAddress.IsDefault == true)
             {
-                var list = _context.UserAddresses
-                    .Where(x => x.AccountId == newAddress.AccountId)
+                var existingAddresses = _context.UserAddresses
+                    .Where(x => x.AccountId == newAddress.AccountId && x.IsDefault == true)
                     .ToList();
 
-                foreach (var a in list)
-                    a.IsDefault = false;
+                foreach (var addr in existingAddresses)
+                {
+                    addr.IsDefault = false;
+                }
+                _context.SaveChanges();
             }
 
             _context.UserAddresses.Add(newAddress);
@@ -94,6 +112,7 @@ namespace backend.Controllers
 
             return Ok(new { message = "Thêm địa chỉ thành công!", newAddress });
         }
+
 
     }
 }
