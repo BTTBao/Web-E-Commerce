@@ -10,7 +10,11 @@ function EmptyCart() {
             <p className=".empty-cart-text">
                 Trông có vẻ như bạn chưa thêm sản phẩm nào vào giỏ hàng. Hãy bắt đầu khám phá bộ sưu tập của chúng tôi!
             </p>
-            <button className="empty-cart-button">
+            <button
+                onClick={() => {
+                    window.location.href = "/";
+                }}
+                className="empty-cart-button">
                 Tiếp tục mua sắm
             </button>
         </div>

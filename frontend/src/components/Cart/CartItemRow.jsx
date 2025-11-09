@@ -11,16 +11,16 @@ function CartItemRow({ item }) {
             {/* Thông tin sản phẩm */}
             <div className="cart-item-info">
                 <img
-                    src={item.image}
-                    alt={item.name}
+                    src={item.image || item.imageUrl}
+                    alt={item.name || item.productName}
                     className="cart-item-image"
                 />
                 <div>
-                    <p className="cart-item-name">{item.name}</p>
-                    <p className="cart-item-variant">Màu: {item.color}</p>
-                    <p className="cart-item-variant">Size: {item.size}</p>
+                    <p className="cart-item-name">{item.name || item.productName}</p>
+                    <p className="cart-item-variant">Kích cỡ: {item.variantName}</p>
+                    {/* <p className="cart-item-variant">Size: {item.size}</p> */}
                     <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem((item.productId || item.id), item.variantId)}
                         className="cart-item-remove-mobile"
                         aria-label={`Xoá ${item.name}`}
                     >
@@ -38,7 +38,7 @@ function CartItemRow({ item }) {
             <div className="cart-item-quantity-wrapper">
                 <div className="cart-item-quantity-control">
                     <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.productId, item.variantId, item.quantity - 1)}
                         className="cart-item-quantity-btn minus-btn"
                         disabled={item.quantity <= 1}
                     >
@@ -48,7 +48,7 @@ function CartItemRow({ item }) {
                         {item.quantity}
                     </span>
                     <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.productId, item.variantId, item.quantity + 1)}
                         className="cart-item-quantity-btn plus-btn"
                     >
                         <PlusIcon className="w-4 h-4" />
@@ -66,7 +66,7 @@ function CartItemRow({ item }) {
             {/* Nút xóa */}
             <div className="cart-item-remove-desktop-wrapper">
                 <button
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeItem((item.productId || item.id), item.variantId)}
                     className="cart-item-remove-desktop"
                     aria-label={`Xoá ${item.name}`}
                 >

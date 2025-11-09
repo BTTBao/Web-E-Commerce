@@ -12,6 +12,10 @@ namespace backend.Extensions
             //Product
             services.AddScoped<IProductRepository, ProductRepository>();
             services.AddScoped<IProductService, ProductService>();
+
+            //Cart
+            services.AddScoped<ICartRepository, CartRepository>();
+            services.AddScoped<ICartService, CartService>();
             //User
             //...
             return services;

@@ -21,8 +21,8 @@ function CartView({ onOpenClearCartModal }) {
           của các component CartItemRow 
         */}
                 <div className="cart-item-list">
-                    {cart.map((item) => (
-                        <CartItemRow key={item.id} item={item} />
+                    {cart.map((item, index) => (
+                        <CartItemRow key={index} item={item} />
                     ))}
                 </div>
             </div>
