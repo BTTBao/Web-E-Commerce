@@ -6,7 +6,7 @@ import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout/Checkout";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import Profile from "../pages/Profile";
+import Profile from "../pages/Profile/Profile";
 import AdminLayout from "../layouts/AdminLayout";
 import Dashboard from "../pages/Admin/Dashboard";
 import Products from "../pages/Admin/Products";
