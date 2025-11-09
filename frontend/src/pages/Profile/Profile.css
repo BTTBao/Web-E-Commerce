@@ -1,0 +1,77 @@
+.bg-pr{
+    height: auto;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+}
+
+.bg-menu{
+    background-color: #F1EFF1;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.bg-menu button
+{
+    width: 100%;
+    height: 40px;
+    margin-bottom: 7px;
+}
+.bg-content{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.bg-hi{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.bg-hi img{
+    width: 100px;
+    height: 200px;
+}
+.menu-order
+{
+    display: flex;
+    gap: 5px;
+}
+.order-card
+{
+    background-color: white;
+    border-radius: 10px;
+    border: black solid 1px;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+    margin-bottom: 5px;
+    
+}
+
+.bg-inf{
+    border: black solid 1px;
+    padding: 15px;
+    border-radius: 10px;
+}
+.add-bg{
+    padding: 20px;
+    display: flex;
+    gap: 10px;
+    flex-direction: column;
+}
+.add-item
+{
+    border: black solid 1px;
+    padding: 20px;
+}
+@media screen and (max-width: 600px){
+    .bg-pr{
+        flex-direction: row;
+    }
+}
