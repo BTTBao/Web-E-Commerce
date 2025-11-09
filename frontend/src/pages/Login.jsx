@@ -1,5 +1,6 @@
 import React, { useState, useEffect, } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useCart } from '../hooks/useCart';
 
 
 
@@ -7,6 +8,7 @@ export default function Login(){
 
   const [userName, setUser] = useState('');
   const [passWord, setPass] = useState('');
+  const {onLogin} = useCart();
   const navigator = useNavigate();
   const HandleLogin = () => {
     fetch(`https://localhost:7132/api/Account/login?username=${userName}&password=${passWord}`)
@@ -20,6 +22,7 @@ export default function Login(){
     }).then(data =>{
       localStorage.setItem('token', data.token);
       localStorage.setItem('account', JSON.stringify(data.account));
+      onLogin(data.account.accountId);
       navigator('/');
     })
     .catch(error =>{

@@ -33,24 +33,27 @@ function ProductGallery({ images = [] }) {
         </Swiper>
 
         {/* Thumbs */}
-        <Swiper
-          onSwiper={setActiveThumb}
-          loop={images.length > 2}
-          spaceBetween={10}
-          slidesPerView={images.length}
-          modules={[Navigation, Thumbs]}
-          className='product-images-slider-thumbs'
-        >
-          {
-            images.map((item, index) => (
-              <SwiperSlide key={item.imageId}>
-                <div className="product-images-slider-thumbs-wrapper">
-                  <img src={item.imageUrl} alt="product images" />
-                </div>
-              </SwiperSlide>
-            ))
-          }
-        </Swiper>
+        {
+          images.length > 1 &&
+          <Swiper
+            onSwiper={setActiveThumb}
+            loop={images.length > 2}
+            spaceBetween={10}
+            slidesPerView={images.length}
+            modules={[Navigation, Thumbs]}
+            className='product-images-slider-thumbs'
+          >
+            {
+              images.map((item, index) => (
+                <SwiperSlide key={item.imageId}>
+                  <div className="product-images-slider-thumbs-wrapper">
+                    <img src={item.imageUrl} alt="product images" />
+                  </div>
+                </SwiperSlide>
+              ))
+            }
+          </Swiper>
+        }
       </div>
     </>
   )

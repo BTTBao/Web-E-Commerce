@@ -1,0 +1,82 @@
+.shipping-method {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+}
+
+.shipping-method.disabled {
+  opacity: 0.5;
+}
+
+.shipping-method-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+}
+
+.shipping-method-disabled-text {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.shipping-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.shipping-option {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.shipping-option:hover {
+  border-color: #9ca3af;
+}
+
+.shipping-option.selected {
+  border-color: #3b82f6;
+  background-color: #eff6ff;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+}
+
+.shipping-option-icon {
+  width: 2rem;
+  height: 2rem;
+  color: #4b5563;
+  margin-right: 1rem;
+}
+
+.shipping-option-content {
+  flex-grow: 1;
+}
+
+.shipping-option-name {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.shipping-option-duration {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.shipping-option-price {
+  font-weight: 600;
+  color: #1f2937;
+  margin-right: 1rem;
+}
+
+.shipping-option-check {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #2563eb;
+}

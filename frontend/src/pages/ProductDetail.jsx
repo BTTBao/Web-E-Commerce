@@ -12,7 +12,6 @@ import ProductGrid from '../components/ProductGrid/ProductGrid'
 
 function ProductDetail() {
   const { id } = useParams()
-  const [products, setProducts] = useState(null)
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -22,9 +21,7 @@ function ProductDetail() {
       try {
         setLoading(true)
         const res = await productApi.getById(id)
-        const res1 = await productApi.getAll()
         setProduct(res.data)
-        setProducts(res1.data)
       } catch (err) {
         console.error(err)
         setError('Không thể tải sản phẩm')
@@ -47,8 +44,7 @@ function ProductDetail() {
         <div className="col-12 col-lg-5">
           <ProductInfo product={product}/>
         </div>
-        <ProductRelated />
-        <ProductGrid products={products}/>
+        <ProductRelated category = {product.categoryId}/>
       </div>
     </>
   )
