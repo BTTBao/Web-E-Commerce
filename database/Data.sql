@@ -1,6 +1,7 @@
 ﻿/*
 =================================================
  SCRIPT CHÈN DỮ LIỆU MẪU CHO SKYNET_COMMERCE
+ (*** ĐÃ CẬP NHẬT THEO SCHEMA MỚI NHẤT ***)
 =================================================
 */
 
@@ -108,22 +109,26 @@ INSERT INTO ProductImages (ProductID, ImageURL, IsPrimary) VALUES
 GO
 
 -- 🌈 7. BIẾN THỂ (PRODUCT VARIANTS)
-INSERT INTO ProductVariants (ProductID, VariantName, SKU, Price, StockQuantity) VALUES
-(1, N'Size M', 'AOSOMI-TRANG-M', 450000, 50), -- ID 1
-(1, N'Size L', 'AOSOMI-TRANG-L', 450000, 50), -- ID 2
-(2, N'Size 30', 'QUANJEAN-SKINNY-30', 680000, 25), -- ID 3
-(2, N'Size 32', 'QUANJEAN-SKINNY-32', 680000, 25), -- ID 4
-(3, N'Màu Trắng', 'AOTHUN-NU-TRANG', 250000, 100), -- ID 5
-(3, N'Màu Đen', 'AOTHUN-NU-DEN', 250000, 100); -- ID 6
+-- === ĐÃ CẬP NHẬT (THAY VariantName bằng Size và Color) ===
+INSERT INTO ProductVariants (ProductID, Size, Color, SKU, Price, StockQuantity) VALUES
+-- Áo sơ mi (ID 1) chỉ có Size
+(1, 'M', NULL, 'AOSOMI-TRANG-M', 450000, 50), -- ID 1
+(1, 'L', NULL, 'AOSOMI-TRANG-L', 450000, 50), -- ID 2
+-- Quần Jeans (ID 2) chỉ có Size
+(2, '30', NULL, 'QUANJEAN-SKINNY-30', 680000, 25), -- ID 3
+(2, '32', NULL, 'QUANJEAN-SKINNY-32', 680000, 25), -- ID 4
+-- Áo thun (ID 3) chỉ có Color
+(3, NULL, N'Trắng', 'AOTHUN-NU-TRANG', 250000, 100), -- ID 5
+(3, NULL, N'Đen', 'AOTHUN-NU-DEN', 250000, 100); -- ID 6
 GO
 
 -- 🛒 8. GIỎ HÀNG (CARTS) VÀ CHI TIẾT (CART ITEMS)
 INSERT INTO Carts (AccountID) VALUES (2), (3), (5); -- Carts for User A, B, D (CartID 1, 2, 3)
 GO
 INSERT INTO CartItems (CartID, ProductID, VariantID, Quantity) VALUES
-(1, 1, 2, 1), -- User A (Cart 1) muốn 1 Áo Sơ Mi (Size L)
-(1, 2, 3, 1), -- User A (Cart 1) muốn 1 Quần Jeans (Size 30)
-(2, 3, 5, 2), -- User B (Cart 2) muốn 2 Áo Thun (Màu Trắng)
+(1, 1, 2, 1), -- User A (Cart 1) muốn 1 Áo Sơ Mi (VariantID 2 = Size L)
+(1, 2, 3, 1), -- User A (Cart 1) muốn 1 Quần Jeans (VariantID 3 = Size 30)
+(2, 3, 5, 2), -- User B (Cart 2) muốn 2 Áo Thun (VariantID 5 = Màu Trắng)
 (3, 10, NULL, 1); -- User D (Cart 3) muốn 1 Áo Croptop (ko có variant)
 GO
 
@@ -132,14 +137,14 @@ GO
 INSERT INTO Orders (AccountID, AddressID, TotalAmount, Status) 
 VALUES (2, 1, 1130000, 'Delivered'); -- OrderID 1
 INSERT INTO OrderDetails (OrderID, ProductID, VariantID, Quantity, UnitPrice) VALUES
-(1, 1, 2, 1, 450000), -- Áo Sơ Mi (Size L)
-(1, 2, 3, 1, 680000); -- Quần Jeans (Size 30)
+(1, 1, 2, 1, 450000), -- Áo Sơ Mi (VariantID 2 = Size L)
+(1, 2, 3, 1, 680000); -- Quần Jeans (VariantID 3 = Size 30)
 
 -- Order 2 (Shipped) cho User B (AccountID 3), dùng Address 3
 INSERT INTO Orders (AccountID, AddressID, TotalAmount, Status) 
 VALUES (3, 3, 750000, 'Shipped'); -- OrderID 2
 INSERT INTO OrderDetails (OrderID, ProductID, VariantID, Quantity, UnitPrice) VALUES
-(2, 3, 5, 3, 250000); -- 3 Áo Thun (Màu Trắng)
+(2, 3, 5, 3, 250000); -- 3 Áo Thun (VariantID 5 = Màu Trắng)
 
 -- Order 3 (Pending) cho User A (AccountID 2), dùng Address 1
 INSERT INTO Orders (AccountID, AddressID, TotalAmount, Status) 
@@ -211,4 +216,4 @@ INSERT INTO ChatMessages (RoomID, SenderID, MessageText) VALUES
 (3, 5, N'Túi xách da thật (ID 6) có hàng không shop?');
 GO
 
-PRINT '*** HOÀN TẤT CHÈN 100+ DỮ LIỆU MẪU ***';
+PRINT '*** HOÀN TẤT CHÈN DỮ LIỆU MẪU (ĐÃ SỬA VARIANTS) ***';

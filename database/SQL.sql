@@ -1,4 +1,3 @@
-
 -- Xóa và tạo lại database
 DROP DATABASE IF EXISTS Skynet_commerce;
 GO
@@ -83,7 +82,13 @@ CREATE TABLE ProductImages (
 CREATE TABLE ProductVariants (
     VariantID INT IDENTITY(1,1) PRIMARY KEY,
     ProductID INT NOT NULL,
-    VariantName NVARCHAR(100),
+    
+    -- === ĐÃ THAY ĐỔI ===
+    -- Đã xóa "VariantName" và thay bằng 2 cột này
+    Size NVARCHAR(50) NULL,
+    Color NVARCHAR(50) NULL,
+    -- ====================
+
     SKU NVARCHAR(100) UNIQUE,
     Price DECIMAL(12,2) CHECK (Price >= 0),
     StockQuantity INT DEFAULT 0 CHECK (StockQuantity >= 0),
@@ -219,56 +224,6 @@ CREATE TABLE ChatAttachments (
     FOREIGN KEY (MessageID) REFERENCES ChatMessages(MessageID) ON DELETE CASCADE
 );
 
-
--- 1. Tạo Login (Tài khoản để đăng nhập vào Server)
--- Mật khẩu này phải khớp với mật khẩu trong connection string của bạn
-CREATE LOGIN Skynet WITH PASSWORD = 'MatKhauSuperSecure123!';
-
--- 2. Chuyển sang database bạn vừa tạo
-USE Skynet_commerce;
-
--- 3. Tạo User (Tài khoản để dùng trong Database)
--- và liên kết nó với Login ở trên
-CREATE USER Skynet FOR LOGIN Skynet;
-
--- 4. Cấp quyền Owner (cao nhất) cho User này trên database
-ALTER ROLE db_owner ADD MEMBER Skynet;
-
-USE Skynet_commerce;
-GO
-
--- 🧑‍💻 1️⃣ Tài khoản Admin
-INSERT INTO Accounts (Username, PasswordHash, Email, Role)
-VALUES 
-(N'admin1', N'$2a$10$hashedAdminPassword123', N'admin1@skynet.com', 0);
-
--- 👤 2️⃣ Tài khoản User
-INSERT INTO Accounts (Username, PasswordHash, Email, Role)
-VALUES 
-(N'user1', N'$2a$10$hashedUserPassword123', N'user1@gmail.com', 1);
-
--- (tuỳ chọn) thêm vào bảng Users
-INSERT INTO Users (AccountID, FullName, Gender, AvatarURL)
-VALUES
-(1, N'Admin Sky', 'Male', N'https://cdn-icons-png.flaticon.com/512/2202/2202112.png'),
-(2, N'Nguyễn Văn User', 'Male', N'https://cdn-icons-png.flaticon.com/512/147/147144.png');
-
--- 💬 3️⃣ Tạo phòng chat
-INSERT INTO ChatRooms (CustomerID, AdminID, CreatedAt, IsClosed)
-VALUES (2, 1, GETDATE(), 0);
-
--- 💭 4️⃣ Tạo vài tin nhắn trong phòng
-INSERT INTO ChatMessages (RoomID, SenderID, MessageText, CreatedAt)
-VALUES
-(1, 2, N'Chào admin, mình cần hỗ trợ về đơn hàng!', GETDATE()),
-(1, 1, N'Xin chào, mình là Admin Sky. Bạn cần hỗ trợ đơn nào vậy?', GETDATE()),
-(1, 2, N'Đơn #1023 của mình chưa giao tới.', GETDATE()),
-(1, 1, N'Mình kiểm tra lại giúp bạn ngay nhé.', GETDATE());
-
--- 📎 5️⃣ (Tuỳ chọn) Thêm file đính kèm mẫu
-INSERT INTO ChatAttachments (MessageID, FileURL, FileType)
-VALUES
-(1, N'https://example.com/screenshot.png', N'image/png');
-
-select * from Accounts
-
+USE master;
+ALTER DATABASE Skynet_commerce SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+DROP DATABASE Skynet_commerce;

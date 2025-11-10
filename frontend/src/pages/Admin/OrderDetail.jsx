@@ -1,52 +1,14 @@
 // src/pages/Admin/OrderDetail.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // <-- Thêm useEffect
 import { ArrowLeft } from 'lucide-react';
-// THÊM 2 DÒNG NÀY:
 import { useParams, useNavigate } from 'react-router-dom';
+import './OrderDetail.css'; // <-- Import CSS của bạn
 
-// Dữ liệu mẫu
-const orderDetails = {
-  DH001: {
-    id: 'DH001',
-    customer: 'Nguyễn Văn A',
-    phone: '0901234567',
-    address: '123 Nguyễn Huệ, Quận 1, TP.HCM',
-    date: '2025-10-25 14:30',
-    note: 'Giao giờ hành chính',
-    status: 'Pending',
-    paymentMethod: 'COD',
-    paymentStatus: 'Unpaid',
-    items: [
-      { id: 1, image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9', name: 'iPhone 15 Pro Max', variant: '256GB - Titan Tự nhiên', quantity: 1, price: 29990000 },
-      { id: 2, image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f', name: 'AirPods Pro 2', variant: null, quantity: 2, price: 6990000 },
-    ],
-    subtotal: 43970000,
-    shipping: 30000,
-    discount: 0,
-    total: 44000000,
-  },
-  // Bạn có thể thêm data cho DH002, DH003... ở đây
-  DH002: {
-    id: 'DH002',
-    customer: 'Trần Thị B',
-    phone: '0901234568',
-    address: '456 Lê Lợi, Quận 3, TP.HCM',
-    date: '2025-10-25 10:00',
-    note: '',
-    status: 'Confirmed',
-    paymentMethod: 'Chuyển khoản',
-    paymentStatus: 'Paid',
-    items: [
-      { id: 1, image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9', name: 'Samsung Galaxy S24', variant: '128GB - Đen', quantity: 1, price: 23000000 },
-    ],
-    subtotal: 23000000,
-    shipping: 0,
-    discount: 0,
-    total: 23000000,
-  },
-};
+// --- ĐỊNH NGHĨA API (Giống như trang Orders.jsx) ---
+const API_URL = 'https://localhost:7132/api/orders';
 
+// (Giữ nguyên các labels)
 const statusLabels = {
   Pending: 'Chờ xử lý',
   Confirmed: 'Đã xác nhận',
@@ -55,43 +17,124 @@ const statusLabels = {
   Cancelled: 'Đã hủy',
 };
 
-// Import file CSS (giữ nguyên)
-import './OrderDetail.css';
+// Định nghĩa các label cho trạng thái thanh toán
+const paymentStatusLabels = {
+  Pending: 'Chưa thanh toán',
+  Paid: 'Đã thanh toán',
+  Failed: 'Thất bại',
+  Unpaid: 'Chưa thanh toán', // Thêm Unpaid nếu backend trả về
+  Refunded: 'Đã hoàn tiền',
+};
 
-// XÓA BỎ PROPS (orderId, onBack)
+// --- COMPONENT CHÍNH ---
 export default function OrderDetail() {
-  // SỬ DỤNG HOOKS CỦA REACT ROUTER
-  const { orderId } = useParams(); // Lấy 'orderId' (ví dụ: 'DH001') từ URL
-  const navigate = useNavigate(); // Dùng để điều hướng (quay lại)
+  const { orderId } = useParams(); // Lấy ID từ URL (ví dụ: 'DH00001')
+  const navigate = useNavigate();
 
-  // SỬA LẠI LOGIC LẤY ORDER
-  // Lấy order dựa trên orderId từ URL
-  const order = orderId ? orderDetails[orderId] : null; 
-  const [status, setStatus] = useState(order ? order.status : 'Pending');
+  // --- STATE ĐỂ LƯU DỮ LIỆU ---
+  const [order, setOrder] = useState(null); // Lưu chi tiết đơn hàng
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  // State riêng cho dropdown, để người dùng thay đổi
+  const [status, setStatus] = useState(''); 
 
-  // HÀM MỚI ĐỂ QUAY LẠI
-  const handleBack = () => {
-    navigate(-1); // Quay lại trang trước đó (trang danh sách Orders)
+  // --- 1. GỌI API ĐỂ LẤY DỮ LIỆU KHI TẢI TRANG ---
+  useEffect(() => {
+    if (!orderId) {
+      setError('Không có ID đơn hàng.');
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
+    fetch(`${API_URL}/${orderId}`)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error(`Không tìm thấy đơn hàng (Lỗi ${res.status})`);
+        }
+        return res.json();
+      })
+      .then(data => {
+        setOrder(data); // Lưu dữ liệu đơn hàng vào state
+        setStatus(data.status); // Cập nhật dropdown với trạng thái hiện tại
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi fetch chi tiết đơn hàng:", err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, [orderId]); // Chỉ chạy lại nếu orderId thay đổi
+
+  // --- 2. HÀM XỬ LÝ CẬP NHẬT TRẠNG THÁI ---
+  const handleUpdateStatus = () => {
+    // (Trong tương lai, bạn có thể thêm 1 state 'isUpdating' để disable nút)
+    
+    fetch(`${API_URL}/${orderId}/status`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // Gửi lên trạng thái mới mà người dùng đã chọn
+      body: JSON.stringify({ status: status }), 
+    })
+    .then(res => {
+      if (!res.ok) {
+        // Thử đọc lỗi JSON từ backend
+        return res.json().then(err => { throw new Error(err.message || 'Cập nhật thất bại'); });
+      }
+      return res.json();
+    })
+    .then(data => {
+      // Cập nhật lại trạng thái trong state 'order'
+      setOrder(prevOrder => ({ ...prevOrder, status: status }));
+      alert(data.message || 'Cập nhật trạng thái thành công!');
+    })
+    .catch(err => {
+      console.error("Lỗi cập nhật trạng thái:", err);
+      alert(`Lỗi: ${err.message}`);
+    });
   };
 
-  if (!order) {
+  // --- 3. HÀM QUAY LẠI ---
+  const handleBack = () => {
+    navigate(-1); // Quay lại trang danh sách
+  };
+
+  // --- RENDER TRẠNG THÁI LOADING ---
+  if (loading) {
     return (
       <div className="order-detail-container">
-        {/* SỬ DỤNG HÀM MỚI */}
         <button className="back-button" onClick={handleBack}>
           <ArrowLeft className="back-icon" />
           Quay lại
         </button>
-        {/* Cập nhật thông báo lỗi */}
-        <p>Không tìm thấy đơn hàng với ID: {orderId}</p>
+        <p>Đang tải chi tiết đơn hàng...</p>
       </div>
     );
   }
 
+  // --- RENDER TRẠNG THÁI LỖI ---
+  if (error || !order) {
+    return (
+      <div className="order-detail-container">
+        <button className="back-button" onClick={handleBack}>
+          <ArrowLeft className="back-icon" />
+          Quay lại
+        </button>
+        <h1>Lỗi</h1>
+        <p>{error || `Không tìm thấy đơn hàng với ID: ${orderId}`}</p>
+      </div>
+    );
+  }
+
+  // --- RENDER DỮ LIỆU THẬT TỪ API ---
+  // (Đổi `order.customer` -> `order.customerName`, `order.items` -> `order.items`)
+  // (Đổi `item.variant` -> `item.size`, `item.color`)
   return (
     <div className="order-detail-container">
       <div className="order-detail-header">
-        {/* SỬ DỤNG HÀM MỚI */}
         <button className="back-button" onClick={handleBack}>
           <ArrowLeft className="back-icon" />
           Quay lại
@@ -99,10 +142,6 @@ export default function OrderDetail() {
         <h1 className="order-detail-title">Chi tiết đơn hàng: {order.id}</h1>
         <div className="header-spacer-right" />
       </div>
-
-      {/* TOÀN BỘ PHẦN BÊN DƯỚI (main-grid, card...) GIỮ NGUYÊN
-        VÌ BẠN ĐÃ SỬA LỖI ESLINT (DÙNG Object.entries) RỒI
-      */}
 
       <div className="main-grid">
         {/* Cột trái */}
@@ -114,74 +153,88 @@ export default function OrderDetail() {
             </div>
             <div className="card-content">
               <div className="order-item-list">
+                
+                {/* Lấy từ `order.items` (API trả về) */}
                 {order.items.map((item) => (
-                  <div key={item.id} className="order-item">
+                  <div key={item.productId} className="order-item">
                     <img
-                      src={item.image}
-                      alt={item.name}
+                      src={item.imageUrl}
+                      alt={item.productName}
                       className="item-image"
                       onError={(e) => e.target.src = 'https://via.placeholder.com/80'} // Fallback
                     />
                     <div className="item-info">
-                      <h3 className="item-name">{item.name}</h3>
-                      {item.variant && (
-                        <p className="item-variant">{item.variant}</p>
+                      <h3 className="item-name">{item.productName}</h3>
+                      
+                      {/* --- SỬA LOGIC BIẾN THỂ --- */}
+                      {(item.size || item.color) && (
+                        <p className="item-variant">
+                          {item.size && `Size: ${item.size}`}
+                          {item.size && item.color && ' - '}
+                          {item.color && `Màu: ${item.color}`}
+                        </p>
                       )}
+                      
                       <p className="item-quantity">Số lượng: {item.quantity}</p>
                     </div>
                     <div className="item-price-section">
-                      <p className="item-price">{item.price.toLocaleString('vi-VN')} đ</p>
+                      <p className="item-price">{item.unitPrice.toLocaleString('vi-VN')} đ</p>
                       <p className="item-line-total">
-                        Thành tiền: {(item.price * item.quantity).toLocaleString('vi-VN')} đ
+                        Thành tiền: {item.subTotal.toLocaleString('vi-VN')} đ
                       </p>
                     </div>
                   </div>
                 ))}
               </div>
 
+              {/* Tạm thời ẩn phần summary này vì DTO chi tiết không có
+                  (Bạn có thể tự tính tổng subTotal từ mảng items nếu muốn)
+                  <div className="summary-section">
+                    ...
+                  </div> 
+              */}
               <div className="summary-section">
-                <div className="summary-row">
-                  <span>Tạm tính:</span>
-                  <span>{order.subtotal.toLocaleString('vi-VN')} đ</span>
-                </div>
-                <div className="summary-row">
-                  <span>Phí vận chuyển:</span>
-                  <span>{order.shipping.toLocaleString('vi-VN')} đ</span>
-                </div>
-                {order.discount > 0 && (
-                  <div className="summary-row discount">
-                    <span>Giảm giá:</span>
-                    <span>-{order.discount.toLocaleString('vi-VN')} đ</span>
-                  </div>
-                )}
                 <div className="summary-row total">
                   <span>Tổng cộng:</span>
                   <span>{order.total.toLocaleString('vi-VN')} đ</span>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
 
         {/* Cột phải */}
         <div className="grid-right-col">
-          {/* Thông tin khách hàng */}
+          {/* Thông tin khách hàng (Lấy từ shippingAddress) */}
           <div className="card">
             <div className="card-header">
               <h3 className="card-title">Thông tin khách hàng</h3>
             </div>
             <div className="card-content info-card-content">
               <div className="info-row">
-                <p className="info-label">Tên khách hàng</p>
-                <p className="info-value">{order.customer}</p>
+                <p className="info-label">Tên người nhận</p>
+                <p className="info-value">{order.shippingAddress?.receiverFullName || 'N/A'}</p>
               </div>
               <div className="info-row">
                 <p className="info-label">Số điện thoại</p>
-                <p className="info-value">{order.phone}</p>
+                <p className="info-value">{order.shippingAddress?.receiverPhone || order.customerPhone || 'N/A'}</p>
+              </div>
+              <div className="info-row">
+                <p className="info-label">Email đặt hàng</p>
+                <p className="info-value">{order.customerEmail || 'N/A'}</p>
               </div>
               <div className="info-row">
                 <p className="info-label">Địa chỉ giao hàng</p>
-                <p className="info-value">{order.address}</p>
+                <p className="info-value">
+                  {/* Ghép địa chỉ lại */}
+                  {[
+                    order.shippingAddress?.addressLine,
+                    order.shippingAddress?.ward,
+                    order.shippingAddress?.district,
+                    order.shippingAddress?.province
+                  ].filter(Boolean).join(', ') || 'N/A'}
+                </p>
               </div>
             </div>
           </div>
@@ -198,11 +251,9 @@ export default function OrderDetail() {
               </div>
               <div className="info-row">
                 <p className="info-label">Ngày đặt</p>
-                <p className="info-value">{order.date}</p>
-              </div>
-              <div className="info-row">
-                <p className="info-label">Ghi chú</p>
-                <p className="info-value">{order.note || 'Không có'}</p>
+                <p className="info-value">
+                  {new Date(order.date).toLocaleString('vi-VN')}
+                </p>
               </div>
             </div>
           </div>
@@ -215,12 +266,14 @@ export default function OrderDetail() {
             <div className="card-content info-card-content">
               <div className="info-row">
                 <p className="info-label">Phương thức</p>
-                <p className="info-value">{order.paymentMethod}</p>
+                <p className="info-value">{order.paymentMethod || 'N/A'}</p>
               </div>
               <div className="info-row">
                 <p className="info-label">Trạng thái thanh toán</p>
-                <span className="badge badge-orange">
-                  {order.paymentStatus === 'Paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                <span className={`badge ${
+                  order.paymentStatus === 'Paid' ? 'badge-green' : 'badge-orange'
+                }`}>
+                  {paymentStatusLabels[order.paymentStatus] || order.paymentStatus}
                 </span>
               </div>
             </div>
@@ -233,14 +286,15 @@ export default function OrderDetail() {
             </div>
             <div className="card-content info-card-content">
               <div className="info-row">
-                <p className="info-label" style={{ marginBottom: '8px' }}>Trạng thái hiện tại</p>
+                <p className="info-label" style={{ marginBottom: '8px' }}>
+                  Trạng thái đơn hàng
+                </p>
                 <select
-                  className="filter-select" // Dùng chung class với trang Orders
-                  style={{ width: '100%' }} // Style cho nó full-width
-                  value={status}
-                  onChange={(e) => setStatus(e.target.value)}
+                  className="filter-select"
+                  style={{ width: '100%' }} 
+                  value={status} // <-- Lấy từ state
+                  onChange={(e) => setStatus(e.target.value)} // <-- Cập nhật state
                 >
-                  {/* Dùng Object.entries để fix lỗi ESLint */}
                   {Object.entries(statusLabels).map(([value, label]) => (
                     <option key={value} value={value}>
                       {label}
@@ -248,7 +302,12 @@ export default function OrderDetail() {
                   ))}
                 </select>
               </div>
-              <button className="button-primary full-width">
+              
+              {/* GỌI HÀM CẬP NHẬT MỚI */}
+              <button 
+                className="button-primary full-width"
+                onClick={handleUpdateStatus}
+              >
                 Cập nhật trạng thái
               </button>
             </div>

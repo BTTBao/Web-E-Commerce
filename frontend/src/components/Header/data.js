@@ -35,7 +35,7 @@ export const menuData = {
   },
 
   "ABOUT US": {
-    path: "/about",
+    path: "/aboutus",
   },
 
   "CONTACT": {
