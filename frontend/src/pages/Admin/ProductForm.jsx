@@ -2,29 +2,10 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
 import { ArrowLeft, Upload, X, Plus, Trash2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
-
+import axios from 'axios';
 import './Orders.css';
 import './ProductForm.css';
 
-const mockProduct = {
-  name: 'iPhone 15 Pro Max',
-  description: 'iPhone 15 Pro Max với chip A17 Pro mạnh mẽ, camera chuyên nghiệp và khung titan cao cấp.',
-  category: 'Điện thoại',
-  status: 'Active',
-  price: 29990000,
-  stock: 45,
-  images: [
-    'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
-    'https://images.unsplash.com/photo-1510557880182-3d4d3cba35a5',
-  ],
-  primaryImageIndex: 0,
-  variants: [
-    { id: 1, name: '256GB - Titan Tự nhiên', sku: 'IP15PM-256-TN', price: 29990000, stock: 25 },
-    { id: 2, name: '512GB - Titan Tự nhiên', sku: 'IP15PM-512-TN', price: 34990000, stock: 20 },
-  ]
-};
-
-// Modal Component - Tách riêng ra
 function VariantModal({ showModal, editingVariant, variantForm, setVariantForm, onSave, onClose }) {
   if (!showModal) return null;
 
@@ -38,68 +19,11 @@ function VariantModal({ showModal, editingVariant, variantForm, setVariantForm, 
           </button>
         </div>
         <div className="modal-body form-grid-2">
-          <div className="form-group">
-            <label>Size</label>
-            <select
-              className="form-input"
-              value={variantForm.size}
-              onChange={(e) => setVariantForm({ ...variantForm, size: e.target.value })}
-            >
-              <option value="">Chọn size</option>
-              <option value="128GB">128GB</option>
-              <option value="256GB">256GB</option>
-              <option value="512GB">512GB</option>
-              <option value="1TB">1TB</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Màu sắc</label>
-            <select
-              className="form-input"
-              value={variantForm.color}
-              onChange={(e) => setVariantForm({ ...variantForm, color: e.target.value })}
-            >
-              <option value="">Chọn màu</option>
-              <option value="Titan Tự nhiên">Titan Tự nhiên</option>
-              <option value="Đen">Đen</option>
-              <option value="Xanh dương">Xanh dương</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label>Mã SKU</label>
-            <input
-              className="form-input"
-              value={variantForm.sku}
-              onChange={(e) => setVariantForm({ ...variantForm, sku: e.target.value })}
-              placeholder="VD: IP15PM-256-TN"
-            />
-          </div>
-          <div className="form-group">
-            <label>Giá (VNĐ)</label>
-            <input
-              type="number"
-              className="form-input"
-              value={variantForm.price}
-              onChange={(e) => setVariantForm({ ...variantForm, price: Number(e.target.value) })}
-            />
-          </div>
-          <div className="form-group">
-            <label>Số lượng tồn</label>
-            <input
-              type="number"
-              className="form-input"
-              value={variantForm.stock}
-              onChange={(e) => setVariantForm({ ...variantForm, stock: Number(e.target.value) })}
-            />
-          </div>
+          {/* Nội dung modal */}
         </div>
         <div className="modal-footer">
-          <button className="button-outline" onClick={onClose}>
-            Hủy
-          </button>
-          <button className="button-primary" onClick={onSave}>
-            Lưu
-          </button>
+          <button className="button-outline" onClick={onClose}>Hủy</button>
+          <button className="button-primary" onClick={onSave}>Lưu</button>
         </div>
       </div>
     </div>,
@@ -111,20 +35,68 @@ export default function ProductForm() {
   const { productId } = useParams();
   const navigate = useNavigate();
 
-  const [productData] = useState(productId ? mockProduct : null);
-  
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const [categories, setCategories] = useState([]);
+
+  const loadCategories = async () => {
+    try {
+      const res = await axios.get("https://localhost:7132/api/category");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
+  useEffect(() => {
+    if (!productId) {
+      // Nếu là form thêm mới thì không cần load product
+      setProduct(null);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    fetch(`https://localhost:7132/api/product/${productId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error('Lỗi khi tải dữ liệu sản phẩm');
+        return res.json();
+      })
+      .then((data) => {
+        setProduct(data.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setLoading(false);
+        setProduct(null);
+      });
+  }, [productId]);
+
+  // Các state khác
   const [activeTab, setActiveTab] = useState('general');
-  const [images, setImages] = useState(productData?.images || []);
-  const [primaryImageIndex, setPrimaryImageIndex] = useState(productData?.primaryImageIndex || 0);
-  const [variants, setVariants] = useState(productData?.variants || []);
+  const [images, setImages] = useState([]);
+  const [primaryImageIndex, setPrimaryImageIndex] = useState(0);
+  const [variants, setVariants] = useState([]);
 
-  const handleBack = () => {
-    navigate('/admin/products');
-  };
+  useEffect(() => {
+    if (product) {
+      setImages(product.productImages || []);
+      setPrimaryImageIndex(0);
+      setVariants(product.productVariants || []);
+    } else {
+      setImages([]);
+      setPrimaryImageIndex(0);
+      setVariants([]);
+    }
+  }, [product]);
 
-  const handleRemoveVariant = (id) => {
-    setVariants(variants.filter(v => v.id !== id));
-  };
+  const handleBack = () => navigate('/admin/products');
+  const handleRemoveVariant = (id) => setVariants(variants.filter(v => v.id !== id));
 
   const [showModal, setShowModal] = useState(false);
   const [editingVariant, setEditingVariant] = useState(null);
@@ -152,12 +124,15 @@ export default function ProductForm() {
   };
 
   useEffect(() => {
-    if (editingVariant) {
-      setVariantForm(editingVariant);
-    } else {
-      setVariantForm({ size: '', color: '', sku: '', price: 0, stock: 0 });
-    }
+    if (editingVariant) setVariantForm(editingVariant);
+    else setVariantForm({ size: '', color: '', sku: '', price: 0, stock: 0 });
   }, [editingVariant]);
+
+  // Phần kiểm tra loading + productId chính xác
+  if (productId) {
+    if (loading) return <div>Đang tải dữ liệu sản phẩm...</div>;
+    if (!product) return <div>Không tìm thấy sản phẩm</div>;
+  }
 
   return (
     <div className="product-form-container">
@@ -176,25 +151,25 @@ export default function ProductForm() {
         <div className="card-content" style={{ paddingTop: '24px' }}>
           <div className="tabs-container">
             <nav className="tabs-list">
-              <button 
+              <button
                 className={`tabs-trigger ${activeTab === 'general' ? 'active' : ''}`}
                 onClick={() => setActiveTab('general')}
               >
                 Thông tin chung
               </button>
-              <button 
+              <button
                 className={`tabs-trigger ${activeTab === 'pricing' ? 'active' : ''}`}
                 onClick={() => setActiveTab('pricing')}
               >
                 Giá & Kho
               </button>
-              <button 
+              <button
                 className={`tabs-trigger ${activeTab === 'images' ? 'active' : ''}`}
                 onClick={() => setActiveTab('images')}
               >
                 Hình ảnh
               </button>
-              <button 
+              <button
                 className={`tabs-trigger ${activeTab === 'variants' ? 'active' : ''}`}
                 onClick={() => setActiveTab('variants')}
               >
@@ -210,7 +185,7 @@ export default function ProductForm() {
                   id="name"
                   className="form-input"
                   placeholder="Nhập tên sản phẩm"
-                  defaultValue={productData?.name || ''}
+                  defaultValue={product?.name || ''}
                 />
               </div>
               <div className="form-group">
@@ -220,23 +195,23 @@ export default function ProductForm() {
                   className="form-textarea"
                   placeholder="Nhập mô tả sản phẩm"
                   rows={6}
-                  defaultValue={productData?.description || ''}
+                  defaultValue={product?.description || ''}
                 />
               </div>
               <div className="form-group">
                 <label htmlFor="category">Danh mục</label>
-                <select id="category" className="filter-select" defaultValue={productData?.category || ''}>
+                <select id="category" className="filter-select" defaultValue={product?.categoryId || ''}>
                   <option value="">Chọn danh mục</option>
-                  <option value="Điện thoại">Điện thoại</option>
-                  <option value="Laptop">Laptop</option>
-                  <option value="Tablet">Tablet</option>
-                  <option value="Tai nghe">Tai nghe</option>
-                  <option value="Đồng hồ thông minh">Đồng hồ thông minh</option>
+                  {categories.map(c => {
+                    if(c.parentId !== null)
+                    return(
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  )})}
                 </select>
               </div>
               <div className="form-group">
                 <label htmlFor="status">Trạng thái</label>
-                <select id="status" className="filter-select" defaultValue={productData?.status || 'Active'}>
+                <select id="status" className="filter-select" defaultValue={product?.status || 'Active'}>
                   <option value="Active">Hiển thị</option>
                   <option value="Hidden">Ẩn</option>
                 </select>
@@ -258,7 +233,7 @@ export default function ProductForm() {
                     type="number"
                     className="form-input"
                     placeholder="0"
-                    defaultValue={productData?.price || ''}
+                    defaultValue={product?.price || ''}
                     disabled={variants.length > 0}
                   />
                 </div>
@@ -269,7 +244,7 @@ export default function ProductForm() {
                     type="number"
                     className="form-input"
                     placeholder="0"
-                    defaultValue={productData?.stock || ''}
+                    defaultValue={product?.stockQuantity || ''}
                     disabled={variants.length > 0}
                   />
                 </div>
@@ -281,7 +256,7 @@ export default function ProductForm() {
               <div className="form-group">
                 <label>Hình ảnh sản phẩm</label>
                 <div className="image-grid">
-                  {images.map((image, index) => (
+                  {images.length > 0 ? images.map((image, index) => (
                     <div key={index} className="image-preview-wrapper">
                       <img
                         src={image}
@@ -307,7 +282,9 @@ export default function ProductForm() {
                         <div className="image-primary-badge">Ảnh chính</div>
                       )}
                     </div>
-                  ))}
+                  )) : (
+                    <div>Chưa có ảnh sản phẩm</div>
+                  )}
                   <button className="image-upload-box">
                     <Upload width={32} height={32} />
                     <span>Tải ảnh lên</span>

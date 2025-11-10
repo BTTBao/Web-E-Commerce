@@ -1,72 +1,11 @@
 // src/pages/Admin/Products.jsx
-
-import React, { useState } from 'react';
+import { useState, useEffect } from "react";
 import { Plus, Edit, Eye, EyeOff, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import axios from "axios";
+import './Orders.css';
+import './Products.css';
 
-// Import CSS (Dùng chung Orders.css và thêm Products.css)
-import './Orders.css'; 
-import './Products.css'; 
-
-// Dữ liệu mẫu (giữ nguyên)
-const products = [
-  {
-    id: 'P001',
-    image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9',
-    name: 'iPhone 15 Pro Max',
-    category: 'Điện thoại',
-    price: 29990000,
-    stock: 45,
-    status: 'Active',
-  },
-  {
-    id: 'P002',
-    image: 'https://images.unsplash.com/photo-1610945415295-d9bbf067e59c',
-    name: 'Samsung Galaxy S24 Ultra',
-    category: 'Điện thoại',
-    price: 26990000,
-    stock: 32,
-    status: 'Active',
-  },
-  {
-    id: 'P003',
-    image: 'https://images.unsplash.com/photo-1496181133206-80ce9b88a853',
-    name: 'Laptop Dell XPS 15',
-    category: 'Laptop',
-    price: 42990000,
-    stock: 15,
-    status: 'Active',
-  },
-  {
-    id: 'P004',
-    image: 'https://images.unsplash.com/photo-1572635196237-14b3f281503f',
-    name: 'AirPods Pro 2',
-    category: 'Tai nghe',
-    price: 6990000,
-    stock: 78,
-    status: 'Active',
-  },
-  {
-    id: 'P005',
-    image: 'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0',
-    name: 'iPad Air M2',
-    category: 'Tablet',
-    price: 16990000,
-    stock: 5, // < 10, sẽ bị tô đỏ
-    status: 'Active',
-  },
-  {
-    id: 'P006',
-    image: 'https://images.unsplash.com/photo-1434494878577-86c23bcb06b9',
-    name: 'Apple Watch Series 9',
-    category: 'Đồng hồ thông minh',
-    price: 10990000,
-    stock: 0, // < 10, sẽ bị tô đỏ
-    status: 'Hidden',
-  },
-];
-
-// Định nghĩa class màu (giống Orders.css)
 const statusColors = {
   Active: 'badge-green',
   Hidden: 'badge-gray',
@@ -74,26 +13,57 @@ const statusColors = {
 
 export default function Products() {
   const navigate = useNavigate();
+
+  // ✅ Các hook phải nằm bên trong component
+  const [products, setProducts] = useState([]);
+  const [error, setError] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [categories, setCategories] = useState([]);
 
-  // Logic lọc (giữ nguyên)
+  // ✅ useEffect cũng phải nằm trong component
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const res = await axios.get("https://localhost:7132/api/category");
+        setCategories(res.data);
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+      }
+    };
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch("https://localhost:7132/api/product");
+        if (!response.ok) {
+          throw new Error(`Lỗi: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        if (data.status === "success" && Array.isArray(data.data)) {
+          setProducts(data.data);
+        } else {
+          setProducts([]);
+        }
+      } catch (err) {
+        console.error("Lỗi khi tải sản phẩm:", err);
+        setError(err.message || "Không thể tải sản phẩm. Vui lòng thử lại.");
+      }
+    };
+    fetchProducts();
+    loadCategories();
+  }, []);
+
+  // Lọc sản phẩm
   const filteredProducts = products.filter((product) => {
-    const matchesCategory = categoryFilter === 'all' || product.category === 'Tất cả danh mục' || product.category === categoryFilter;
+    const matchesCategory = categoryFilter === 'all' || product.categoryId === Number(categoryFilter);
     const matchesStatus = statusFilter === 'all' || product.status === statusFilter;
     const matchesSearch = product.name.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesCategory && matchesStatus && matchesSearch;
   });
 
-  // Hàm điều hướng
-  const handleAddProduct = () => {
-    navigate('/admin/products/add');
-  };
-
-  const handleEditProduct = (productId) => {
-    navigate(`/admin/products/edit/${productId}`);
-  };
+  const handleAddProduct = () => navigate('/admin/products/add');
+  const handleEditProduct = (productId) => navigate(`/admin/products/edit/${productId}`);
+  
 
   return (
     <div className="orders-container">
@@ -122,12 +92,14 @@ export default function Products() {
             </div>
             <select value={categoryFilter} onChange={(e) => setCategoryFilter(e.target.value)} className="filter-select">
               <option value="all">Tất cả danh mục</option>
-              <option value="Điện thoại">Điện thoại</option>
-              <option value="Laptop">Laptop</option>
-              <option value="Tai nghe">Tai nghe</option>
-              <option value="Tablet">Tablet</option>
-              <option value="Đồng hồ thông minh">Đồng hồ thông minh</option>
+              {categories.map((c =>{
+                if(c.parentId !== null)
+                return(
+                  <option key={c.id} value={c.id}>{c.name}</option>
+                );
+              }))}
             </select>
+
             <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="filter-select">
               <option value="all">Tất cả trạng thái</option>
               <option value="Active">Đang hiển thị</option>
@@ -150,7 +122,10 @@ export default function Products() {
                 </tr>
               </thead>
               <tbody>
-                {filteredProducts.map((product) => (
+                {
+                filteredProducts.map((product) => {
+                  const categoryName = categories.find(c => c.id === product.categoryId)?.name || '';
+                  return(  
                   <tr key={product.id}>
                     <td>
                       <img
@@ -161,8 +136,8 @@ export default function Products() {
                       />
                     </td>
                     <td>{product.name}</td>
-                    <td>{product.category}</td>
-                    <td>{product.price.toLocaleString('vi-VN')} đ</td>
+                    <td>{categoryName}</td>
+                    <td>{product.price?.toLocaleString('vi-VN')} đ</td>
                     <td>
                       <span className={product.stock < 10 ? 'stock-low' : 'stock-normal'}>
                         {product.stock}
@@ -177,7 +152,7 @@ export default function Products() {
                       <div className="action-buttons">
                         <button
                           className="action-button-icon"
-                          onClick={() => handleEditProduct(product.id)}
+                          onClick={() => handleEditProduct(product.productId)}
                         >
                           <Edit width={16} height={16} />
                         </button>
@@ -191,7 +166,7 @@ export default function Products() {
                       </div>
                     </td>
                   </tr>
-                ))}
+                )})}
               </tbody>
             </table>
           </div>

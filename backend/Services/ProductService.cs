@@ -240,5 +240,9 @@ namespace backend.Services
             if (dto.StockQuantity.HasValue && dto.StockQuantity < 0)
                 throw new ArgumentException("Số lượng tồn kho không hợp lệ");
         }
+        public Task<IEnumerable<ProductDto>> GetProductsByCategory(string categoryName)
+        {
+            return null;
+        }
     }
 }

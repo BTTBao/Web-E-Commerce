@@ -51,7 +51,7 @@ namespace backend.Services
                     // Nếu có Variant
                     VariantName = product?.ProductVariants?
                         .FirstOrDefault(v => v.VariantId == item.VariantId)?
-                        .VariantName
+                        .Sku
                 };
 
                 cartItemsDto.Add(cartItemDto);
