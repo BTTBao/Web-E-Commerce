@@ -39,7 +39,7 @@ function ShoppingCart() {
                 )}
             </div>
 
-            {cart.length === 0 ? (
+            {cart && cart.length === 0 ? (
                 <EmptyCart />
             ) : (
                 <CartView onOpenClearCartModal={() => setIsModalOpen(true)} />

@@ -4,15 +4,15 @@ import logo from "../../assets/logo.webp";
 import "./Header.css";
 import { Link } from "react-router-dom";
 import { menuData } from "./data";
-import useCartCount from "../../hooks/useCartCount";
 import { useNavigate } from 'react-router-dom';
+import { useCart } from "../../hooks/useCart";
 
 const Header = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const [activeSubMenu, setActiveSubMenu] = useState(null);
   const hideMenuTimeout = useRef(null);
   const hideSubMenuTimeout = useRef(null);
-  const cartCount = useCartCount();
+  const { cartCount } = useCart();
   const navigator = useNavigate();
   // Delay đóng menu cấp 1
   const handleMenuEnter = (menu) => {
@@ -73,7 +73,7 @@ const Header = () => {
                 <span
                   className={`menu-text ${
                     activeMenu === menu ? "active" : ""
-                  }`}
+                    }`}
                 >
                   {menu}
                 </span>

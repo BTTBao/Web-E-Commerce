@@ -4,10 +4,13 @@ import { useState } from 'react';
 import { ShoppingCart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { formatPrice } from '../../../utils/formatPrice';
+import { useCart } from '../../../hooks/useCart';
 
-function ProductInfo({product}) {
+function ProductInfo({ product }) {
   const [selectedSize, setSelectedSize] = useState(null);
-  const variants = product.productVariants || ['S','M','L','XL'] // fallback
+  const [variantId, setVariantId] = useState(0)
+  const { addItem } = useCart();
+  const variants = product.productVariants || ['S', 'M', 'L', 'XL'] // fallback
   
   return (
     <div class="product-info">
@@ -29,7 +32,10 @@ function ProductInfo({product}) {
             <button
               key={size.variantId}
               type="button"
-              onClick={() => setSelectedSize(size.variantName)}
+              onClick={() => {
+                setVariantId(size.variantId);
+                setSelectedSize(size.variantName)
+              }}
               className={selectedSize === size.variantName ? 'size-btn active' : 'size-btn'}
             >
               {size.variantName.substring(size.variantName.indexOf(" ") + 1)}
@@ -40,7 +46,22 @@ function ProductInfo({product}) {
 
       {/* Action Buttons */}
       <div class="action-buttons">
-        <Link className="btn-cart btn-add-cart" to="/cart">
+        <Link
+          className="btn-cart btn-add-cart"
+          to="/cart"
+          onClick={(e) => {
+            e.preventDefault();
+            addItem({
+              id: product.productId,
+              name: product.name,
+              price: product.price,
+              quantity: 1,
+              variantId: variantId,
+              variantName: selectedSize,
+              image: product.productImages[0].imageUrl
+            })
+          }}
+        >
           <ShoppingCart />Thêm vào giỏ hàng
         </Link>
         <Link className="btn-cart btn-secondary" to="/checkout">

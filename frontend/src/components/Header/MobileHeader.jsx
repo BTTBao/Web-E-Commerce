@@ -5,13 +5,13 @@ import "./MobileHeader.css";
 import { Link } from "react-router-dom";
 import logo from "../../assets/logo.webp";
 import { menuData } from "./data";
-import useCartCount from "../../hooks/useCartCount";
+import { useCart } from "../../hooks/useCart";
 
 export default function MobileHeader() {
   const [open, setOpen] = useState(false);
   const [activeMain, setActiveMain] = useState(null);
   const [activeSub, setActiveSub] = useState(null);
-  const cartCount = useCartCount();
+  const {cartCount} = useCart();
 
   const toggleMain = (title) => {
     setActiveMain(activeMain === title ? null : title);

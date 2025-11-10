@@ -112,7 +112,7 @@
 /* Product Details */
 .product-details {
     border-top: 1px solid #e5e5e5;
-    padding-top: 1.5rem;
+    padding-top: 1.5rem !important;
 }
 
 .product-details h3 {

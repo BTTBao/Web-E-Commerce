@@ -3,8 +3,10 @@ import { useCart } from '../../hooks/useCart';
 import { TrashIcon } from 'lucide-react';
 import { formatPrice } from '../../utils/formatPrice';
 import './css/OrderSummary.css'
+import { useNavigate } from 'react-router-dom';
 
 function OrderSummary({ onOpenClearCartModal }) {
+    const navigate = useNavigate();
     const { subtotal, shipping, total } = useCart();
     return (
         <div className="order-summary-card">
@@ -33,7 +35,9 @@ function OrderSummary({ onOpenClearCartModal }) {
                 </div>
             </div>
 
-            <button className="checkout-button">
+            <button 
+                onClick={() => navigate("/checkout")}
+                className="checkout-button">
                 Tiến hành thanh toán
             </button>
 
