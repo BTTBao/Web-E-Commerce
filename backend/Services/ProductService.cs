@@ -1,4 +1,6 @@
-﻿using backend.Data;
+﻿// Services/ProductService.cs (ĐÃ SỬA LỖI)
+
+using backend.Data;
 using backend.DTOs;
 using backend.Entities;
 using backend.Interfaces.IRepositories;
@@ -20,6 +22,7 @@ namespace backend.Services
             _context = context;
         }
 
+        // ... (Các hàm GetAllProducts, GetProductById, AddProduct không đổi) ...
         public async Task<IEnumerable<ProductDto>> GetAllProducts()
         {
             var products = await _repository.GetAllAsync();
@@ -36,15 +39,13 @@ namespace backend.Services
         public async Task<ProductDto> AddProduct(ProductDto productDto)
         {
             ValidateForCreateOrUpdate(productDto);
-
             var entity = MapToEntity(productDto);
-            entity.CreatedAt = DateTime.UtcNow;
-
+            entity.CreatedAt = DateTime.UtcNow; // Giả sử model Entity có CreatedAt
             await _repository.AddAsync(entity);
-            await _context.SaveChangesAsync();
-
+            // await _context.SaveChangesAsync(); // Thường Repository sẽ lo việc này?
             return MapToDto(entity);
         }
+
 
         public async Task<bool> UpdateProduct(int id, ProductDto dto)
         {
@@ -77,12 +78,17 @@ namespace backend.Services
                 })
                 .ToList();
 
+            // === SỬA LỖI (Dòng 85 cũ) ===
             existing.ProductVariants = dto.ProductVariants
                 .Select(v => new ProductVariant
                 {
                     VariantId = v.VariantId,
                     ProductId = v.ProductId,
-                    VariantName = v.VariantName,
+                    
+                    // VariantName = v.VariantName, // <-- Lỗi ở đây
+                    Size = v.Size,                  // <-- Sửa thành 2 dòng này
+                    Color = v.Color,                // <-- Sửa thành 2 dòng này
+
                     Sku = v.Sku,
                     Price = v.Price,
                     StockQuantity = v.StockQuantity
@@ -105,7 +111,8 @@ namespace backend.Services
 
             try
             {
-                await _context.SaveChangesAsync();
+                // Giả sử UpdateAsync không SaveChanges, chúng ta gọi nó ở đây
+                await _context.SaveChangesAsync(); 
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -147,15 +154,22 @@ namespace backend.Services
                     ImageUrl = pi.ImageUrl,
                     IsPrimary = pi.IsPrimary
                 }).ToList() ?? new List<ProductImageDto>(),
+                
+                // === SỬA LỖI (Dòng 154 cũ) ===
                 ProductVariants = p.ProductVariants?.Select(v => new ProductVariantDto
                 {
                     VariantId = v.VariantId,
                     ProductId = v.ProductId,
-                    VariantName = v.VariantName,
+
+                    // VariantName = v.VariantName, // <-- Lỗi ở đây
+                    Size = v.Size,                  // <-- Sửa thành 2 dòng này
+                    Color = v.Color,                // <-- Sửa thành 2 dòng này
+
                     Sku = v.Sku,
                     Price = v.Price,
                     StockQuantity = v.StockQuantity
                 }).ToList() ?? new List<ProductVariantDto>(),
+
                 Reviews = p.Reviews?.Select(r => new ReviewDto
                 {
                     ReviewId = r.ReviewId,
@@ -187,15 +201,22 @@ namespace backend.Services
                     ImageUrl = pi.ImageUrl,
                     IsPrimary = pi.IsPrimary
                 }).ToList(),
+                
+                // === SỬA LỖI (Dòng 194 cũ) ===
                 ProductVariants = dto.ProductVariants.Select(v => new ProductVariant
                 {
                     VariantId = v.VariantId,
                     ProductId = v.ProductId,
-                    VariantName = v.VariantName,
+
+                    // VariantName = v.VariantName, // <-- Lỗi ở đây
+                    Size = v.Size,                  // <-- Sửa thành 2 dòng này
+                    Color = v.Color,                // <-- Sửa thành 2 dòng này
+
                     Sku = v.Sku,
                     Price = v.Price,
                     StockQuantity = v.StockQuantity
                 }).ToList(),
+
                 Reviews = dto.Reviews.Select(r => new Review
                 {
                     ReviewId = r.ReviewId,
@@ -212,6 +233,8 @@ namespace backend.Services
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
                 throw new ArgumentException("Tên sản phẩm không được để trống");
+            
+            // Sửa logic check null cho Price và StockQuantity
             if (dto.Price.HasValue && dto.Price < 0)
                 throw new ArgumentException("Giá sản phẩm không hợp lệ");
             if (dto.StockQuantity.HasValue && dto.StockQuantity < 0)

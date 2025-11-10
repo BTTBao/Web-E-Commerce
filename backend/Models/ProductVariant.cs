@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace backend.Entities;
+namespace backend.Models;
 
 public partial class ProductVariant
 {
