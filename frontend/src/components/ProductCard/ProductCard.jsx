@@ -2,14 +2,22 @@ import './ProductCard.css';
 import { FaStar, FaShoppingCart } from 'react-icons/fa';
 
 const ProductCard = ({ product }) => {
-  const { id, imageUrl, title, currentPrice, oldPrice, rating } = product;
+  const { productId, name, price, productImages, reviews } = product;
+
+  // Lấy ảnh chính
+  const primaryImage = productImages.find(img => img.isPrimary)?.url || '';
+
+  // Tính trung bình rating
+  const rating = reviews.length > 0
+    ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
+    : 0;
 
   const handleAddToCart = async () => {
-    const user = JSON.parse(localStorage.getItem('user')); 
+    const user = JSON.parse(localStorage.getItem('user'));
 
     if (!user) {
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const existingItem = cart.find((item) => item.id === id);
+      const existingItem = cart.find(item => item.id === productId);
 
       if (existingItem) {
         existingItem.quantity += 1;
@@ -18,24 +26,24 @@ const ProductCard = ({ product }) => {
       }
 
       localStorage.setItem('cart', JSON.stringify(cart));
-      alert(`🛒 Đã thêm sản phẩm "${title}" vào giỏ hàng (guest mode)`);
+      alert(`🛒 Đã thêm sản phẩm "${name}" vào giỏ hàng (guest mode)`);
     } else {
       try {
-        const response = await fetch('http://localhost:8080/cart/add', {
+        const response = await fetch('http://localhost:7132/cart/add', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`, 
+            'Authorization': `Bearer ${user.token}`,
           },
           body: JSON.stringify({
             userId: user.id,
-            productId: id,
+            productId: productId,
             quantity: 1,
           }),
         });
 
         if (response.ok) {
-          alert(`✅ Đã thêm "${title}" vào giỏ hàng của bạn`);
+          alert(`✅ Đã thêm "${name}" vào giỏ hàng của bạn`);
         } else {
           console.error('Lỗi khi thêm vào DB');
         }
@@ -48,15 +56,14 @@ const ProductCard = ({ product }) => {
   return (
     <div className="product-card">
       <div className="product-image-container">
-        <img src={imageUrl} alt={title} className="product-image" />
+        <img src={primaryImage} alt={name} className="product-image" />
       </div>
 
       <div className="product-details">
-        <h3 className="product-title">{title}</h3>
+        <h3 className="product-title">{name}</h3>
 
         <div className="price-section">
-          <span className="current-price">{currentPrice}₫</span>
-          {oldPrice && <span className="old-price">{oldPrice}₫</span>}
+          <span className="current-price">{price.toLocaleString()}₫</span>
         </div>
 
         <div className="review-and-action-section">

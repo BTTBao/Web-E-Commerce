@@ -21,6 +21,7 @@ import ReviewList from "../pages/Admin/ReviewList";
 import CustomerList from "../pages/Admin/CustomerList";
 import CustomerDetail from "../pages/Admin/CustomerDetail";
 import Vouchers from "../pages/Admin/Vouchers";
+import CategoryPage from "../pages/CategoryPage/CategoryPage";
 
 export default function AppRouter() {
   return (
@@ -36,6 +37,8 @@ export default function AppRouter() {
         <Route path="aboutUs" element={<AboutUs />} />
         <Route path="vouchers" element={<VoucherList />} />
         <Route path="reviews" element={<ReviewList />} />
+        <Route path="category/:category/:subcategory" element={<CategoryPage />} />
+        <Route path="category/:category" element={<CategoryPage />} />
       </Route>
 
       <Route path="/admin" element={<AdminLayout />}>
