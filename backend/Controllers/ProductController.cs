@@ -1,9 +1,6 @@
-﻿using backend.Data;
-using backend.DTOs;
-using backend.Entities;
+﻿using backend.DTOs;
 using backend.Interfaces.IServices;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
@@ -18,76 +15,214 @@ namespace backend.Controllers
             _service = service;
         }
 
-        // GET: api/Product
+        // ✅ Lấy tất cả sản phẩm
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProducts()
+        public async Task<IActionResult> GetProducts()
         {
-            var products = await _service.GetAllProducts();
-            return Ok(products);
+            try
+            {
+                var products = await _service.GetAllProducts();
+
+                if (products == null || !products.Any())
+                {
+                    return Ok(new
+                    {
+                        status = "success",
+                        message = "Hiện chưa có sản phẩm nào.",
+                        data = new List<ProductDto>()
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Lấy danh sách sản phẩm thành công.",
+                    data = products
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
+            }
         }
 
-        // GET: api/Product/1
+        [HttpGet("category/{categoryName}")]
+        public async Task<IActionResult> GetProductByCategory(string categoryName)
+        {
+            try
+            {
+                var products = await _service.GetProductsByCategory(categoryName);
+
+                if (products == null || !products.Any())
+                {
+                    return Ok(new
+                    {
+                        status = "success",
+                        message = "Hiện chưa có sản phẩm nào.",
+                        data = new List<ProductDto>()
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Lấy danh sách sản phẩm thành công.",
+                    data = products
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
+            }
+        }
+
+        // ✅ Lấy 1 sản phẩm theo ID
         [HttpGet("{id}")]
-        public async Task<ActionResult<ProductDto>> GetProduct(int id)
-        {
-            var product = await _service.GetProductById(id);
-
-            if (product == null)
-            {
-                return NotFound("Không tồn tại sản phẩm !!");
-            }
-
-            return Ok(product);
-        }
-
-        // PUT: api/Product/1
-        [HttpPut("{id}")]
-        public async Task<IActionResult> PutProduct(int id, ProductDto product)
+        public async Task<IActionResult> GetProduct(int id)
         {
             try
             {
-                var updated = await _service.UpdateProduct(id, product);
-                if (!updated)
-                    return NotFound(new { message = "Không tồn tại sản phẩm !!" });
-                return Ok(new { product, message = "Cập nhật sản phẩm thành công" });
+                var product = await _service.GetProductById(id);
+
+                if (product == null)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tồn tại sản phẩm này."
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Lấy sản phẩm thành công.",
+                    data = product
+                });
             }
-            catch (ArgumentException ex)
+            catch (Exception ex)
             {
-                return BadRequest(new { message = ex.Message });
-            }
-            catch (Exception)
-            {
-                return StatusCode(500, new { message = "Lỗi server, vui lòng thử lại sau" });
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
             }
         }
 
-        // POST: api/Product
+        // ✅ Thêm sản phẩm mới
         [HttpPost]
-        public async Task<ActionResult<ProductDto>> PostProduct(ProductDto product)
+        public async Task<IActionResult> PostProduct([FromBody] ProductDto dto)
         {
             try
             {
-                var created = await _service.AddProduct(product);
-                return Ok(new { product = created, message = "Tạo sản phẩm thành công" });
+                var created = await _service.AddProduct(dto);
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Tạo sản phẩm thành công.",
+                    data = created
+                });
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(new { message = ex.Message });
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Lỗi server, vui lòng thử lại sau" });
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
             }
         }
 
-        // DELETE: api/Product/1
+        // ✅ Cập nhật sản phẩm
+        [HttpPut("{id}")]
+        public async Task<IActionResult> PutProduct(int id, [FromBody] ProductDto dto)
+        {
+            try
+            {
+                var updated = await _service.UpdateProduct(id, dto);
+
+                if (!updated)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tồn tại sản phẩm để cập nhật."
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Cập nhật sản phẩm thành công.",
+                    data = dto
+                });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new
+                {
+                    status = "error",
+                    message = ex.Message
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
+            }
+        }
+
+        // ✅ Xóa sản phẩm
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var deleted = await _service.DeleteProduct(id);
-            if (!deleted)
-                return NotFound("Không tồn tại sản phẩm !!");
-            return Ok(new { message = $"Xoá sản phẩm {id} thành công" });
+            try
+            {
+                var deleted = await _service.DeleteProduct(id);
+
+                if (!deleted)
+                {
+                    return NotFound(new
+                    {
+                        status = "error",
+                        message = "Không tồn tại sản phẩm để xóa."
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = $"Xóa sản phẩm có ID {id} thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
+            }
         }
     }
 }

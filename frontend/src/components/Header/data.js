@@ -1,5 +1,6 @@
 export const menuData = {
   SHOP: {
+    path: "/shop",
     items: {
       Top: [
         { name: "T-shirt & Polo shirt", path: "/category/top/tshirt-polo" },
@@ -26,7 +27,9 @@ export const menuData = {
         { name: "Crossbody bag", path: "/category/bag/crossbody" },
         { name: "Bowler bag", path: "/category/bag/bowler" },
       ],
-      Womenswear: [], // giữ nguyên nếu chưa có dữ liệu
+      Womenswear: [
+        { name: "View all Womenswear", path: "/category/womenswear" },
+      ],
     },
   },
 

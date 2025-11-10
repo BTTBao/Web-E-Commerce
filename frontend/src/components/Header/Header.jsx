@@ -2,9 +2,8 @@ import React, { useState, useRef } from "react";
 import { Search, User, ShoppingBag } from "lucide-react";
 import logo from "../../assets/logo.webp";
 import "./Header.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { menuData } from "./data";
-import { useNavigate } from 'react-router-dom';
 import { useCart } from "../../hooks/useCart";
 
 const Header = () => {
@@ -13,7 +12,8 @@ const Header = () => {
   const hideMenuTimeout = useRef(null);
   const hideSubMenuTimeout = useRef(null);
   const { cartCount } = useCart();
-  const navigator = useNavigate();
+  const navigate = useNavigate();
+
   // Delay đóng menu cấp 1
   const handleMenuEnter = (menu) => {
     clearTimeout(hideMenuTimeout.current);
@@ -39,12 +39,22 @@ const Header = () => {
     }, 250);
   };
 
-  const HandleLogin = () =>{
-    if(localStorage.getItem('token') != null)
-    {
-      navigator('/profile');
-    }else navigator('/login')
-  }
+  // Xử lý click vào category (Top, Bottom, etc.)
+  const handleCategoryClick = (category) => {
+    const categoryPath = `/category/${category.toLowerCase()}`;
+    navigate(categoryPath);
+    setActiveMenu(null);
+    setActiveSubMenu(null);
+  };
+
+  const handleLogin = () => {
+    if (localStorage.getItem("token") != null) {
+      navigate("/profile");
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <header className="header">
       {/* Logo */}
@@ -64,19 +74,19 @@ const Header = () => {
               onMouseEnter={() => handleMenuEnter(menu)}
               onMouseLeave={handleMenuLeave}
             >
-              {/* Nếu có đường dẫn (CONTACT, ABOUT US...) thì là Link */}
-              {menuItem.path ? (
-                <Link to={menuItem.path} className="menu-text">
-                  {menu}
-                </Link>
-              ) : (
+              {/* Nếu có submenu items (SHOP) */}
+              {menuItem.items && Object.keys(menuItem.items).length > 0 ? (
                 <span
-                  className={`menu-text ${
-                    activeMenu === menu ? "active" : ""
-                    }`}
+                  className={`menu-text ${activeMenu === menu ? "active" : ""}`}
+                  style={{ cursor: "pointer" }}
                 >
                   {menu}
                 </span>
+              ) : (
+                // Nếu chỉ có path (CONTACT, ABOUT US, BEST SELLER)
+                <Link to={menuItem.path} className="menu-text">
+                  {menu}
+                </Link>
               )}
 
               {/* Dropdown SHOP */}
@@ -88,6 +98,11 @@ const Header = () => {
                       className="dropdown-item"
                       onMouseEnter={() => handleSubEnter(sub)}
                       onMouseLeave={handleSubLeave}
+                      onClick={() => {
+                        // Click vào category (Top, Bottom) để chuyển trang
+                        handleCategoryClick(sub);
+                      }}
+                      style={{ cursor: "pointer" }}
                     >
                       {sub}
 
@@ -127,8 +142,15 @@ const Header = () => {
         </div>
 
         {/* Icon đăng nhập */}
-        <User size={22} className="icon" onClick={e =>{e.preventDefault(); HandleLogin();}} />
-
+        <User
+          size={22}
+          className="icon"
+          onClick={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+          style={{ cursor: "pointer" }}
+        />
 
         {/* Icon giỏ hàng */}
         <Link to="/cart">
