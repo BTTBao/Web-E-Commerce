@@ -1,80 +1,16 @@
 // src/pages/Admin/Orders.jsx
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react'; // <--- 1. Thêm useState, useEffect
 import { Eye, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-// Import file CSS (sẽ tạo ở bước 2)
 import './Orders.css';
 
-// Dữ liệu mẫu (giữ nguyên)
-const orders = [
-  {
-    id: 'DH001',
-    customer: 'Nguyễn Văn A',
-    date: '2025-10-25',
-    total: 1500000,
-    status: 'Pending',
-    paymentStatus: 'Unpaid',
-  },
-  {
-    id: 'DH002',
-    customer: 'Trần Thị B',
-    date: '2025-10-25',
-    total: 2300000,
-    status: 'Confirmed',
-    paymentStatus: 'Paid',
-  },
-  {
-    id: 'DH003',
-    customer: 'Lê Văn C',
-    date: '2025-10-24',
-    total: 890000,
-    status: 'Shipped',
-    paymentStatus: 'Paid',
-  },
-  {
-    id: 'DH004',
-    customer: 'Phạm Thị D',
-    date: '2025-10-24',
-    total: 3200000,
-    status: 'Delivered',
-    paymentStatus: 'Paid',
-  },
-  {
-    id: 'DH005',
-    customer: 'Hoàng Văn E',
-    date: '2025-10-23',
-    total: 1750000,
-    status: 'Cancelled',
-    paymentStatus: 'Refunded',
-  },
-  {
-    id: 'DH006',
-    customer: 'Đỗ Thị F',
-    date: '2025-10-23',
-    total: 4500000,
-    status: 'Pending',
-    paymentStatus: 'Unpaid',
-  },
-  {
-    id: 'DH007',
-    customer: 'Vũ Văn G',
-    date: '2025-10-22',
-    total: 2100000,
-    status: 'Confirmed',
-    paymentStatus: 'Paid',
-  },
-  {
-    id: 'DH008',
-    customer: 'Bùi Thị H',
-    date: '2025-10-22',
-    total: 1250000,
-    status: 'Shipped',
-    paymentStatus: 'Paid',
-  },
-];
+// --- 2. ĐỊNH NGHĨA API URL (Bạn hãy thay đổi cho đúng) ---
+const API_URL = 'https://localhost:7132/api/orders';
 
-// Thay thế các class Tailwind bằng class CSS thuần
+// (Xóa mảng dữ liệu mẫu 'orders' ở đây)
+
+// Giữ nguyên các đối tượng mapping
 const statusColors = {
   Pending: 'status-pending',
   Confirmed: 'status-confirmed',
@@ -83,7 +19,6 @@ const statusColors = {
   Cancelled: 'status-cancelled',
 };
 
-// Giữ nguyên để hiển thị text
 const statusLabels = {
   Pending: 'Chờ xử lý',
   Confirmed: 'Đã xác nhận',
@@ -104,20 +39,55 @@ export default function Orders() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Logic lọc (giữ nguyên)
+  // --- 3. THÊM STATE ĐỂ LƯU DỮ LIỆU TỪ API ---
+  const [orders, setOrders] = useState([]); // State cho danh sách đơn hàng
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // --- 4. GỌI API KHI COMPONENT TẢI LẦN ĐẦU ---
+  useEffect(() => {
+    setLoading(true);
+    fetch(API_URL)
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Không thể tải danh sách đơn hàng.');
+        }
+        return res.json();
+      })
+      .then(data => {
+        setOrders(data); // Cập nhật state với dữ liệu từ API
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi fetch:", err);
+        setError(err.message);
+        setLoading(false);
+      });
+  }, []); // [] = Chỉ chạy 1 lần
+
+  // Logic lọc (giờ sẽ dùng 'orders' từ state)
   const filteredOrders = orders.filter((order) => {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customer.toLowerCase().includes(searchTerm.toLowerCase());
+      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()); // <-- Lưu ý: đổi 'customer' thành 'customerName' hoặc tên trường đúng từ API
     return matchesStatus && matchesSearch;
   });
 
   const handleViewOrder = (orderId) => {
-    // Điều hướng đến trang chi tiết
     navigate(`/admin/orders/${orderId}`);
   };
 
+  // --- 5. THÊM HIỂN THỊ TRẠNG THÁI LOADING VÀ LỖI ---
+  if (loading) {
+    return <div className="orders-container">Đang tải dữ liệu đơn hàng...</div>;
+  }
+
+  if (error) {
+    return <div className="orders-container error-message">Lỗi: {error}</div>;
+  }
+
+  // --- Giao diện giữ nguyên, chỉ thay đổi nguồn dữ liệu ---
   return (
     <div className="orders-container">
       <div className="page-header">
@@ -170,33 +140,43 @@ export default function Orders() {
                 </tr>
               </thead>
               <tbody>
-                {filteredOrders.map((order) => (
-                  <tr key={order.id}>
-                    <td>{order.id}</td>
-                    <td>{order.customer}</td>
-                    <td>{new Date(order.date).toLocaleDateString('vi-VN')}</td>
-                    <td>{order.total.toLocaleString('vi-VN')} đ</td>
-                    <td>
-                      <span className={`badge ${statusColors[order.status]}`}>
-                        {statusLabels[order.status]}
-                      </span>
-                    </td>
-                    <td>
-                      <span className="payment-status">
-                        {paymentStatusLabels[order.paymentStatus]}
-                      </span>
-                    </td>
-                    <td className="text-right">
-                      <button
-                        className="action-button"
-                        onClick={() => handleViewOrder(order.id)}
-                      >
-                        <Eye className="action-icon" />
-                        Xem chi tiết
-                      </button>
+                {/* 6. Kiểm tra nếu không có đơn hàng */}
+                {filteredOrders.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: 'center' }}>
+                      Không tìm thấy đơn hàng nào.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredOrders.map((order) => (
+                    <tr key={order.id}>
+                      <td>{order.id}</td>
+                      {/* 7. Đảm bảo tên trường khớp với API (ví dụ: customerName) */}
+                      <td>{order.customerName || 'N/A'}</td>
+                      <td>{new Date(order.date).toLocaleDateString('vi-VN')}</td>
+                      <td>{order.total.toLocaleString('vi-VN')} đ</td>
+                      <td>
+                        <span className={`badge ${statusColors[order.status]}`}>
+                          {statusLabels[order.status]}
+                        </span>
+                      </td>
+                      <td>
+                        <span className="payment-status">
+                          {paymentStatusLabels[order.paymentStatus]}
+                        </span>
+                      </td>
+                      <td className="text-right">
+                        <button
+                          className="action-button"
+                          onClick={() => handleViewOrder(order.id)}
+                        >
+                          <Eye className="action-icon" />
+                          Xem chi tiết
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

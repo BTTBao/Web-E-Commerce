@@ -276,9 +276,9 @@ export default function ChatSupport() {
                                         {currentMessages.map((msg) => (
                                             <div
                                                 key={msg.id}
-                                                className={`message-bubble-wrapper ${msg.isAdmin ? 'customer' : 'admin'}`}
+                                                className={`message-bubble-wrapper ${msg.isAdmin ? 'admin' : 'customer'}`}
                                             >
-                                                <div className={`message-bubble ${msg.isAdmin ? 'customer' : 'admin'}`}>
+                                                <div className={`message-bubble ${msg.isAdmin ? 'admin' : 'customer'}`}>
                                                     <p className="message-text">{msg.message}</p>
                                                     <p className="message-timestamp">{msg.timestamp}</p>
                                                 </div>
