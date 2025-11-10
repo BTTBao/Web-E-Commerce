@@ -3,9 +3,8 @@ import { Plus, Edit, Trash2, ChevronRight, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import './CategoryList.css';
 
-
 // --- Component con để render cây đệ quy ---
-function CategoryTreeItem({ category, level = 0, onDelete }) {
+function CategoryTreeItem({ category, level = 0, onDelete, onEdit }) {
   const [expanded, setExpanded] = useState(true);
   const hasChildren = category.children && category.children.length > 0;
 
@@ -13,7 +12,6 @@ function CategoryTreeItem({ category, level = 0, onDelete }) {
     <div className="tree-branch">
       <div
         className="tree-item"
-        // Style inline này rất quan trọng để tạo thụt đầu dòng
         style={{ paddingLeft: `${level * 24 + 16}px` }}
       >
         <div className="tree-item-content">
@@ -22,29 +20,44 @@ function CategoryTreeItem({ category, level = 0, onDelete }) {
               onClick={() => setExpanded(!expanded)}
               className="tree-toggle-btn"
             >
-              {expanded ? <ChevronDown width={16} height={16} /> : <ChevronRight width={16} height={16} />}
+              {expanded ? (
+                <ChevronDown width={16} height={16} />
+              ) : (
+                <ChevronRight width={16} height={16} />
+              )}
             </button>
           ) : (
-            // Spacer để các item thẳng hàng
             <div className="tree-item-spacer" />
           )}
           <span className="tree-item-name">{category.name}</span>
           <span className="tree-item-id">({category.id})</span>
         </div>
         <div className="tree-item-actions">
-          <button className="action-button-icon">
+          <button
+            className="action-button-icon"
+            onClick={() => onEdit(category)} // ✅ Gọi hàm chỉnh sửa
+          >
             <Edit width={16} height={16} />
           </button>
-          <button className="action-button-icon-destructive" onClick={() => onDelete(category.id, category.name)}>
+          <button
+            className="action-button-icon-destructive"
+            onClick={() => onDelete(category.id, category.name)}
+          >
             <Trash2 width={16} height={16} />
           </button>
         </div>
       </div>
-      {/* Phần đệ quy */}
+
       {expanded && hasChildren && (
         <div className="tree-children">
           {category.children.map((child) => (
-            <CategoryTreeItem key={child.id} category={child} level={level + 1} />
+            <CategoryTreeItem
+              key={child.id}
+              category={child}
+              level={level + 1}
+              onDelete={onDelete}
+              onEdit={onEdit}
+            />
           ))}
         </div>
       )}
@@ -56,56 +69,67 @@ function CategoryTreeItem({ category, level = 0, onDelete }) {
 export default function CategoryList() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [isEdit, setIsEdit] = useState(false);
+  const [editCategoryId, setEditCategoryId] = useState(null);
   const [categories, setCategories] = useState([]);
   const [categoryName, setCategoryName] = useState("");
-  const [parentName, setParentName] = useState(null);
-
+  const [parentName, setParentName] = useState("none");
 
   useEffect(() => {
-    axios
-      .get("https://localhost:7132/api/category")
-      .then((res) => setCategories(res.data))
-      .catch((err) => console.error("Error fetching categories:", err));
+    loadCategories();
   }, []);
 
-  const handleOpenDialog = (isEditing = false) => {
+  const loadCategories = async () => {
+    try {
+      const res = await axios.get("https://localhost:7132/api/category");
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Error fetching categories:", err);
+    }
+  };
+
+  // ✅ Mở dialog thêm/sửa
+  const handleOpenDialog = (isEditing = false, category = null) => {
     setIsEdit(isEditing);
+    if (isEditing && category) {
+      setEditCategoryId(category.id);
+      setCategoryName(category.name);
+      setParentName(category.parentName || "none");
+    } else {
+      setEditCategoryId(null);
+      setCategoryName("");
+      setParentName("none");
+    }
     setDialogOpen(true);
   };
 
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
-  };
+  const handleCloseDialog = () => setDialogOpen(false);
 
+  // ✅ Xử lý thêm / sửa
   const handleSubmit = async () => {
-    // Nếu tên danh mục rỗng thì cảnh báo
     if (!categoryName.trim()) {
       alert("Vui lòng nhập tên danh mục!");
       return;
     }
 
-    // Gửi dữ liệu về backend
-    try {
-      const payload = {
-        name: categoryName,
-        parentName: parentName === "none" ? null : parentName,
-      };
+    const payload = {
+      name: categoryName,
+      parentName: parentName === "none" ? null : parentName,
+    };
 
-      const res = await axios.post("https://localhost:7132/api/category", payload);
+    try {
+      let res;
+      if (isEdit && editCategoryId) {
+        res = await axios.put(`https://localhost:7132/api/category/${editCategoryId}`, payload);
+      } else {
+        res = await axios.post("https://localhost:7132/api/category", payload);
+      }
 
       if (res.data.status === "success") {
         alert(res.data.message);
-
-        // Load lại danh sách danh mục sau khi thêm
-        const newList = await axios.get("https://localhost:7132/api/category");
-        setCategories(newList.data);
-
-        // Reset form
-        setCategoryName("");
-        setParentName(null);
-        setDialogOpen(false);
+        await loadCategories();
+        handleCloseDialog();
       } else {
-        alert(res.data.message || "Có lỗi xảy ra khi tạo danh mục!");
+        alert(res.data.message || "Có lỗi xảy ra!");
       }
     } catch (err) {
       console.error("Lỗi gửi dữ liệu:", err);
@@ -113,29 +137,23 @@ export default function CategoryList() {
     }
   };
 
+  // ✅ Xóa danh mục
   const handleDeleteCategory = async (id, name) => {
     if (!window.confirm(`Bạn có chắc chắn muốn xóa danh mục "${name}" không?`)) return;
 
     try {
       const res = await axios.delete(`https://localhost:7132/api/category/${id}`);
-
       if (res.data.status === "success") {
         alert(res.data.message);
-        // Cập nhật lại danh sách danh mục
-        const newList = await axios.get("https://localhost:7132/api/category");
-        setCategories(newList.data);
+        await loadCategories();
       } else {
         alert(res.data.message || "Không thể xóa danh mục này!");
       }
     } catch (err) {
       console.error("Lỗi khi xóa:", err);
-      if (err.response?.data?.message)
-        alert(err.response.data.message);
-      else
-        alert("Không thể kết nối tới server!");
+      alert("Không thể kết nối tới server!");
     }
   };
-
 
   return (
     <div className="page-container">
@@ -150,16 +168,25 @@ export default function CategoryList() {
         </button>
       </div>
 
-      {/* Cây danh mục */}
+      {/* --- Cây danh mục --- */}
       <div className="card">
         <div className="card-header">
           <h3 className="card-title">Cây danh mục</h3>
         </div>
         <div className="card-content" style={{ padding: 0 }}>
           <div className="category-tree-wrapper">
-            {categories.map((category) => (
-              <CategoryTreeItem key={category.id} category={category} onDelete={handleDeleteCategory}/>
-            ))}
+            {categories.length > 0 ? (
+              categories.map((category) => (
+                <CategoryTreeItem
+                  key={category.id}
+                  category={category}
+                  onDelete={handleDeleteCategory}
+                  onEdit={(cat) => handleOpenDialog(true, cat)}
+                />
+              ))
+            ) : (
+              <p style={{ padding: '16px', color: '#666' }}>Chưa có danh mục nào</p>
+            )}
           </div>
         </div>
       </div>
@@ -170,7 +197,7 @@ export default function CategoryList() {
           <div className="dialog-content" onClick={(e) => e.stopPropagation()}>
             <div className="dialog-header">
               <h3 className="dialog-title">
-                {isEdit ? 'Chỉnh sửa danh mục' : 'Thêm danh mục mới'}
+                {isEdit ? "Chỉnh sửa danh mục" : "Thêm danh mục mới"}
               </h3>
             </div>
             <div className="form-group-stack">
@@ -201,14 +228,14 @@ export default function CategoryList() {
                   ))}
                 </select>
               </div>
-
             </div>
+
             <div className="form-footer">
               <button className="button-outline" onClick={handleCloseDialog}>
                 Hủy
               </button>
               <button className="button-primary" onClick={handleSubmit}>
-                {isEdit ? 'Cập nhật' : 'Tạo danh mục'}
+                {isEdit ? "Cập nhật" : "Tạo danh mục"}
               </button>
             </div>
           </div>

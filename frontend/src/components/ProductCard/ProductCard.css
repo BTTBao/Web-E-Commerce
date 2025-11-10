@@ -39,14 +39,16 @@
 .price-section {
   display: flex;
   align-items: baseline;
+  justify-content: flex-start;
   margin-bottom: 5px;
 }
 
 .current-price {
   font-size: 20px;
   font-weight: bold;
-  color: #000;
+  color: #f40909;
   margin-right: 8px;
+  text-align: left;
 }
 
 .old-price {

@@ -1,14 +1,11 @@
-// src/pages/Admin/ProductForm.jsx
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import ReactDOM from 'react-dom';
 import { ArrowLeft, Upload, X, Plus, Trash2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 
-// Import CSS (Cần cả 2 file)
-import './Orders.css'; /* Dùng chung .card, .button-primary, .filter-select */
-import './ProductForm.css'; /* Style riêng cho form */
+import './Orders.css';
+import './ProductForm.css';
 
-// Dữ liệu mẫu (Giả lập fetch)
 const mockProduct = {
   name: 'iPhone 15 Pro Max',
   description: 'iPhone 15 Pro Max với chip A17 Pro mạnh mẽ, camera chuyên nghiệp và khung titan cao cấp.',
@@ -27,11 +24,93 @@ const mockProduct = {
   ]
 };
 
+// Modal Component - Tách riêng ra
+function VariantModal({ showModal, editingVariant, variantForm, setVariantForm, onSave, onClose }) {
+  if (!showModal) return null;
+
+  return ReactDOM.createPortal(
+    <div className="modal-overlay">
+      <div className="modal">
+        <div className="modal-header">
+          <h3>{editingVariant ? 'Chỉnh sửa biến thể' : 'Thêm biến thể mới'}</h3>
+          <button className="close-button" onClick={onClose}>
+            <X width={20} height={20} />
+          </button>
+        </div>
+        <div className="modal-body form-grid-2">
+          <div className="form-group">
+            <label>Size</label>
+            <select
+              className="form-input"
+              value={variantForm.size}
+              onChange={(e) => setVariantForm({ ...variantForm, size: e.target.value })}
+            >
+              <option value="">Chọn size</option>
+              <option value="128GB">128GB</option>
+              <option value="256GB">256GB</option>
+              <option value="512GB">512GB</option>
+              <option value="1TB">1TB</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Màu sắc</label>
+            <select
+              className="form-input"
+              value={variantForm.color}
+              onChange={(e) => setVariantForm({ ...variantForm, color: e.target.value })}
+            >
+              <option value="">Chọn màu</option>
+              <option value="Titan Tự nhiên">Titan Tự nhiên</option>
+              <option value="Đen">Đen</option>
+              <option value="Xanh dương">Xanh dương</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Mã SKU</label>
+            <input
+              className="form-input"
+              value={variantForm.sku}
+              onChange={(e) => setVariantForm({ ...variantForm, sku: e.target.value })}
+              placeholder="VD: IP15PM-256-TN"
+            />
+          </div>
+          <div className="form-group">
+            <label>Giá (VNĐ)</label>
+            <input
+              type="number"
+              className="form-input"
+              value={variantForm.price}
+              onChange={(e) => setVariantForm({ ...variantForm, price: Number(e.target.value) })}
+            />
+          </div>
+          <div className="form-group">
+            <label>Số lượng tồn</label>
+            <input
+              type="number"
+              className="form-input"
+              value={variantForm.stock}
+              onChange={(e) => setVariantForm({ ...variantForm, stock: Number(e.target.value) })}
+            />
+          </div>
+        </div>
+        <div className="modal-footer">
+          <button className="button-outline" onClick={onClose}>
+            Hủy
+          </button>
+          <button className="button-primary" onClick={onSave}>
+            Lưu
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 export default function ProductForm() {
-  const { productId } = useParams(); // Lấy ID từ URL
+  const { productId } = useParams();
   const navigate = useNavigate();
 
-  // Load dữ liệu (giả lập)
   const [productData] = useState(productId ? mockProduct : null);
   
   const [activeTab, setActiveTab] = useState('general');
@@ -43,22 +122,42 @@ export default function ProductForm() {
     navigate('/admin/products');
   };
 
-  const handleAddVariant = () => {
-    setVariants([
-      ...variants,
-      { id: Date.now(), name: '', sku: '', price: 0, stock: 0 },
-    ]);
-  };
-
   const handleRemoveVariant = (id) => {
     setVariants(variants.filter(v => v.id !== id));
   };
 
-  const handleVariantChange = (id, field, value) => {
-    setVariants(variants.map(v =>
-      v.id === id ? { ...v, [field]: value } : v
-    ));
+  const [showModal, setShowModal] = useState(false);
+  const [editingVariant, setEditingVariant] = useState(null);
+  const [variantForm, setVariantForm] = useState({
+    size: '',
+    color: '',
+    sku: '',
+    price: 0,
+    stock: 0,
+  });
+
+  const handleSaveVariant = () => {
+    if (editingVariant) {
+      setVariants(variants.map(v => v.id === editingVariant.id ? { ...variantForm, id: v.id } : v));
+    } else {
+      setVariants([...variants, { ...variantForm, id: Date.now() }]);
+    }
+    setShowModal(false);
+    setVariantForm({ size: '', color: '', sku: '', price: 0, stock: 0 });
   };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setEditingVariant(null);
+  };
+
+  useEffect(() => {
+    if (editingVariant) {
+      setVariantForm(editingVariant);
+    } else {
+      setVariantForm({ size: '', color: '', sku: '', price: 0, stock: 0 });
+    }
+  }, [editingVariant]);
 
   return (
     <div className="product-form-container">
@@ -221,69 +320,62 @@ export default function ProductForm() {
             <div className={`tabs-content ${activeTab === 'variants' ? 'active' : ''}`}>
               <div className="variants-header">
                 <label>Biến thể sản phẩm</label>
-                <button onClick={handleAddVariant} className="button-primary button-sm">
-                  <Plus width={16} height={16} style={{ marginRight: '4px' }}/>
+                <button
+                  onClick={() => {
+                    setEditingVariant(null);
+                    setShowModal(true);
+                  }}
+                  className="button-primary button-sm"
+                >
+                  <Plus width={16} height={16} style={{ marginRight: '4px' }} />
                   Thêm biến thể
                 </button>
               </div>
 
-              <div className="variants-list">
-                {variants.map((variant, index) => (
-                  <div key={variant.id} className="card variant-card">
-                    <div className="card-header variant-header">
-                      <h4 className="card-title-sm">Biến thể {index + 1}</h4>
-                      <button
-                        className="button-icon-destructive"
-                        onClick={() => handleRemoveVariant(variant.id)}
-                      >
-                        <Trash2 width={16} height={16} />
-                      </button>
-                    </div>
-                    <div className="card-content form-grid-2">
-                      <div className="form-group">
-                        <label>Tên biến thể</label>
-                        <input
-                          className="form-input"
-                          placeholder="VD: Đỏ, Size L"
-                          value={variant.name}
-                          onChange={(e) => handleVariantChange(variant.id, 'name', e.target.value)}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>SKU</label>
-                        <input
-                          className="form-input"
-                          placeholder="Mã SKU"
-                          value={variant.sku}
-                          onChange={(e) => handleVariantChange(variant.id, 'sku', e.target.value)}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Giá (VNĐ)</label>
-                        <input
-                          type="number"
-                          className="form-input"
-                          placeholder="0"
-                          value={variant.price}
-                          onChange={(e) => handleVariantChange(variant.id, 'price', Number(e.target.value))}
-                        />
-                      </div>
-                      <div className="form-group">
-                        <label>Số lượng tồn</label>
-                        <input
-                          type="number"
-                          className="form-input"
-                          placeholder="0"
-                          value={variant.stock}
-                          onChange={(e) => handleVariantChange(variant.id, 'stock', Number(e.target.value))}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {variants.length === 0 && (
+              {variants.length > 0 ? (
+                <table className="variants-table">
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Size</th>
+                      <th>Màu</th>
+                      <th>SKU</th>
+                      <th>Giá (VNĐ)</th>
+                      <th>Tồn kho</th>
+                      <th>Thao tác</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {variants.map((variant, index) => (
+                      <tr key={variant.id}>
+                        <td>{index + 1}</td>
+                        <td>{variant.size}</td>
+                        <td>{variant.color}</td>
+                        <td>{variant.sku}</td>
+                        <td>{variant.price.toLocaleString()}</td>
+                        <td>{variant.stock}</td>
+                        <td className="action-buttons">
+                          <button
+                            className="button-secondary button-sm"
+                            onClick={() => {
+                              setEditingVariant(variant);
+                              setShowModal(true);
+                            }}
+                          >
+                            Sửa
+                          </button>
+                          <button
+                            className="button-destructive button-sm"
+                            onClick={() => handleRemoveVariant(variant.id)}
+                          >
+                            <Trash2 width={16} height={16} />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
                 <div className="empty-state">
                   Chưa có biến thể nào. Nhấn "Thêm biến thể" để tạo mới.
                 </div>
@@ -301,6 +393,15 @@ export default function ProductForm() {
           </div>
         </div>
       </div>
+
+      <VariantModal
+        showModal={showModal}
+        editingVariant={editingVariant}
+        variantForm={variantForm}
+        setVariantForm={setVariantForm}
+        onSave={handleSaveVariant}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 }

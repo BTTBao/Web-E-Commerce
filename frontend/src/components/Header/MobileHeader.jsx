@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { FiMenu, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, User } from "lucide-react";
 import "./MobileHeader.css";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../../assets/logo.webp";
 import { menuData } from "./data";
 import { useCart } from "../../hooks/useCart";
@@ -11,7 +11,8 @@ export default function MobileHeader() {
   const [open, setOpen] = useState(false);
   const [activeMain, setActiveMain] = useState(null);
   const [activeSub, setActiveSub] = useState(null);
-  const {cartCount} = useCart();
+  const { cartCount } = useCart();
+  const navigate = useNavigate();
 
   const toggleMain = (title) => {
     setActiveMain(activeMain === title ? null : title);
@@ -22,6 +23,23 @@ export default function MobileHeader() {
     setActiveSub(activeSub === title ? null : title);
   };
 
+  // Xử lý click vào category (Top, Bottom, etc.)
+  const handleCategoryClick = (category) => {
+    const categoryPath = `/category/${category.toLowerCase()}`;
+    navigate(categoryPath);
+    setOpen(false);
+    setActiveMain(null);
+    setActiveSub(null);
+  };
+
+  const handleLogin = () => {
+    if (localStorage.getItem("token") != null) {
+      navigate("/profile");
+    } else {
+      navigate("/login");
+    }
+  };
+
   return (
     <>
       {/* Header */}
@@ -30,16 +48,26 @@ export default function MobileHeader() {
           <FiMenu size={24} />
         </button>
 
-        <div className="mobile-logo">
-          <img src={logo} alt="Logo" />
-        </div>
-
-        <Link to="/cart">
-          <div className="cart">
-            <ShoppingBag size={22} className="icon" />
-            <span className="cart-count">{cartCount}</span>
+        <Link to="/">
+          <div className="mobile-logo">
+            <img src={logo} alt="Logo" />
           </div>
         </Link>
+
+        <div className="mobile-icons">
+          <User
+            size={22}
+            className="icon"
+            onClick={handleLogin}
+            style={{ cursor: "pointer" }}
+          />
+          <Link to="/cart">
+            <div className="cart">
+              <ShoppingBag size={22} className="icon" />
+              <span className="cart-count">{cartCount}</span>
+            </div>
+          </Link>
+        </div>
       </header>
 
       {/* Overlay menu */}
@@ -48,7 +76,12 @@ export default function MobileHeader() {
           <div className="menu-container">
             <div className="menu-header">
               <img src={logo} alt="Logo" className="menu-logo" />
-              <FiX className="close-btn" onClick={() => setOpen(false)} size={26} color="#fff"/>
+              <FiX
+                className="close-btn"
+                onClick={() => setOpen(false)}
+                size={26}
+                color="#fff"
+              />
             </div>
 
             <input className="search-input" placeholder="Tìm kiếm..." />
@@ -61,9 +94,14 @@ export default function MobileHeader() {
                     <div
                       className="menu-item"
                       onClick={() => toggleMain(mainTitle)}
+                      style={{ cursor: "pointer" }}
                     >
                       <span>{mainTitle}</span>
-                      {activeMain === mainTitle ? <FiChevronUp /> : <FiChevronDown />}
+                      {activeMain === mainTitle ? (
+                        <FiChevronUp />
+                      ) : (
+                        <FiChevronDown />
+                      )}
                     </div>
                   ) : (
                     // Không có submenu → gắn Link
@@ -80,22 +118,40 @@ export default function MobileHeader() {
                   {data.items && (
                     <ul
                       className={`submenu ${
-                        activeMain === mainTitle ? "submenu-open" : "submenu-closed"
+                        activeMain === mainTitle
+                          ? "submenu-open"
+                          : "submenu-closed"
                       }`}
                     >
                       {Object.entries(data.items).map(([subTitle, subItems]) => (
                         <li key={subTitle}>
-                          <div
-                            className="submenu-item"
-                            onClick={() =>
-                              subItems.length > 0
-                                ? toggleSub(subTitle)
-                                : setOpen(false)
-                            }
-                          >
-                            <span>{subTitle}</span>
-                            {subItems.length > 0 &&
-                              (activeSub === subTitle ? <FiChevronUp /> : <FiChevronDown />)}
+                          <div className="submenu-item" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", cursor: "pointer" }}>
+                            <span
+                              onClick={() => {
+                                if (subItems.length === 0) {
+                                  // Không có items cấp 2 → navigate ngay
+                                  handleCategoryClick(subTitle);
+                                } else {
+                                  // Có items cấp 2 → navigate tới category chính
+                                  handleCategoryClick(subTitle);
+                                }
+                              }}
+                              style={{ flex: 1 }}
+                            >
+                              {subTitle}
+                            </span>
+                            {subItems.length > 0 && (
+                              <span
+                                onClick={() => toggleSub(subTitle)}
+                                style={{ cursor: "pointer", paddingLeft: "10px" }}
+                              >
+                                {activeSub === subTitle ? (
+                                  <FiChevronUp />
+                                ) : (
+                                  <FiChevronDown />
+                                )}
+                              </span>
+                            )}
                           </div>
 
                           {/* Submenu cấp 2 */}
