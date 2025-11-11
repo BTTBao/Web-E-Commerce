@@ -123,6 +123,7 @@ export function CartProvider({ children }) {
 
   // Thêm sản phẩm vào giỏ hàng
   const addItem = async (item) => {
+    console.log(item)
     toast.dismiss();
     if (!item || !item.id) {
       console.error("Sản phẩm không hợp lệ:", item);
@@ -168,7 +169,7 @@ export function CartProvider({ children }) {
 
         return updatedCart;
       });
-      toast.success(`Đã thêm "${item.name}" vào giỏ hàng`);
+      toast.success(`Đã thêm "${item.name} - ${item.variantName}"  vào giỏ hàng`);
     } catch (error) {
       console.error('Lỗi khi thêm sản phẩm:', error);
       toast.error('Không thể thêm sản phẩm vào giỏ hàng');

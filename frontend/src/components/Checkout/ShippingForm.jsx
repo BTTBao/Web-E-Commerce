@@ -168,7 +168,6 @@ function ShippingForm({ onFormValidityChange }) {
                         disabled={!formData.province}
                     >
                         <option value="">Chọn Quận / Huyện</option>
-                        {console.log("availableDistricts:", availableDistricts)}
                         {availableDistricts.map(d => (
                             <option key={d.code} value={d.code}>{d.name}</option>
                         ))}

@@ -36,7 +36,10 @@ function OrderSummary({ onOpenClearCartModal }) {
             </div>
 
             <button 
-                onClick={() => navigate("/checkout")}
+                onClick={() => {
+                    navigate("/checkout");
+                    navigate(0)
+                }}
                 className="checkout-button">
                 Tiến hành thanh toán
             </button>

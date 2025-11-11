@@ -36,6 +36,12 @@ namespace backend.Services
             return MapToDto(product);
         }
 
+        public async Task<IEnumerable<ProductDto>> GetProductsByCategory(string categoryName)
+        {
+            var products = await _repository.GetByCategoryAsync(categoryName);
+            return products.Select(MapToDto);
+        }
+
         public async Task<ProductDto> AddProduct(ProductDto productDto)
         {
             ValidateForCreateOrUpdate(productDto);
@@ -45,7 +51,6 @@ namespace backend.Services
             // await _context.SaveChangesAsync(); // Thường Repository sẽ lo việc này?
             return MapToDto(entity);
         }
-
 
         public async Task<bool> UpdateProduct(int id, ProductDto dto)
         {
@@ -240,5 +245,6 @@ namespace backend.Services
             if (dto.StockQuantity.HasValue && dto.StockQuantity < 0)
                 throw new ArgumentException("Số lượng tồn kho không hợp lệ");
         }
+
     }
 }

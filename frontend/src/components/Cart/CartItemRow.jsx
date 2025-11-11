@@ -17,7 +17,7 @@ function CartItemRow({ item }) {
                 />
                 <div>
                     <p className="cart-item-name">{item.name || item.productName}</p>
-                    <p className="cart-item-variant">Kích cỡ: {item.variantName}</p>
+                    <p className="cart-item-variant">Biến thể: {item.variantName}</p>
                     {/* <p className="cart-item-variant">Size: {item.size}</p> */}
                     <button
                         onClick={() => removeItem((item.productId || item.id), item.variantId)}
@@ -38,7 +38,7 @@ function CartItemRow({ item }) {
             <div className="cart-item-quantity-wrapper">
                 <div className="cart-item-quantity-control">
                     <button
-                        onClick={() => updateQuantity(item.productId, item.variantId, item.quantity - 1)}
+                        onClick={() => updateQuantity((item.productId || item.id), item.variantId, item.quantity - 1)}
                         className="cart-item-quantity-btn minus-btn"
                         disabled={item.quantity <= 1}
                     >
@@ -48,7 +48,7 @@ function CartItemRow({ item }) {
                         {item.quantity}
                     </span>
                     <button
-                        onClick={() => updateQuantity(item.productId, item.variantId, item.quantity + 1)}
+                        onClick={() => updateQuantity((item.productId || item.id), item.variantId, item.quantity + 1)}
                         className="cart-item-quantity-btn plus-btn"
                     >
                         <PlusIcon className="w-4 h-4" />
