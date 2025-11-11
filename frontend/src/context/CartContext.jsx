@@ -32,7 +32,6 @@ export function CartProvider({ children }) {
     try {
       setLoading(true);
       const response = await cartApi.getCartByAccountId(accountId);
-      console.log(response.data)
       setCart(response.data.cart.cartItems || []);
     } catch (error) {
       console.error('Lỗi khi tải giỏ hàng:', error);
@@ -123,7 +122,6 @@ export function CartProvider({ children }) {
 
   // Thêm sản phẩm vào giỏ hàng
   const addItem = async (item) => {
-    console.log(item)
     toast.dismiss();
     if (!item || !item.id) {
       console.error("Sản phẩm không hợp lệ:", item);
@@ -136,7 +134,6 @@ export function CartProvider({ children }) {
     }
     try {
       setLoading(true);
-      console.log(item);
       // Kiểm tra trùng sản phẩm trong giỏ hiện tại
       const isDuplicate = cart.some(
         (i) => i.id === item.id && i.variantId === item.variantId
@@ -185,7 +182,6 @@ export function CartProvider({ children }) {
       const itemToRemove = cart.find(
         (item) => (item.id || item.productId) === productId && item.variantId === variantId);
 
-      console.log(itemToRemove)
       if (isLoggedIn && accountId) {
         // Đã đăng nhập: Gọi API
         await cartApi.RemoveItem(accountId, productId, variantId);
@@ -222,7 +218,6 @@ export function CartProvider({ children }) {
     }
     try {
       setLoading(true);
-      console.log(id)
       // Cập nhật state local
       setCart((prevCart) => {
         const newCart = prevCart.map((item) =>
@@ -289,7 +284,8 @@ export function CartProvider({ children }) {
   }, [cart]);
 
   const shipping = useMemo(() => {
-    return subtotal > 1000000 ? 0 : 30000;
+    // return subtotal > 1000000 ? 0 : 30000;
+    return 0;
   }, [subtotal]);
 
   const total = useMemo(() => subtotal + shipping, [subtotal, shipping]);

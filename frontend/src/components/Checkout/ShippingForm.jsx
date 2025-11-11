@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDownIcon } from "lucide-react";
 import "./css/ShippingForm.css";
-import provinces from '../../../data/provinces.json'
-import districts from '../../../data/districts.json'
-import wards from '../../../data/wards.json'
+import provinces from '../../../data/provinces.json';
+import districts from '../../../data/districts.json';
+import wards from '../../../data/wards.json';
+import axiosClient from "../../api/axiosClient";
+import { useOrder } from "../../hooks/useOrder";
 
 const InputField = ({ label, ...props }) => (
     <div className="form-group-custom">
@@ -26,7 +28,7 @@ const SelectField = ({ label, children, ...props }) => (
     </div>
 );
 
-function ShippingForm({ onFormValidityChange }) {
+function ShippingForm({ onFormValidityChange, account }) {
     const [formData, setFormData] = useState({
         email: "",
         fullName: "",
@@ -37,49 +39,103 @@ function ShippingForm({ onFormValidityChange }) {
         ward: "",
         notes: ""
     });
-
     const [availableDistricts, setAvailableDistricts] = useState([]);
     const [availableWards, setAvailableWards] = useState([]);
 
+    const { updateOrderData } = useOrder();
+
+    // Lấy địa chỉ mặc định
     useEffect(() => {
-        if (formData.province) {
-            const filtered = districts.filter(
-                (d) => d.province_code === Number(formData.province)
-            );
-            setAvailableDistricts(filtered);
-            setFormData((f) => ({ ...f, district: "", ward: "" }));
-        } else {
-            setAvailableDistricts([]);
+        const fetchAddress = async () => {
+            try {
+                const res = await axiosClient.get(`/Address/get?accountId=${account.accountId}`);
+                const addresses = res.data || [];
+
+                if (addresses.length === 0) return;
+
+                const defaultAddress = addresses.find(a => a.isDefault) || addresses[0];
+
+                // Find codes from names
+                const provinceCode = provinces.find(p => p.name === defaultAddress.province)?.code || "";
+                const filteredDistricts = districts.filter(d => d.province_code === Number(provinceCode));
+                const districtCode = filteredDistricts.find(d => d.name === defaultAddress.district)?.code || "";
+                const filteredWards = wards.filter(w => w.district_code === Number(districtCode));
+                const wardCode = filteredWards.find(w => w.name === defaultAddress.ward)?.code || "";
+
+                // Update form data
+                setFormData({
+                    email: account.email,
+                    fullName: defaultAddress.receiverFullName || "",
+                    phone: defaultAddress.receiverPhone || "",
+                    address: defaultAddress.addressLine || "",
+                    province: provinceCode,
+                    district: districtCode,
+                    ward: wardCode,
+                    notes: ""
+                });
+
+                // Update available options
+                setAvailableDistricts(filteredDistricts);
+                setAvailableWards(filteredWards);
+
+                // Update order data
+                updateOrderData("accountId", account.accountId);
+                updateOrderData("addressId", defaultAddress.addressId);
+            } catch (error) {
+                console.error("Failed to fetch address:", error);
+            }
+        };
+
+        if (account?.accountId) {
+            fetchAddress();
         }
+    }, [account, updateOrderData]);
+
+    // Cập nhật các huyện khi tỉnh thay đổi
+    useEffect(() => {
+        if (!formData.province) {
+            setAvailableDistricts([]);
+            setAvailableWards([]);
+            return;
+        }
+
+        const filtered = districts.filter(d => d.province_code === Number(formData.province));
+        setAvailableDistricts(filtered);
+
+        // Reset district and ward if province changed
+        setFormData(prev => ({ ...prev, district: "", ward: "" }));
     }, [formData.province]);
 
+    // Cập nhật phường khi quận thay đổi
     useEffect(() => {
-        if (formData.district) {
-            const filtered = wards.filter(
-                (d) => d.district_code === Number(formData.district)
-            );
-            setAvailableWards(filtered);
-            setFormData(f => ({ ...f, ward: "" }));
-        } else {
+        if (!formData.district) {
             setAvailableWards([]);
+            return;
         }
+
+        const filtered = wards.filter(w => w.district_code === Number(formData.district));
+        setAvailableWards(filtered);
+
+        // Reset ward if district changed
+        setFormData(prev => ({ ...prev, ward: "" }));
     }, [formData.district]);
 
+    // Validate form
     useEffect(() => {
         const { email, fullName, phone, address, province, district, ward } = formData;
-        const isValid = !!(
+        const isValid =
             email.includes("@") &&
-            fullName &&
+            fullName.trim() !== "" &&
             phone.length >= 9 &&
-            address &&
+            address.trim() !== "" &&
             province &&
             district &&
-            ward
-        );
+            ward;
+
         onFormValidityChange(isValid);
     }, [formData, onFormValidityChange]);
 
-    const handleChange = e => {
+    const handleChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({ ...prev, [name]: value }));
     };
@@ -203,11 +259,11 @@ function ShippingForm({ onFormValidityChange }) {
                         rows={3}
                         className="form-input"
                         placeholder="Ghi chú thêm về đơn hàng..."
-                    ></textarea>
+                    />
                 </div>
             </div>
         </div>
     );
 }
 
-export default ShippingForm
+export default ShippingForm;

@@ -6,9 +6,9 @@ import './css/ShippingMethod.css'
 const shippingOptions = [
     {
         id: "standard",
-        name: "Giao hàng tiêu chuẩn",
+        name: "Giao hàng miễn phí",
         duration: "Dự kiến 2-4 ngày",
-        price: 30000
+        price: 0
     },
     // {
     //     id: "express",
