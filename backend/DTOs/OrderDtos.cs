@@ -70,4 +70,21 @@ namespace backend.Dtos
         // để khớp với JSON gửi lên từ React
         public string status { get; set; }
     }
+
+    // --- DTOs cho tạo đơn hàng (Checkout) ---
+    public class CreateOrderDto
+    {
+        public int accountId { get; set; }
+        public int addressId { get; set; }
+        public string paymentMethod { get; set; }
+        public List<CreateOrderItemDto> items { get; set; }
+    }
+
+    public class CreateOrderItemDto
+    {
+        public int productId { get; set; }
+        public int? variantId { get; set; }  // nullable, vì có thể sản phẩm không có biến thể
+        public int quantity { get; set; }
+        public decimal unitPrice { get; set; }
+    }
 }
