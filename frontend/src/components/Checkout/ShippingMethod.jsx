@@ -1,7 +1,7 @@
 import { CheckCircleIcon, TruckIcon } from 'lucide-react'
 import React, { useState } from 'react'
 import { formatPrice } from '../../utils/formatPrice'
-// import './css/ShippingMethod.css'
+import './css/ShippingMethod.css'
 
 const shippingOptions = [
     {
@@ -10,12 +10,12 @@ const shippingOptions = [
         duration: "Dự kiến 2-4 ngày",
         price: 30000
     },
-    {
-        id: "express",
-        name: "Giao hàng nhanh",
-        duration: "Dự kiến 1-2 ngày",
-        price: 50000
-    }
+    // {
+    //     id: "express",
+    //     name: "Giao hàng nhanh",
+    //     duration: "Dự kiến 1-2 ngày",
+    //     price: 50000
+    // }
 ]
 
 function ShippingMethod({ onShippingChange, disabled = false }) {

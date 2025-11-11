@@ -50,8 +50,13 @@ namespace backend.Services
 
                     // Nếu có Variant
                     VariantName = product?.ProductVariants?
-                        .FirstOrDefault(v => v.VariantId == item.VariantId)?
-                        .VariantName
+                        .Where(v => v.VariantId == item.VariantId)
+                        .Select(v =>
+                            (v.Color ?? "") +
+                            ((v.Color != null && v.Size != null) ? " - " : "") +
+                            (v.Size ?? "")
+                        )
+                        .FirstOrDefault()?.Trim()
                 };
 
                 cartItemsDto.Add(cartItemDto);

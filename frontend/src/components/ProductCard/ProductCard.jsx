@@ -1,60 +1,47 @@
+import { useCallback, useMemo } from 'react';
+import { useCart } from '../../hooks/useCart';
 import './ProductCard.css';
 import { FaStar, FaShoppingCart } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const ProductCard = ({ product }) => {
   const { productId, name, price, productImages, reviews } = product;
+  const { addItem } = useCart();
+  const navigate = useNavigate();
 
-  // Lấy ảnh chính
-  const primaryImage = productImages.find(img => img.isPrimary)?.url || '';
+  // Lấy ảnh chính: tránh chuỗi rỗng -> dùng undefined để React không render attribute
+  const primaryImage = useMemo(
+    () => productImages.find(img => img?.isPrimary)?.imageUrl || undefined,
+    [productImages]
+  );
 
   // Tính trung bình rating
   const rating = reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : 0;
 
-  const handleAddToCart = async () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+  // thêm vào giỏ hàng
+  const handleAddToCart = useCallback(() => {
+    addItem({
+      id: productId,
+      name,
+      price,
+      quantity: 1,
+      variantId: 1,
+      variantName: "Test",
+      image: primaryImage ?? null,
+    });
+  }, [addItem, productId, name, price, primaryImage]);
 
-    if (!user) {
-      const cart = JSON.parse(localStorage.getItem('cart')) || [];
-      const existingItem = cart.find(item => item.id === productId);
-
-      if (existingItem) {
-        existingItem.quantity += 1;
-      } else {
-        cart.push({ ...product, quantity: 1 });
-      }
-
-      localStorage.setItem('cart', JSON.stringify(cart));
-      alert(`🛒 Đã thêm sản phẩm "${name}" vào giỏ hàng (guest mode)`);
-    } else {
-      try {
-        const response = await fetch('http://localhost:7132/cart/add', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${user.token}`,
-          },
-          body: JSON.stringify({
-            userId: user.id,
-            productId: productId,
-            quantity: 1,
-          }),
-        });
-
-        if (response.ok) {
-          alert(`✅ Đã thêm "${name}" vào giỏ hàng của bạn`);
-        } else {
-          console.error('Lỗi khi thêm vào DB');
-        }
-      } catch (error) {
-        console.error('Lỗi kết nối API:', error);
-      }
-    }
-  };
-
+  //chuyển hướng sang chi tiết sản phẩm
+  const handleClick = () => {
+    navigate(`/product/${productId}`)
+  }
   return (
-    <div className="product-card">
+    <div
+      onClick={handleClick}
+      className="product-card"
+    >
       <div className="product-image-container">
         <img src={primaryImage} alt={name} className="product-image" />
       </div>

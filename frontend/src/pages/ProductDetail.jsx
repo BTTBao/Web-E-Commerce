@@ -21,7 +21,7 @@ function ProductDetail() {
       try {
         setLoading(true)
         const res = await productApi.getById(id)
-        setProduct(res.data)
+        setProduct(res.data.data)
       } catch (err) {
         console.error(err)
         setError('Không thể tải sản phẩm')
