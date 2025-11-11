@@ -1,6 +1,7 @@
 import { House } from 'lucide-react'
 import React, { useState } from 'react'
 import './css/PaymentOptions.css'
+import VNPAY from "../../assets/VNPAY.webp";
 
 const paymentMethods = [
     {
@@ -12,20 +13,8 @@ const paymentMethods = [
     {
         id: "vnpay",
         name: "VNPAY",
-        icon: <House />,
+        icon: <img src={VNPAY} alt="VNPAY" style={{ width: "25px"}}/>,
         description: "Thanh toán qua cổng VNPAY, hỗ trợ nhiều ngân hàng."
-    },
-    {
-        id: "momo",
-        name: "MOMO",
-        icon: <House />,
-        description: "Thanh toán an toàn và nhanh chóng với ví điện tử MOMO."
-    },
-    {
-        id: "zalopay",
-        name: "ZaloPay",
-        icon: <House />,
-        description: "Sử dụng ví ZaloPay để hoàn tất thanh toán."
     }
 ]
 

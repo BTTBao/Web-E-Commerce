@@ -1,31 +1,61 @@
-import React from 'react'
-import './ProductInfo.css'
-import { useState } from 'react';
+import React, {useState, useCallback, useMemo } from 'react'
+import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 import { formatPrice } from '../../../utils/formatPrice';
 import { useCart } from '../../../hooks/useCart';
+import './ProductInfo.css'
 
 function ProductInfo({ product }) {
+  const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState(null);
   const [variantId, setVariantId] = useState(0)
   const { addItem } = useCart();
+
+  const { productId, name, price, productImages, reviews } = product;
   const variants = product.productVariants || ['S', 'M', 'L', 'XL'] // fallback
-  
+
+  const image = useMemo(
+    () => productImages.find(img => img?.isPrimary)?.imageUrl || undefined,
+    [productImages]
+  );
+  const singleItem = {
+    id: productId,
+    name: name,
+    price: price,
+    quantity: 1,
+    variantId: variantId ?? undefined,
+    variantName: selectedSize,
+    image
+  };
+  const handleBuyNow = useCallback(() => {
+    // validate biến thể
+    if (variantId == 0) {
+      toast.dismiss();
+      toast.warning("Vui lòng chọn biến thể");
+      return;
+    }
+
+    navigate('/checkout?type=buynow', {
+      state: { items: [singleItem], mode: 'buynow' },
+      replace: false,
+    });
+  }, [product, variantId, selectedSize]);
+
   return (
     <div class="product-info">
       <div class="product-header">
-        <h1>{product.name}</h1>
+        <h1>{name}</h1>
         <div class="price-section">
-          <span class="price">{formatPrice(product.price)}</span>
-          <span class="old-price">{formatPrice(product.price * 0.9)}</span>
+          <span class="price">{formatPrice(price)}</span>
+          <span class="old-price">{formatPrice(price * 0.9)}</span>
         </div>
       </div>
 
       {/* Size Selection */}
       <div class="size-section">
         <div class="size-header">
-          <label>Chọn kích cỡ</label>
+          <label>Chọn biến thể</label>
         </div>
         <div class="size-options">
           {variants.map((size) => (
@@ -34,11 +64,11 @@ function ProductInfo({ product }) {
               type="button"
               onClick={() => {
                 setVariantId(size.variantId);
-                setSelectedSize(size.variantName)
+                setSelectedSize(size.size || size.color)
               }}
-              className={selectedSize === size.variantName ? 'size-btn active' : 'size-btn'}
+              className={selectedSize === (size.size || size.color) ? 'size-btn active' : 'size-btn'}
             >
-              {size.variantName.substring(size.variantName.indexOf(" ") + 1)}
+              {size.size || size.color}
             </button>
           ))}
         </div>
@@ -52,21 +82,23 @@ function ProductInfo({ product }) {
           onClick={(e) => {
             e.preventDefault();
             addItem({
-              id: product.productId,
-              name: product.name,
-              price: product.price,
+              id: productId,
+              name: name,
+              price: price,
               quantity: 1,
               variantId: variantId,
               variantName: selectedSize,
-              image: product.productImages[0].imageUrl
+              image
             })
           }}
         >
           <ShoppingCart />Thêm vào giỏ hàng
         </Link>
-        <Link className="btn-cart btn-secondary" to="/checkout">
+        <button
+          onClick={handleBuyNow}
+          className="btn-cart btn-secondary">
           Mua ngay
-        </Link>
+        </button>
       </div>
 
       {/* Product Details */}

@@ -18,8 +18,8 @@ namespace backend.Repositories
         {
             return await _context.Products
                 .Include(p => p.ProductImages)
-                //.Include(p => p.ProductVariants)
-                //.Include(p => p.Reviews)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Reviews)
                 .ToListAsync();
         }
 
@@ -54,6 +54,13 @@ namespace backend.Repositories
             //firstOrDefault: trả về nguyên bản ghi -> chậm hơn
             // => cùng tìm thấy phần tử đầu tiên và dừng
             return _context.Products.AnyAsync(p => p.ProductId == id);
+        }
+
+        public async Task<IEnumerable<Product>> GetByCategoryAsync(string categoryName)
+        {
+            return await _context.Products
+                .Where(p => p.Category.CategoryName.ToLower() == categoryName.ToLower())
+                .ToArrayAsync();
         }
     }
 }

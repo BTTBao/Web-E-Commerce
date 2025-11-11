@@ -4,8 +4,8 @@ import { formatPrice } from "../../utils/formatPrice";
 import { ChevronDownIcon, ChevronUpIcon } from "lucide-react";
 import "./css/CheckoutOrderSummary.css";
 
-function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive }) {
-    const { cart, subtotal } = useCart();
+function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive, items }) {
+    const { subtotal } = useCart();
     const [isItemListVisible, setIsItemListVisible] = useState(true);
     const total = subtotal + shippingFee;
 
@@ -18,7 +18,7 @@ function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive }) {
                 className="toggle-item-btn"
             >
                 <span>
-                    {isItemListVisible ? "Ẩn" : "Hiển thị"} thông tin sản phẩm ({cart.length})
+                    {isItemListVisible ? "Ẩn" : "Hiển thị"} thông tin sản phẩm ({items.length})
                 </span>
                 {isItemListVisible ? (
                     <ChevronUpIcon width={18} height={18} />
@@ -28,7 +28,7 @@ function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive }) {
             </button>
 
             <div className={`item-list ${isItemListVisible ? "show" : "hide"}`}>
-                {cart.map(item => (
+                {items.map(item => (
                     <div key={item.id} className="cart-item">
                         <div className="item-thumb">
                             <img src={item.image} alt={item.name} />
@@ -38,7 +38,7 @@ function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive }) {
                         <div className="item-info">
                             <p className="item-name">{item.name}</p>
                             <p className="item-desc">
-                                Size: {item.size} / Màu: {item.color}
+                                Biến thể: {item.variantName}
                             </p>
                         </div>
 

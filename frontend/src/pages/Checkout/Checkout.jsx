@@ -1,27 +1,29 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { toast } from 'sonner'
 import CheckoutOrderSummary from '../../components/Checkout/CheckoutOrderSummary'
 import PaymentOptions from '../../components/Checkout/PaymentOptions'
 import ShippingMethod from '../../components/Checkout/ShippingMethod'
 import ShippingForm from '../../components/Checkout/ShippingForm'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useCart } from '../../hooks/useCart'
 import { ArrowLeftIcon } from 'lucide-react'
 import './Checkout.css'
 
 function Checkout() {
-  const [isFormValid, setIsFormValid] = useState(false)
-  const { cart } = useCart()
+  const location = useLocation();
   const navigate = useNavigate();
+  const [isFormValid, setIsFormValid] = useState(false)
   const [shippingFee, setShippingFee] = useState(30000)
+  const [loaded, setLoaded] = useState(false);
+  const { cart } = useCart()
 
-  useEffect(() => {
-    // Nếu giỏ hàng trống, tự động quay về trang giỏ hàng
-    if (cart.length === 0) {
-      // navigate(-1);
-      toast.warning("Không có sản phẩm")
-    }
-  }, [cart])
+  // Ưu tiên buynow
+  const isBuyNow = location?.state?.mode === 'buynow';
+
+  const lineItems = useMemo(() => {
+    if (isBuyNow && Array.isArray(location.state.items)) return location.state.items;
+    return cart; // thanh toán toàn giỏ khi không phải buynow
+  }, [isBuyNow, location.state, cart]);
 
   const handlePlaceOrder = () => {
     if (!isFormValid) {
@@ -61,6 +63,7 @@ function Checkout() {
                   shippingFee={shippingFee}
                   onPlaceOrder={handlePlaceOrder}
                   isCheckoutActive={isFormValid}
+                  items={lineItems}
                 />
               </div>
             </div>
