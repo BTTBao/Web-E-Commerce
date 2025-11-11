@@ -27,7 +27,7 @@ namespace backend.Controllers
                 .ToListAsync();
 
             // Lọc danh mục gốc
-            var roots = categories.Where(c => c.ParentCategoryId == null).ToList();
+            var roots = categories.ToList();
 
             // Dựng cây bằng navigation có sẵn
             var result = roots.Select(MapCategory).ToList();
