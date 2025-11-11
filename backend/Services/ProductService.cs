@@ -42,7 +42,7 @@ namespace backend.Services
             var entity = MapToEntity(productDto);
             entity.CreatedAt = DateTime.UtcNow; // Giả sử model Entity có CreatedAt
             await _repository.AddAsync(entity);
-            // await _context.SaveChangesAsync(); // Thường Repository sẽ lo việc này?
+            await _context.SaveChangesAsync(); // Thường Repository sẽ lo việc này?
             return MapToDto(entity);
         }
 

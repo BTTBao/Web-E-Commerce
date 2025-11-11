@@ -63,7 +63,24 @@ export default function Products() {
 
   const handleAddProduct = () => navigate('/admin/products/add');
   const handleEditProduct = (productId) => navigate(`/admin/products/edit/${productId}`);
-  
+  const handleChangeStatus = (product) =>{
+    const newProduct = {...product, status: product.status === 'Active' ? 'Hidden' : 'Active'};
+
+    setProducts((prevProducts) =>
+      prevProducts.map((p) =>
+        p.productId === product.productId ? newProduct : p
+      )
+    );
+    fetch(`https://localhost:7132/api/product/${product.productId}`, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(newProduct)
+    }).then((res) =>{
+      if(!res.ok) throw new Error('Lỗi cập nhật');
+      return res.json();
+    }).then((data)=> console.log(data))
+    .catch((error) => console.log(error));
+  }
 
   return (
     <div className="orders-container">
@@ -137,11 +154,11 @@ export default function Products() {
                     </td>
                     <td>{product.name}</td>
                     <td>{categoryName}</td>
-                    <td>{product.price?.toLocaleString('vi-VN')} đ</td>
+                    <td>{product.price != null ? product.price.toLocaleString('vi-VN') + ' đ' : '-'}</td>
                     <td>
-                      <span className={product.stock < 10 ? 'stock-low' : 'stock-normal'}>
-                        {product.stock}
-                      </span>
+                    <span className={product.stockQuantity < 10 ? 'stock-low' : 'stock-normal'}>
+                      {product.stockQuantity != null && product.stockQuantity !== 0 ? product.stockQuantity : '-'}
+                    </span>
                     </td>
                     <td>
                       <span className={`badge ${statusColors[product.status]}`}>
@@ -156,7 +173,7 @@ export default function Products() {
                         >
                           <Edit width={16} height={16} />
                         </button>
-                        <button className="action-button-icon">
+                        <button className="action-button-icon" onClick={() =>(handleChangeStatus(product))}>
                           {product.status === 'Active' ? (
                             <EyeOff width={16} height={16} />
                           ) : (

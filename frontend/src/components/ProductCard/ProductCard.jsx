@@ -2,13 +2,13 @@ import './ProductCard.css';
 import { FaStar, FaShoppingCart } from 'react-icons/fa';
 
 const ProductCard = ({ product }) => {
+  if (!product) return null;
+
   const { productId, name, price, productImages, reviews } = product;
 
-  // Lấy ảnh chính
-  const primaryImage = productImages.find(img => img.isPrimary)?.url || '';
+  const primaryImage = productImages?.find(img => img.isPrimary)?.url || '';
 
-  // Tính trung bình rating
-  const rating = reviews.length > 0
+  const rating = Array.isArray(reviews) && reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : 0;
 
@@ -37,7 +37,7 @@ const ProductCard = ({ product }) => {
           },
           body: JSON.stringify({
             userId: user.id,
-            productId: productId,
+            productId,
             quantity: 1,
           }),
         });
@@ -60,10 +60,10 @@ const ProductCard = ({ product }) => {
       </div>
 
       <div className="product-details">
-        <h3 className="product-title">{name}</h3>
+        <h3 className="product-title">{name || 'Sản phẩm'}</h3>
 
         <div className="price-section">
-          <span className="current-price">{price.toLocaleString()}₫</span>
+          <span className="current-price">{price ? price.toLocaleString() : '0'}₫</span>
         </div>
 
         <div className="review-and-action-section">

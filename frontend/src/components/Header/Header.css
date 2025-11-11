@@ -20,11 +20,14 @@
 /* ==== Menu ==== */
 .nav {
   display: flex;
-  gap: 40px;
 }
 
 .menu-item {
   position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 60px;
+  width: 150px;
 }
 
 .menu-text {
@@ -45,8 +48,8 @@
 
 /* ==== Dropdown cấp 1 ==== */
 .dropdown {
-  position: absolute;
-  top: 100%;
+  position:absolute;
+  top: 80%;
   left: 0;
   background: #555;
   color: #fff;
@@ -61,7 +64,7 @@
   visibility: hidden;
   pointer-events: none;
   transition: all 0.3s ease;
-  z-index: 10;
+  z-index: 1;
 }
 
 /* Giữ hover mượt khi rê chuột */
@@ -228,7 +231,9 @@
   .menu-text {
     font-size: 14px;
   }
-
+  .menu-item{
+    width: 200px;
+  }
   .dropdown {
     width: 160px; /* thu nhỏ khung dropdown */
     font-size: 14px;
