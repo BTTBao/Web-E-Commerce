@@ -154,4 +154,81 @@ public class OrdersController : ControllerBase
         // Trả về thông báo thành công
         return Ok(new { message = $"Đã cập nhật trạng thái đơn hàng #{id} thành {dto.status}." });
     }
+
+    [HttpPost]
+    public async Task<ActionResult> CreateOrder([FromBody] CreateOrderDto dto)
+    {
+        if (dto == null || dto.items == null || !dto.items.Any())
+        {
+            return BadRequest(new { message = "Dữ liệu đơn hàng không hợp lệ." });
+        }
+
+        // Lấy thông tin địa chỉ giao hàng
+        var address = await _context.UserAddresses.FindAsync(dto.addressId);
+        if (address == null)
+        {
+            return BadRequest(new { message = "Không tìm thấy địa chỉ giao hàng." });
+        }
+
+        // Khởi tạo đơn hàng
+        var order = new Order
+        {
+            AccountId = dto.accountId,
+            AddressId = dto.addressId,
+            CreatedAt = DateTime.UtcNow,
+            Status = "Pending"
+        };
+
+        // Thêm đơn hàng vào context để sinh OrderId
+        _context.Orders.Add(order);
+        await _context.SaveChangesAsync();
+
+        // Tạo danh sách chi tiết đơn hàng
+        decimal totalAmount = 0;
+        foreach (var item in dto.items)
+        {
+            var product = await _context.Products.FindAsync(item.productId);
+            if (product == null)
+            {
+                return BadRequest(new { message = $"Không tìm thấy sản phẩm ID: {item.productId}" });
+            }
+
+            var detail = new OrderDetail
+            {
+                OrderId = order.OrderId,
+                ProductId = item.productId,
+                VariantId = item.variantId,
+                Quantity = item.quantity,
+                UnitPrice = item.unitPrice,
+                SubTotal = item.unitPrice * item.quantity
+            };
+
+            totalAmount += detail.SubTotal.GetValueOrDefault();
+            _context.OrderDetails.Add(detail);
+        }
+
+        // Cập nhật tổng tiền đơn hàng
+        order.TotalAmount = totalAmount;
+
+        // Tạo thông tin thanh toán ban đầu
+        var payment = new Payment
+        {
+            OrderId = order.OrderId,
+            Method = dto.paymentMethod ?? "COD",
+            PaymentStatus = "Pending",
+            Amount = totalAmount,
+            CreatedAt = DateTime.UtcNow
+        };
+
+        _context.Payments.Add(payment);
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = "Tạo đơn hàng thành công.",
+            orderId = "DH" + order.OrderId.ToString("D5"),
+            totalAmount,
+            paymentMethod = payment.Method
+        });
+    }
 }

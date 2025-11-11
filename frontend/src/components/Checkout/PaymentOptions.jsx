@@ -2,6 +2,8 @@ import { House } from 'lucide-react'
 import React, { useState } from 'react'
 import './css/PaymentOptions.css'
 import VNPAY from "../../assets/VNPAY.webp";
+import { toast } from 'sonner';
+import { useOrder } from '../../hooks/useOrder';
 
 const paymentMethods = [
     {
@@ -13,17 +15,24 @@ const paymentMethods = [
     {
         id: "vnpay",
         name: "VNPAY",
-        icon: <img src={VNPAY} alt="VNPAY" style={{ width: "25px"}}/>,
+        icon: <img src={VNPAY} alt="VNPAY" style={{ width: "25px" }} />,
         description: "Thanh toán qua cổng VNPAY, hỗ trợ nhiều ngân hàng."
     }
 ]
 
 function PaymentOptions({ disabled = false }) {
     const [selectedMethod, setSelectedMethod] = useState("cod")
-
+    const { updateOrderData } = useOrder();
+    
     const handleSelectMethod = id => {
         if (disabled) return
-        setSelectedMethod(id)
+        if (id == 'vnpay') {
+            setSelectedMethod('cod');
+            toast.warning("Đang cập nhật ...");
+        } else {
+            setSelectedMethod(id);
+        }
+        updateOrderData("paymentMethod", selectedMethod)
     }
     return (
         <div className={`payment-options ${disabled ? "disabled" : ""}`}>
@@ -40,9 +49,8 @@ function PaymentOptions({ disabled = false }) {
                         <div key={method.id} className="payment-method-item">
                             <div
                                 onClick={() => handleSelectMethod(method.id)}
-                                className={`payment-method-wrapper ${
-                                    selectedMethod === method.id ? "selected" : ""
-                                }`}
+                                className={`payment-method-wrapper ${selectedMethod === method.id ? "selected" : ""
+                                    }`}
                             >
                                 <input
                                     type="radio"

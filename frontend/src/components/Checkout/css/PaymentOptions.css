@@ -39,7 +39,7 @@
   border: 1px solid #d1d5db;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
 }
 
 .payment-method-wrapper:hover {

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home/Home";
 import ProductDetail from "../pages/ProductDetail";
@@ -22,6 +22,7 @@ import CustomerList from "../pages/Admin/CustomerList";
 import CustomerDetail from "../pages/Admin/CustomerDetail";
 import Vouchers from "../pages/Admin/Vouchers";
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
+import OrderSuccess from "../pages/OrderSuccess/OrderSuccess";
 
 export default function AppRouter() {
   return (
@@ -29,6 +30,7 @@ export default function AppRouter() {
       <Route path='/' element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="product/:id" element={<ProductDetail />} />
+        <Route path="/order-success/:orderId" element={<OrderSuccess />} />
         <Route path="cart" element={<Cart />} />
         <Route path="checkout" element={<Checkout />} />
         <Route path="login" element={<Login />} />
