@@ -40,13 +40,15 @@
     }
     // ===================================
 
+    // DTO này khớp với dữ liệu mock 'reviews' trong ReviewList.jsx
     public class ReviewDto
     {
-        public int ReviewId { get; set; }
-        public int ProductId { get; set; }
-        public int AccountId { get; set; }
-        public int? Rating { get; set; }
-        public string? Comment { get; set; }
-        public DateTime? CreatedAt { get; set; }
+        public string Id { get; set; }       // "R001"
+        public string Product { get; set; }  // Tên sản phẩm
+        public string Customer { get; set; } // Tên khách hàng
+        public int Rating { get; set; }
+        public string Comment { get; set; }
+        public string Date { get; set; }
+        public string Status { get; set; }   // "Pending" hoặc "Approved"
     }
 }

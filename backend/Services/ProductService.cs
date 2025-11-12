@@ -1,4 +1,4 @@
-﻿// Services/ProductService.cs (ĐÃ SỬA LỖI)
+﻿// Services/ProductService.cs
 
 using backend.Data;
 using backend.DTOs;
@@ -22,7 +22,7 @@ namespace backend.Services
             _context = context;
         }
 
-        // ... (Các hàm GetAllProducts, GetProductById, AddProduct không đổi) ...
+        // ... (GetAllProducts, GetProductById, GetProductsByCategory, AddProduct không đổi) ...
         public async Task<IEnumerable<ProductDto>> GetAllProducts()
         {
             var products = await _repository.GetAllAsync();
@@ -52,6 +52,7 @@ namespace backend.Services
             return MapToDto(entity);
         }
 
+
         public async Task<bool> UpdateProduct(int id, ProductDto dto)
         {
             if (id != dto.ProductId)
@@ -72,7 +73,7 @@ namespace backend.Services
             existing.Status = dto.Status;
             existing.CategoryId = dto.CategoryId;
 
-            // Thay thế 
+            // Cập nhật ProductImages (Đã đúng)
             existing.ProductImages = dto.ProductImages
                 .Select(pi => new ProductImage
                 {
@@ -83,40 +84,41 @@ namespace backend.Services
                 })
                 .ToList();
 
-            // === SỬA LỖI (Dòng 85 cũ) ===
+            // Cập nhật ProductVariants (Bạn đã sửa đúng)
             existing.ProductVariants = dto.ProductVariants
                 .Select(v => new ProductVariant
                 {
                     VariantId = v.VariantId,
                     ProductId = v.ProductId,
-                    
-                    // VariantName = v.VariantName, // <-- Lỗi ở đây
-                    Size = v.Size,                  // <-- Sửa thành 2 dòng này
-                    Color = v.Color,                // <-- Sửa thành 2 dòng này
-
+                    Size = v.Size,
+                    Color = v.Color,
                     Sku = v.Sku,
                     Price = v.Price,
                     StockQuantity = v.StockQuantity
                 })
                 .ToList();
 
+            // === SỬA LỖI 1: XÓA KHỐI NÀY ===
+            // ProductService không nên cập nhật Reviews
+            /*
             existing.Reviews = dto.Reviews
                 .Select(r => new Review
                 {
-                    ReviewId = r.ReviewId,
-                    ProductId = r.ProductId,
-                    AccountId = r.AccountId,
+                    ReviewId = r.ReviewId, // <-- LỖI
+                    ProductId = r.ProductId, // <-- LỖI
+                    AccountId = r.AccountId, // <-- LỖI
                     Rating = r.Rating,
                     Comment = r.Comment,
-                    CreatedAt = r.CreatedAt
+                    CreatedAt = r.CreatedAt // <-- LỖI
                 })
                 .ToList();
+            */
+            // === HẾT SỬA LỖI 1 ===
 
             await _repository.UpdateAsync(existing);
 
             try
             {
-                // Giả sử UpdateAsync không SaveChanges, chúng ta gọi nó ở đây
                 await _context.SaveChangesAsync(); 
             }
             catch (DbUpdateConcurrencyException)
@@ -160,30 +162,33 @@ namespace backend.Services
                     IsPrimary = pi.IsPrimary
                 }).ToList() ?? new List<ProductImageDto>(),
                 
-                // === SỬA LỖI (Dòng 154 cũ) ===
+                // (Bạn đã sửa đúng)
                 ProductVariants = p.ProductVariants?.Select(v => new ProductVariantDto
                 {
                     VariantId = v.VariantId,
                     ProductId = v.ProductId,
-
-                    // VariantName = v.VariantName, // <-- Lỗi ở đây
-                    Size = v.Size,                  // <-- Sửa thành 2 dòng này
-                    Color = v.Color,                // <-- Sửa thành 2 dòng này
-
+                    Size = v.Size,
+                    Color = v.Color,
                     Sku = v.Sku,
                     Price = v.Price,
                     StockQuantity = v.StockQuantity
                 }).ToList() ?? new List<ProductVariantDto>(),
 
+                // === SỬA LỖI 2: XÓA KHỐI NÀY ===
+                // Tương tự, không map Reviews ở đây
+                /*
                 Reviews = p.Reviews?.Select(r => new ReviewDto
                 {
-                    ReviewId = r.ReviewId,
-                    ProductId = r.ProductId,
-                    AccountId = r.AccountId,
-                    Rating = r.Rating,
+                    ReviewId = r.ReviewId, // <-- LỖI
+                    ProductId = r.ProductId, // <-- LỖI
+                    AccountId = r.AccountId, // <-- LỖI
+                    Rating = r.Rating, // <-- LỖI (int? vs int)
                     Comment = r.Comment,
-                    CreatedAt = r.CreatedAt
+                    CreatedAt = r.CreatedAt // <-- LỖI
                 }).ToList() ?? new List<ReviewDto>()
+                */
+                Reviews = new List<ReviewDto>() // Trả về danh sách rỗng
+                // === HẾT SỬA LỖI 2 ===
             };
         }
         private static Product MapToEntity(ProductDto dto)
@@ -207,30 +212,33 @@ namespace backend.Services
                     IsPrimary = pi.IsPrimary
                 }).ToList(),
                 
-                // === SỬA LỖI (Dòng 194 cũ) ===
+                // (Bạn đã sửa đúng)
                 ProductVariants = dto.ProductVariants.Select(v => new ProductVariant
                 {
                     VariantId = v.VariantId,
                     ProductId = v.ProductId,
-
-                    // VariantName = v.VariantName, // <-- Lỗi ở đây
-                    Size = v.Size,                  // <-- Sửa thành 2 dòng này
-                    Color = v.Color,                // <-- Sửa thành 2 dòng này
-
+                    Size = v.Size,
+                    Color = v.Color,
                     Sku = v.Sku,
                     Price = v.Price,
                     StockQuantity = v.StockQuantity
                 }).ToList(),
 
+                // === SỬA LỖI 3: XÓA KHỐI NÀY ===
+                // Tương tự, không map Reviews ở đây
+                /*
                 Reviews = dto.Reviews.Select(r => new Review
                 {
-                    ReviewId = r.ReviewId,
-                    ProductId = r.ProductId,
-                    AccountId = r.AccountId,
+                    ReviewId = r.ReviewId, // <-- LỖI
+                    ProductId = r.ProductId, // <-- LỖI
+                    AccountId = r.AccountId, // <-- LỖI
                     Rating = r.Rating,
                     Comment = r.Comment,
-                    CreatedAt = r.CreatedAt
+                    CreatedAt = r.CreatedAt // <-- LỖI
                 }).ToList()
+                */
+                Reviews = new List<Review>() // Gán danh sách rỗng
+                // === HẾT SỬA LỖI 3 ===
             };
         }
 

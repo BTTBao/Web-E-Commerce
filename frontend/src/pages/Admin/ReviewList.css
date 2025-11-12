@@ -55,6 +55,79 @@
   background-color: #f3f4f6;
   color: #111827;
 }
+/* src/pages/Admin/ReviewList.css */
+
+/* (Các style cũ của bạn cho star-rating, comment-cell... giữ nguyên) */
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.star-rating {
+  display: flex;
+  gap: 2px;
+}
+.star-filled {
+  color: #f59e0b; /* Màu vàng cam */
+}
+.star-empty {
+  color: #d1d5db; /* Màu xám nhạt */
+}
+
+.rating-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.rating-text {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.comment-cell {
+  max-width: 350px;
+}
+.comment-truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+
+/* --- CSS MỚI CHO MODAL --- */
+
+/* (Ghi đè .dialog-content từ file CSS chung để nó rộng hơn) */
+.review-modal {
+  max-width: 600px; 
+}
+
+/* Style cho các trường text trong modal */
+.modal-info-text {
+  font-size: 15px;
+  color: #333;
+  padding: 8px 12px;
+  background-color: #f9f9f9;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin: 0;
+}
+
+/* Style cho bình luận đầy đủ (quan trọng nhất) */
+.full-comment {
+  font-size: 15px;
+  line-height: 1.6;
+  color: #333;
+  padding: 12px;
+  background-color: #f9f9f9;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  margin: 0;
+  white-space: pre-wrap; /* Giữ nguyên các dấu xuống dòng */
+  max-height: 300px; /* Cho phép cuộn nếu quá dài */
+  overflow-y: auto;
+}
 
 /* Nút Xóa (Đã có trong Vouchers.css) */
 /*

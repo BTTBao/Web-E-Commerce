@@ -11,6 +11,8 @@ public partial class ChatAttachment
 
     public string? FileUrl { get; set; }
 
+    public string? FilePublicId { get; set; }
+
     public string? FileType { get; set; }
 
     public virtual ChatMessage Message { get; set; } = null!;
