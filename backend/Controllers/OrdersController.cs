@@ -162,6 +162,18 @@ public class OrdersController : ControllerBase
         {
             return BadRequest(new { message = "Dữ liệu đơn hàng không hợp lệ." });
         }
+        
+        // Kiểm tra số lượng âm hoặc bằng 0
+        if (dto.items.Any(i => i.quantity <= 0))
+        {
+            return BadRequest(new { message = "Số lượng sản phẩm phải lớn hơn 0." });
+        }
+
+        // Giới hạn số lượng tối đa mỗi mặt hàng
+        if (dto.items.Any(i => i.quantity > 10))
+        {
+            return BadRequest(new { message = "Mỗi sản phẩm chỉ được đặt tối đa 10 cái." });
+        }
 
         // Lấy thông tin địa chỉ giao hàng
         var address = await _context.UserAddresses.FindAsync(dto.addressId);
@@ -187,10 +199,50 @@ public class OrdersController : ControllerBase
         decimal totalAmount = 0;
         foreach (var item in dto.items)
         {
-            var product = await _context.Products.FindAsync(item.productId);
+            var product = await _context.Products
+            .Include(p => p.ProductVariants)
+            .FirstOrDefaultAsync(p => p.ProductId == item.productId);
+
             if (product == null)
             {
                 return BadRequest(new { message = $"Không tìm thấy sản phẩm ID: {item.productId}" });
+            }
+
+            // Kiểm tra tồn kho theo biến thể hoặc theo sản phẩm
+            int stockQuantity;
+            if (item.variantId.HasValue && item.variantId.Value > 0)
+            {
+                var variant = product.ProductVariants.FirstOrDefault(v => v.VariantId == item.variantId);
+                if (variant == null)
+                {
+                    return BadRequest(new { message = $"Không tìm thấy biến thể cho sản phẩm ID: {item.productId}" });
+                }
+
+                stockQuantity = (int)variant.StockQuantity;
+            }
+            else
+            {
+                stockQuantity = (int)product.StockQuantity;
+            }
+
+            // Kiểm tra tồn kho
+            if (item.quantity > stockQuantity)
+            {
+                return BadRequest(new
+                {
+                    message = $"Sản phẩm '{product.Name}' chỉ còn {stockQuantity} sản phẩm trong kho."
+                });
+            }
+
+            // Cập nhật trừ tồn kho ngay sau khi đặt
+            if (item.variantId.HasValue && item.variantId.Value > 0)
+            {
+                var variant = product.ProductVariants.First(v => v.VariantId == item.variantId);
+                variant.StockQuantity -= item.quantity;
+            }
+            else
+            {
+                product.StockQuantity -= item.quantity;
             }
 
             var detail = new OrderDetail
@@ -221,6 +273,8 @@ public class OrdersController : ControllerBase
         };
 
         _context.Payments.Add(payment);
+
+        // Lưu lại cả cập nhật tồn kho
         await _context.SaveChangesAsync();
 
         return Ok(new

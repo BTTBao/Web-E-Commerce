@@ -21,6 +21,7 @@ namespace backend.Controllers
         [HttpPost]
         // --- SỬA Ở ĐÂY ---
         // Thêm [FromForm] để C# nhận diện file
+        [ApiExplorerSettings(IgnoreApi = true)] // lỗi cook
         public async Task<IActionResult> UploadImage([FromForm] IFormFile file)
         // --- HẾT SỬA ---
         {
