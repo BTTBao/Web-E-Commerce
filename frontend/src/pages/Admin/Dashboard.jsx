@@ -1,48 +1,115 @@
 // src/pages/Admin/Dashboard.jsx
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { DollarSign, ShoppingCart, Users, Package } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
-// Import file CSS mới
+import dashboardService from './dashboardService.js';
 import './Dashboard.css';
 
-// Dữ liệu (giữ nguyên)
-const revenueData = [
-  { day: 'T2', revenue: 45000000 },
-  { day: 'T3', revenue: 52000000 },
-  { day: 'T4', revenue: 48000000 },
-  { day: 'T5', revenue: 61000000 },
-  { day: 'T6', revenue: 55000000 },
-  { day: 'T7', revenue: 67000000 },
-  { day: 'CN', revenue: 72000000 },
-];
-
-const orderStatusData = [
-  { name: 'Chờ xử lý', value: 15, color: '#f59e0b' },
-  { name: 'Đã xác nhận', value: 25, color: '#3b82f6' },
-  { name: 'Đang giao', value: 20, color: '#8b5cf6' },
-  { name: 'Đã giao', value: 35, color: '#10b981' },
-  { name: 'Đã hủy', value: 5, color: '#ef4444' },
-];
-
-const recentOrders = [
-  { id: 'DH001', customer: 'Nguyễn Văn A', amount: 1500000, status: 'Chờ xử lý' },
-  { id: 'DH002', customer: 'Trần Thị B', amount: 2300000, status: 'Chờ xử lý' },
-  { id: 'DH003', customer: 'Lê Văn C', amount: 890000, status: 'Chờ xử lý' },
-  { id: 'DH004', customer: 'Phạm Thị D', amount: 3200000, status: 'Chờ xử lý' },
-  { id: 'DH005', customer: 'Hoàng Văn E', amount: 1750000, status: 'Chờ xử lý' },
-];
-
-const recentReviews = [
-  { id: 1, product: 'iPhone 15 Pro Max', customer: 'Nguyễn A', rating: 5, status: 'Pending' },
-  { id: 2, product: 'Samsung Galaxy S24', customer: 'Trần B', rating: 4, status: 'Pending' },
-  { id: 3, product: 'Laptop Dell XPS 15', customer: 'Lê C', rating: 5, status: 'Pending' },
-  { id: 4, product: 'AirPods Pro 2', customer: 'Phạm D', rating: 4, status: 'Pending' },
-  { id: 5, product: 'iPad Air M2', customer: 'Hoàng E', rating: 5, status: 'Pending' },
-];
-
 export default function Dashboard() {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [dashboardData, setDashboardData] = useState({
+    kpi: null,
+    revenueData: [],
+    orderStatusData: [],
+    recentOrders: [],
+    recentReviews: []
+  });
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await dashboardService.getAllDashboardData();
+      
+      if (response.success) {
+        setDashboardData(response.data);
+      } else {
+        setError(response.message || 'Có lỗi xảy ra');
+      }
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError(err.response?.data?.message || 'Không thể kết nối đến server');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('vi-VN', {
+      style: 'currency',
+      currency: 'VND'
+    }).format(amount);
+  };
+
+  if (loading) {
+    return (
+      <div className="dashboard-container">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '400px',
+          fontSize: '18px',
+          color: '#666'
+        }}>
+          <div>
+            <div className="spinner" style={{ 
+              border: '4px solid #f3f3f3',
+              borderTop: '4px solid #3b82f6',
+              borderRadius: '50%',
+              width: '40px',
+              height: '40px',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 20px'
+            }}></div>
+            <p>Đang tải dữ liệu...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="dashboard-container">
+        <div style={{ 
+          textAlign: 'center', 
+          padding: '50px',
+          backgroundColor: '#fee',
+          borderRadius: '8px',
+          margin: '20px'
+        }}>
+          <p style={{ color: '#c33', fontSize: '16px', marginBottom: '20px' }}>
+            ⚠️ {error}
+          </p>
+          <button 
+            onClick={fetchDashboardData}
+            style={{
+              padding: '10px 20px',
+              backgroundColor: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              cursor: 'pointer',
+              fontSize: '14px'
+            }}
+          >
+            🔄 Thử lại
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const { kpi, revenueData, orderStatusData, recentOrders, recentReviews } = dashboardData;
+
   return (
     <div className="dashboard-container">
       <div className="dashboard-header">
@@ -62,8 +129,16 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="card-content">
-            <div className="kpi-value">1.543.000.000 đ</div>
-            <p className="kpi-change">+12.5% so với tháng trước</p>
+            <div className="kpi-value">
+              {kpi ? formatCurrency(kpi.monthlyRevenue) : '0 đ'}
+            </div>
+            <p className="kpi-change">
+              {kpi ? (
+                <span style={{ color: kpi.revenueChangePercent >= 0 ? '#10b981' : '#ef4444' }}>
+                  {kpi.revenueChangePercent > 0 ? '+' : ''}{kpi.revenueChangePercent}% so với tháng trước
+                </span>
+              ) : 'Đang tải...'}
+            </p>
           </div>
         </div>
 
@@ -75,7 +150,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="card-content">
-            <div className="kpi-value">45</div>
+            <div className="kpi-value">{kpi ? kpi.newOrdersCount : 0}</div>
             <p className="kpi-change">Chờ xử lý</p>
           </div>
         </div>
@@ -88,7 +163,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="card-content">
-            <div className="kpi-value">127</div>
+            <div className="kpi-value">{kpi ? kpi.newCustomersCount : 0}</div>
             <p className="kpi-change">Trong tháng này</p>
           </div>
         </div>
@@ -101,7 +176,7 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="card-content">
-            <div className="kpi-value">8</div>
+            <div className="kpi-value">{kpi ? kpi.lowStockProductsCount : 0}</div>
             <p className="kpi-change">Cần nhập thêm</p>
           </div>
         </div>
@@ -119,16 +194,20 @@ export default function Dashboard() {
             </h3>
           </div>
           <div className="card-content">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="day" />
-                <YAxis tickFormatter={(value) => `${value / 1000000}M`} />
-                <Tooltip formatter={(value) => `${Number(value).toLocaleString('vi-VN')} đ`} />
-                <Legend />
-                <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} name="Doanh thu" />
-              </LineChart>
-            </ResponsiveContainer>
+            {revenueData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <LineChart data={revenueData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis tickFormatter={(value) => `${(value / 1000000).toFixed(0)}M`} />
+                  <Tooltip formatter={(value) => formatCurrency(value)} />
+                  <Legend />
+                  <Line type="monotone" dataKey="revenue" stroke="#3b82f6" strokeWidth={2} name="Doanh thu" />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <p style={{ textAlign: 'center', color: '#999', padding: '50px' }}>Chưa có dữ liệu</p>
+            )}
           </div>
         </div>
 
@@ -142,25 +221,29 @@ export default function Dashboard() {
             </h3>
           </div>
           <div className="card-content">
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={orderStatusData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {orderStatusData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {orderStatusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <PieChart>
+                  <Pie
+                    data={orderStatusData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={80}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {orderStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p style={{ textAlign: 'center', color: '#999', padding: '50px' }}>Chưa có dữ liệu</p>
+            )}
           </div>
         </div>
       </div>
@@ -178,20 +261,24 @@ export default function Dashboard() {
           </div>
           <div className="card-content">
             <div className="activity-list">
-              {recentOrders.map((order) => (
-                <div key={order.id} className="activity-item">
-                  <div className="activity-details">
-                    <p className="activity-main-text">{order.id}</p>
-                    <p className="activity-sub-text">{order.customer}</p>
+              {recentOrders.length > 0 ? (
+                recentOrders.map((order) => (
+                  <div key={order.id} className="activity-item">
+                    <div className="activity-details">
+                      <p className="activity-main-text">{order.id}</p>
+                      <p className="activity-sub-text">{order.customer}</p>
+                    </div>
+                    <div className="activity-aside">
+                      <p className="activity-main-text">{formatCurrency(order.amount)}</p>
+                      <span className="badge badge-orange">
+                        {order.status}
+                      </span>
+                    </div>
                   </div>
-                  <div className="activity-aside">
-                    <p className="activity-main-text">{order.amount.toLocaleString('vi-VN')} đ</p>
-                    <span className="badge badge-orange">
-                      {order.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p style={{ textAlign: 'center', color: '#999', padding: '20px' }}>Chưa có đơn hàng mới</p>
+              )}
             </div>
           </div>
         </div>
@@ -207,26 +294,30 @@ export default function Dashboard() {
           </div>
           <div className="card-content">
             <div className="activity-list">
-              {recentReviews.map((review) => (
-                <div key={review.id} className="activity-item">
-                  <div className="activity-details">
-                    <p className="activity-main-text">{review.product}</p>
-                    <p className="activity-sub-text">{review.customer}</p>
-                  </div>
-                  <div className="activity-aside-reviews">
-                    <div className="star-rating">
-                      {[...Array(5)].map((_, i) => (
-                        <span key={i} className={i < review.rating ? 'star-filled' : 'star-empty'}>
-                          ★
-                        </span>
-                      ))}
+              {recentReviews.length > 0 ? (
+                recentReviews.map((review) => (
+                  <div key={review.id} className="activity-item">
+                    <div className="activity-details">
+                      <p className="activity-main-text">{review.product}</p>
+                      <p className="activity-sub-text">{review.customer}</p>
                     </div>
-                    <span className="badge badge-blue">
-                      Chờ duyệt
-                    </span>
+                    <div className="activity-aside-reviews">
+                      <div className="star-rating">
+                        {[...Array(5)].map((_, i) => (
+                          <span key={i} className={i < review.rating ? 'star-filled' : 'star-empty'}>
+                            ★
+                          </span>
+                        ))}
+                      </div>
+                      <span className="badge badge-blue">
+                        Chờ duyệt
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))
+              ) : (
+                <p style={{ textAlign: 'center', color: '#999', padding: '20px' }}>Chưa có đánh giá mới</p>
+              )}
             </div>
           </div>
         </div>
