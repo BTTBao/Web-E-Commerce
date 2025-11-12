@@ -18,6 +18,9 @@ namespace backend.Extensions
             services.AddScoped<ICartService, CartService>();
             //User
             //...
+
+            //Dashboard
+            services.AddScoped<IDashboardService, DashboardService>();
             return services;
         }
     }
