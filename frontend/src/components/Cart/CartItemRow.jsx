@@ -17,8 +17,7 @@ function CartItemRow({ item }) {
                 />
                 <div>
                     <p className="cart-item-name">{item.name || item.productName}</p>
-                    <p className="cart-item-variant">Biến thể: {item.variantName}</p>
-                    {/* <p className="cart-item-variant">Size: {item.size}</p> */}
+                    {item.variantId ? <p className="cart-item-variant">Biến thể: {item.variantName}</p> : ""}
                     <button
                         onClick={() => removeItem((item.productId || item.id), item.variantId)}
                         className="cart-item-remove-mobile"
@@ -50,6 +49,7 @@ function CartItemRow({ item }) {
                     <button
                         onClick={() => updateQuantity((item.productId || item.id), item.variantId, item.quantity + 1)}
                         className="cart-item-quantity-btn plus-btn"
+                        disabled={item.quantity > 10}
                     >
                         <PlusIcon className="w-4 h-4" />
                     </button>

@@ -4,6 +4,7 @@ import { createContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import cartApi from '../api/cartApi';
+import productApi from '../api/productApi';
 
 const LOCAL_CART_KEY = 'cart';
 export function CartProvider({ children }) {
@@ -120,6 +121,37 @@ export function CartProvider({ children }) {
     // setCart([]);
   };
 
+  // lấy thông tin tồn kho sản phẩm 
+  const getStockInfo = async (productId, variantId) => {
+    const res = await productApi.getById(productId);
+    const productData = res.data.data;
+
+    const variant = productData?.productVariants?.find(
+      (v) => v.variantId === variantId
+    );
+
+    return {
+      stock: variant ? variant.stockQuantity : productData.stockQuantity,
+      productData,
+    };
+  };
+  // kiểm tra tồn kho
+  const validateStock = async (productId, variantId, quantity) => {
+    const { stock } = await getStockInfo(productId, variantId);
+
+    if (stock <= 0) {
+      toast.error("Sản phẩm hiện đã hết hàng");
+      return false;
+    }
+
+    if (quantity > stock) {
+      toast.warning(`Chỉ còn ${stock} sản phẩm trong kho`);
+      return false;
+    }
+
+    return true;
+  };
+
   // Thêm sản phẩm vào giỏ hàng
   const addItem = async (item) => {
     toast.dismiss();
@@ -142,6 +174,15 @@ export function CartProvider({ children }) {
         toast.warning("Sản phẩm này đã có trong giỏ hàng");
         return;
       }
+
+      // Kiểm tra tồn kho
+      const isStockValid = await validateStock(
+        item.id || item.productId,
+        item.variantId,
+        item.quantity
+      );
+      if (!isStockValid) return;
+
       const newItem = {
         ...item,
         quantity: item.quantity > 0 ? item.quantity : 1,
@@ -166,10 +207,63 @@ export function CartProvider({ children }) {
 
         return updatedCart;
       });
-      toast.success(`Đã thêm "${item.name} - ${item.variantName}"  vào giỏ hàng`);
+      toast.success(`Đã thêm "${item.name}${item.variantName ? " - " + item.variantName : ""}" vào giỏ hàng`);
     } catch (error) {
       console.error('Lỗi khi thêm sản phẩm:', error);
       toast.error('Không thể thêm sản phẩm vào giỏ hàng');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cập nhật số lượng sản phẩm
+  const updateQuantity = async (id, variantId, quantity) => {
+    toast.dismiss();
+    if (quantity <= 0) {
+      removeItem(id, variantId);
+    }
+    if (quantity > 10) {
+      toast.warning("Số lượng tối đa mỗi sản phẩm là 10")
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Kiểm tra tồn kho
+      const isStockValid = await validateStock(id, variantId, quantity);
+      if (!isStockValid) return;
+      // Cập nhật state local
+
+      setCart((prevCart) => {
+        const newCart = prevCart.map((item) =>
+          (item.id || item.productId) === id && item.variantId === variantId
+            ? { ...item, quantity }
+            : item
+        );
+
+        if (!isLoggedIn) {
+          saveCartToLocalStorage(newCart);
+        }
+
+        return newCart;
+      });
+
+      // gọi API (nếu đăng nhập)
+      if (isLoggedIn && accountId) {
+        // Đã đăng nhập: Gọi API
+        await cartApi.UpdateItem({
+          accountId,
+          productId: id,
+          variantId,
+          quantity,
+        });
+      }
+
+      toast.success('Đã cập nhật số lượng sản phẩm');
+    } catch (error) {
+      console.error('Lỗi khi cập nhật số lượng:', error);
+      toast.error('Không thể cập nhật số lượng');
     } finally {
       setLoading(false);
     }
@@ -205,49 +299,6 @@ export function CartProvider({ children }) {
     } catch (error) {
       console.error('Lỗi khi xóa sản phẩm:', error);
       toast.error('Không thể xóa sản phẩm');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Cập nhật số lượng sản phẩm
-  const updateQuantity = async (id, variantId, quantity) => {
-    toast.dismiss();
-    if (quantity <= 0) {
-      removeItem(id, variantId);
-    }
-    try {
-      setLoading(true);
-      // Cập nhật state local
-      setCart((prevCart) => {
-        const newCart = prevCart.map((item) =>
-          (item.id || item.productId) === id && item.variantId === variantId
-            ? { ...item, quantity }
-            : item
-        );
-
-        if (!isLoggedIn) {
-          saveCartToLocalStorage(newCart);
-        }
-
-        return newCart;
-      });
-
-      // gọi API (nếu đăng nhập)
-      if (isLoggedIn && accountId) {
-        // Đã đăng nhập: Gọi API
-        await cartApi.UpdateItem({
-          accountId,
-          productId: id,
-          variantId,
-          quantity,
-        });
-      }
-
-      toast.success('Đã cập nhật số lượng sản phẩm');
-    } catch (error) {
-      console.error('Lỗi khi cập nhật số lượng:', error);
-      toast.error('Không thể cập nhật số lượng');
     } finally {
       setLoading(false);
     }
