@@ -52,6 +52,7 @@
 
 .item-thumb {
     position: relative;
+    width: 30%;
 }
 
 .item-thumb img {

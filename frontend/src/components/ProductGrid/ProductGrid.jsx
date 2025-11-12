@@ -5,10 +5,10 @@ import ProductCard from '../ProductCard/ProductCard';
 const ROWS_PER_PAGE = 7; 
 const MAX_VISIBLE_PAGES = 4; 
 
-const ProductGrid = ({ products }) => {
+const ProductGrid = ({ products, rows }) => {
   const [currentPage, setCurrentPage] = useState(1);
   
-  const ITEMS_PER_ROW = 4;
+  const ITEMS_PER_ROW = rows || 4;
   
   const ITEMS_PER_PAGE = ROWS_PER_PAGE * ITEMS_PER_ROW;
 

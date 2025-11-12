@@ -19,7 +19,7 @@ function ProductRelated({ category }) {
   return (
     <div class="related-products">
       <h2>CÁC SẢN PHẨM KHÁC</h2>
-      {<ProductGrid products = {products}/>}
+      {<ProductGrid products = {products} rows = {1}/>}
     </div>
   )
 }

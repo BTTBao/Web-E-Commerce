@@ -78,7 +78,7 @@ const ProductCard = ({ product }) => {
         <img src={primaryImage} alt={name} className="product-image" />
       </div>
 
-      <div className="product-details">
+      <div className="product-card-details">
         <h3 className="product-title">{name || 'Sản phẩm'}</h3>
 
         <div className="price-section">
