@@ -6,11 +6,15 @@ using Microsoft.OpenApi.Models;
 using backend.Hubs;
 using backend.Extensions;
 
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
+// --- 1. THÊM CÁC USING CẦN THIẾT ---
+using backend.DTOs;
+using backend.Interfaces.IServices;
+using backend.Services;
+// ------------------------------------
 
 var builder = WebApplication.CreateBuilder(args);
 var MyAllowSpecificOrigins = "SKYNET_ECOMMERCE";
@@ -59,12 +63,21 @@ builder.Services.AddSwaggerGen(opt =>
 });
 
 // //Đăng ký các dịch vụ (Services) vào DI Container
- builder.Services.AddApplicationServices();
+builder.Services.AddApplicationServices();
 
 //Đăng ký ApplicationDbContext vào DI container.
 builder.Services.AddDbContext<ApplicationDbContext>(options => {
     options.UseSqlServer(builder.Configuration.GetConnectionString("SKYNET"));
 });
+
+
+// --- 2. THÊM ĐĂNG KÝ CLOUDINARY ---
+// Đọc config "CloudinarySettings" từ appsettings.json
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+// Đăng ký dịch vụ xử lý ảnh (để UploadController có thể dùng)
+builder.Services.AddScoped<IPhotoService, PhotoService>();
+// ---------------------------------
+
 
 var app = builder.Build();
 
