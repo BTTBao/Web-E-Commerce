@@ -1,5 +1,6 @@
 /* ==== Tổng thể ==== */
 .header {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -7,6 +8,7 @@
   /* padding: 16px 40px; */
   box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   font-family: Arial, sans-serif;
+  z-index: 1000;
 }
 
 /* ==== Logo ==== */
@@ -30,7 +32,7 @@
   flex-direction: column;
   height: 60px;
 
-  flex: 1 1 100px;
+  flex: 1 1 50px;
 }
 
 .menu-text {
@@ -220,6 +222,12 @@
 /* ============================= */
 /* 📱 Responsive: Tablet Layout  */
 /* ============================= */
+@media (max-width: 850px) {
+  .menu-text{
+    font-size: 10px;
+  }
+  
+}
 @media (max-width: 1024px) {
   .header {
     padding: 12px 24px;
