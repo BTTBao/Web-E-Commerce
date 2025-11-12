@@ -25,10 +25,12 @@ CREATE TABLE Users (
     AccountID INT UNIQUE,
     FullName NVARCHAR(150),
     Gender NVARCHAR(10) CHECK (Gender IN ('Male','Female','Other')),
-    AvatarURL NVARCHAR(255),
-    DateOfBirth DATE,  -- thêm cột ngày sinh
+    AvatarURL NVARCHAR(500),
+    AvatarPublicId NVARCHAR(255),
+    DateOfBirth DATE,
     FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID) ON DELETE CASCADE
 );
+
 CREATE TABLE UserAddresses (
     AddressID INT IDENTITY(1,1) PRIMARY KEY,
     AccountID INT NOT NULL,
@@ -73,7 +75,8 @@ CREATE TABLE Products (
 CREATE TABLE ProductImages (
     ImageID INT IDENTITY(1,1) PRIMARY KEY,
     ProductID INT NOT NULL,
-    ImageURL NVARCHAR(255) NOT NULL,
+    ImageURL NVARCHAR(500) NOT NULL,
+    ImagePublicId NVARCHAR(255),
     IsPrimary BIT DEFAULT 0,
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
 );
@@ -219,7 +222,8 @@ CREATE TABLE ChatMessages (
 CREATE TABLE ChatAttachments (
     AttachmentID INT IDENTITY(1,1) PRIMARY KEY,
     MessageID INT NOT NULL,
-    FileURL NVARCHAR(255),
+    FileURL NVARCHAR(500),
+    FilePublicId NVARCHAR(255),
     FileType NVARCHAR(50),
     FOREIGN KEY (MessageID) REFERENCES ChatMessages(MessageID) ON DELETE CASCADE
 );
