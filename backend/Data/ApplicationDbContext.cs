@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
-using backend.Models;
+using backend.Entities;
 
 namespace backend.Data;
 
@@ -54,17 +54,17 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=localhost,1434;Initial Catalog=Skynet_commerce;User ID=sa;Password=MatKhauSuperSecure123!;TrustServerCertificate=True");
+        => optionsBuilder.UseSqlServer("Server=localhost,1434;Database=Skynet_commerce;User Id=sa;Password=MatKhauSuperSecure123!;TrustServerCertificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Account>(entity =>
         {
-            entity.HasKey(e => e.AccountId).HasName("PK__Accounts__349DA58673034AA6");
+            entity.HasKey(e => e.AccountId).HasName("PK__Accounts__349DA586C79F3C8B");
 
-            entity.HasIndex(e => e.Phone, "UQ__Accounts__5C7E359E03CBCBB3").IsUnique();
+            entity.HasIndex(e => e.Phone, "UQ__Accounts__5C7E359E044F3E5D").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Accounts__A9D105349546EDBE").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Accounts__A9D105342C16F648").IsUnique();
 
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
             entity.Property(e => e.CreatedAt)
@@ -81,7 +81,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Carts__51BCD7979BB98FB8");
+            entity.HasKey(e => e.CartId).HasName("PK__Carts__51BCD7971B84BEFB");
 
             entity.Property(e => e.CartId).HasColumnName("CartID");
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
@@ -96,7 +96,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<CartItem>(entity =>
         {
-            entity.HasKey(e => e.CartItemId).HasName("PK__CartItem__488B0B2A3EFEC9F1");
+            entity.HasKey(e => e.CartItemId).HasName("PK__CartItem__488B0B2A0EA0FEED");
 
             entity.Property(e => e.CartItemId).HasColumnName("CartItemID");
             entity.Property(e => e.AddedAt)
@@ -121,7 +121,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A2B7F596B82");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Categori__19093A2B02F5081B");
 
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
             entity.Property(e => e.CategoryName).HasMaxLength(150);
@@ -134,7 +134,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ChatAttachment>(entity =>
         {
-            entity.HasKey(e => e.AttachmentId).HasName("PK__ChatAtta__442C64DEF4E57323");
+            entity.HasKey(e => e.AttachmentId).HasName("PK__ChatAtta__442C64DEB080A287");
 
             entity.Property(e => e.AttachmentId).HasColumnName("AttachmentID");
             entity.Property(e => e.FilePublicId).HasMaxLength(255);
@@ -151,7 +151,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ChatMessage>(entity =>
         {
-            entity.HasKey(e => e.MessageId).HasName("PK__ChatMess__C87C037CADFB41B2");
+            entity.HasKey(e => e.MessageId).HasName("PK__ChatMess__C87C037C87785EA1");
 
             entity.Property(e => e.MessageId).HasColumnName("MessageID");
             entity.Property(e => e.CreatedAt)
@@ -172,7 +172,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ChatRoom>(entity =>
         {
-            entity.HasKey(e => e.RoomId).HasName("PK__ChatRoom__32863919B6A748F4");
+            entity.HasKey(e => e.RoomId).HasName("PK__ChatRoom__3286391982416F94");
 
             entity.Property(e => e.RoomId).HasColumnName("RoomID");
             entity.Property(e => e.AdminId).HasColumnName("AdminID");
@@ -193,7 +193,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAF5BFF1347");
+            entity.HasKey(e => e.OrderId).HasName("PK__Orders__C3905BAF6FF90541");
 
             entity.Property(e => e.OrderId).HasColumnName("OrderID");
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
@@ -217,7 +217,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<OrderDetail>(entity =>
         {
-            entity.HasKey(e => e.OrderDetailId).HasName("PK__OrderDet__D3B9D30C11159EEC");
+            entity.HasKey(e => e.OrderDetailId).HasName("PK__OrderDet__D3B9D30C89B4DC49");
 
             entity.Property(e => e.OrderDetailId).HasColumnName("OrderDetailID");
             entity.Property(e => e.OrderId).HasColumnName("OrderID");
@@ -243,7 +243,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A581AA20725");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payments__9B556A5806916661");
 
             entity.Property(e => e.PaymentId).HasColumnName("PaymentID");
             entity.Property(e => e.Amount).HasColumnType("decimal(12, 2)");
@@ -265,7 +265,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED96B4900B");
+            entity.HasKey(e => e.ProductId).HasName("PK__Products__B40CC6ED7890538A");
 
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
             entity.Property(e => e.CategoryId).HasColumnName("CategoryID");
@@ -288,7 +288,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ProductImage>(entity =>
         {
-            entity.HasKey(e => e.ImageId).HasName("PK__ProductI__7516F4ECB8114724");
+            entity.HasKey(e => e.ImageId).HasName("PK__ProductI__7516F4ECAAB1A526");
 
             entity.Property(e => e.ImageId).HasColumnName("ImageID");
             entity.Property(e => e.ImagePublicId).HasMaxLength(255);
@@ -305,9 +305,9 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<ProductVariant>(entity =>
         {
-            entity.HasKey(e => e.VariantId).HasName("PK__ProductV__0EA233E4DE62BD61");
+            entity.HasKey(e => e.VariantId).HasName("PK__ProductV__0EA233E4F4643267");
 
-            entity.HasIndex(e => e.Sku, "UQ__ProductV__CA1ECF0DEDB44B01").IsUnique();
+            entity.HasIndex(e => e.Sku, "UQ__ProductV__CA1ECF0D9209913D").IsUnique();
 
             entity.Property(e => e.VariantId).HasColumnName("VariantID");
             entity.Property(e => e.Color).HasMaxLength(50);
@@ -326,7 +326,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Review>(entity =>
         {
-            entity.HasKey(e => e.ReviewId).HasName("PK__Reviews__74BC79AEC31B4E38");
+            entity.HasKey(e => e.ReviewId).HasName("PK__Reviews__74BC79AE8841B957");
 
             entity.Property(e => e.ReviewId).HasColumnName("ReviewID");
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
@@ -346,9 +346,9 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<User>(entity =>
         {
-            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC4E2C16C2");
+            entity.HasKey(e => e.UserId).HasName("PK__Users__1788CCAC60CD38AF");
 
-            entity.HasIndex(e => e.AccountId, "UQ__Users__349DA587E761F6FD").IsUnique();
+            entity.HasIndex(e => e.AccountId, "UQ__Users__349DA5871B652A40").IsUnique();
 
             entity.Property(e => e.UserId).HasColumnName("UserID");
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
@@ -367,7 +367,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<UserAddress>(entity =>
         {
-            entity.HasKey(e => e.AddressId).HasName("PK__UserAddr__091C2A1B094CB5E6");
+            entity.HasKey(e => e.AddressId).HasName("PK__UserAddr__091C2A1BA7791447");
 
             entity.Property(e => e.AddressId).HasColumnName("AddressID");
             entity.Property(e => e.AccountId).HasColumnName("AccountID");
@@ -389,9 +389,9 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Voucher>(entity =>
         {
-            entity.HasKey(e => e.VoucherId).HasName("PK__Vouchers__3AEE79C1B1EA05DF");
+            entity.HasKey(e => e.VoucherId).HasName("PK__Vouchers__3AEE79C10C5F99B6");
 
-            entity.HasIndex(e => e.Code, "UQ__Vouchers__A25C5AA7CC8DA2C1").IsUnique();
+            entity.HasIndex(e => e.Code, "UQ__Vouchers__A25C5AA78AF7E572").IsUnique();
 
             entity.Property(e => e.VoucherId).HasColumnName("VoucherID");
             entity.Property(e => e.Code).HasMaxLength(50);
@@ -405,7 +405,7 @@ public partial class ApplicationDbContext : DbContext
 
         modelBuilder.Entity<Wishlist>(entity =>
         {
-            entity.HasKey(e => e.WishlistId).HasName("PK__Wishlist__233189CB835F09FA");
+            entity.HasKey(e => e.WishlistId).HasName("PK__Wishlist__233189CB75352FA8");
 
             entity.HasIndex(e => new { e.AccountId, e.ProductId }, "UQ_Wishlist").IsUnique();
 

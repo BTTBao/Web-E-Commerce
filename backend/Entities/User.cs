@@ -15,6 +15,8 @@ public partial class User
 
     public string? AvatarUrl { get; set; }
 
+    public string? AvatarPublicId { get; set; }
+
     public DateOnly? DateOfBirth { get; set; }
 
     public virtual Account? Account { get; set; }
