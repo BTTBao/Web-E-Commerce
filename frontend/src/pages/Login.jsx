@@ -1,5 +1,5 @@
 import React, { useState, useEffect, } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 
 
@@ -9,8 +9,10 @@ export default function Login(){
   const [userName, setUser] = useState('');
   const [passWord, setPass] = useState('');
   const {onLogin} = useCart();
-  const navigator = useNavigate();
+  const navigate = useNavigate();
+  const location = useLocation();
   const HandleLogin = () => {
+    const from = location.state?.from || "/";
     fetch(`https://localhost:7132/api/Account/login?username=${userName}&password=${passWord}`)
     .then(res => {
       if(!res.ok){
@@ -23,14 +25,13 @@ export default function Login(){
       localStorage.setItem('token', data.token);
       localStorage.setItem('account', JSON.stringify(data.account));
       onLogin(data.account.accountId);
-      navigator('/');
+      navigate(from);
     })
     .catch(error =>{
       console.log(error);
     })
   }
-
-
+  
   return (
     <div className="row justify-content-center">
       <div className="col-md-4">

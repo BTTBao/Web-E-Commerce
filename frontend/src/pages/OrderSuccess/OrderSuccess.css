@@ -1,0 +1,51 @@
+.order-success-page {
+    animation: fadeInUp 0.5s ease-out forwards;
+}
+
+.icon-circle {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: #e8f5e9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.order-card {
+    max-width: 600px;
+    width: 100%;
+    animation: fadeInUp 0.6s ease-out;
+}
+
+.info-box {
+    background-color: #f0f7ff;
+    border-color: #cfe2ff;
+    color: #000;
+}
+
+.order-btns .btn-dark:hover {
+    background-color: #000 !important;
+    /* Màu tối nhẹ hơn một chút */
+    /* opacity: 0.9; */
+    transition: all 0.2s ease-in-out;
+}
+
+.order-btns .btn-outline-secondary:hover {
+    background-color: #f8f9fa !important;
+    color: #000 !important;
+    border-color: #000 !important;
+    transition: all 0.2s ease-in-out;   
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

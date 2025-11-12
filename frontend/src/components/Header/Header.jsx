@@ -63,7 +63,7 @@ const Header = () => {
       </Link>
 
       {/* Navbar */}
-      <nav className="nav">
+      <div className="nav">
         {Object.keys(menuData).map((menu) => {
           const menuItem = menuData[menu];
 
@@ -132,7 +132,7 @@ const Header = () => {
             </div>
           );
         })}
-      </nav>
+      </div>
 
       {/* Icons */}
       <div className="icons">

@@ -57,6 +57,7 @@ namespace backend.Services
                             (v.Size ?? "")
                         )
                         .FirstOrDefault()?.Trim()
+
                 };
 
                 cartItemsDto.Add(cartItemDto);
