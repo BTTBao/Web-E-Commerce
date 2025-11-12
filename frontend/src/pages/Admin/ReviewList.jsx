@@ -1,80 +1,101 @@
 // src/pages/Admin/ReviewList.jsx
 
-import React, { useState } from 'react';
-import { Eye, EyeOff, Trash2 } from 'lucide-react';
+import React, { useState, useEffect, useMemo } from 'react';
+// --- SỬA 1: Thêm 'FileText' ---
+import { Eye, EyeOff, Trash2, FileText } from 'lucide-react'; 
+import axios from 'axios';
 
-// Import file CSS (Cần file CSS chung VÀ file CSS riêng)
-import './Vouchers.css'; // Dùng chung .card, .table, .badge, .filter-select...
-import './ReviewList.css'; // Dùng cho style riêng của trang này
+// Import file CSS
+import './Vouchers.css';
+import './ReviewList.css';
 
-// Dữ liệu mẫu (giữ nguyên)
-const reviews = [
-  {
-    id: 'R001',
-    product: 'iPhone 15 Pro Max',
-    customer: 'Nguyễn Văn A',
-    rating: 5,
-    comment: 'Sản phẩm tuyệt vời! Chất lượng rất tốt, giao hàng nhanh.',
-    date: '2025-10-25',
-    status: 'Pending',
-  },
-  {
-    id: 'R002',
-    product: 'Samsung Galaxy S24 Ultra',
-    customer: 'Trần Thị B',
-    rating: 4,
-    comment: 'Máy đẹp, camera chụp ảnh đẹp. Giá hơi cao.',
-    date: '2025-10-24',
-    status: 'Approved',
-  },
-  {
-    id: 'R003',
-    product: 'Laptop Dell XPS 15',
-    customer: 'Lê Văn C',
-    rating: 5,
-    comment: 'Laptop mạnh mẽ, phù hợp cho công việc đồ họa.',
-    date: '2025-10-23',
-    status: 'Approved',
-  },
-  {
-    id: 'R004',
-    product: 'AirPods Pro 2',
-    customer: 'Phạm Thị D',
-    rating: 4,
-    comment: 'Tai nghe chất lượng, chống ồn tốt.',
-    date: '2025-10-22',
-    status: 'Pending',
-  },
-  {
-    id: 'R005',
-    product: 'iPad Air M2',
-    customer: 'Hoàng Văn E',
-    rating: 5,
-    comment: 'iPad rất mượt mà, màn hình đẹp.',
-    date: '2025-10-21',
-    status: 'Approved',
-  },
-  {
-    id: 'R006',
-    product: 'iPhone 15 Pro Max',
-    customer: 'Đỗ Thị F',
-    rating: 2,
-    comment: 'Sản phẩm kém, không giống như mô tả.',
-    date: '2025-10-20',
-    status: 'Pending',
-  },
-];
+// --- Cấu hình API ---
+const API_URL = 'https://localhost:7132/api/reviews';
 
+// --- Component chính ---
 export default function ReviewList() {
+  // --- STATE ---
+  const [reviews, setReviews] = useState([]);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Logic lọc (giữ nguyên)
-  const filteredReviews = reviews.filter((review) => {
-    if (statusFilter === 'all') return true;
-    return review.status === statusFilter;
-  });
+  // --- SỬA 2: Thêm state cho Modal ---
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedReview, setSelectedReview] = useState(null);
+  // --- HẾT SỬA 2 ---
 
-  // Hàm render sao (sửa lại để dùng class CSS)
+  // --- (Các hàm API: fetchReviews, handleToggleStatus, handleDelete giữ nguyên) ---
+  useEffect(() => {
+    fetchReviews();
+  }, []);
+
+  const fetchReviews = () => {
+    setLoading(true);
+    axios.get(API_URL)
+      .then(res => {
+        setReviews(res.data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Lỗi fetch reviews:", err);
+        setError("Không thể tải danh sách đánh giá.");
+        setLoading(false);
+      });
+  };
+
+  const handleToggleStatus = (reviewId) => {
+    axios.patch(`${API_URL}/${reviewId}/toggle`)
+      .then(res => {
+        setReviews(prevReviews =>
+          prevReviews.map(r =>
+            r.id === reviewId ? { ...r, status: res.data.newStatus } : r
+          )
+        );
+      })
+      .catch(err => {
+        console.error("Lỗi toggle status:", err);
+        alert("Không thể cập nhật trạng thái.");
+      });
+  };
+
+  const handleDelete = (reviewId, customerName) => {
+    if (window.confirm(`Bạn có chắc muốn xóa đánh giá của ${customerName}?`)) {
+      axios.delete(`${API_URL}/${reviewId}`)
+        .then(() => {
+          setReviews(prevReviews =>
+            prevReviews.filter(r => r.id !== reviewId)
+          );
+        })
+        .catch(err => {
+          console.error("Lỗi xóa review:", err);
+          alert("Không thể xóa đánh giá này.");
+        });
+    }
+  };
+
+  // --- SỬA 3: Thêm hàm xử lý Modal ---
+  const handleOpenModal = (review) => {
+    setSelectedReview(review);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedReview(null);
+  };
+  // --- HẾT SỬA 3 ---
+
+
+  // --- Logic lọc (giữ nguyên) ---
+  const filteredReviews = useMemo(() => {
+    return reviews.filter((review) => {
+      if (statusFilter === 'all') return true;
+      return review.status === statusFilter;
+    });
+  }, [reviews, statusFilter]);
+
+  // --- Các hàm render (giữ nguyên) ---
   const renderStars = (rating) => {
     return (
       <div className="star-rating">
@@ -87,17 +108,22 @@ export default function ReviewList() {
     );
   };
 
-  // Hàm lấy class CSS (thay cho Tailwind)
   const getStatusColor = (status) => {
     switch (status) {
-      case 'Approved':
-        return 'badge-green';
-      case 'Pending':
-        return 'badge-orange';
-      default:
-        return 'badge-gray';
+      case 'Approved': return 'badge-green';
+      case 'Pending': return 'badge-orange';
+      default: return 'badge-gray';
     }
   };
+
+  // --- RENDER CHÍNH ---
+  if (loading) {
+    return <div className="page-container">Đang tải danh sách đánh giá...</div>;
+  }
+
+  if (error) {
+    return <div className="page-container error-message">{error}</div>;
+  }
 
   return (
     <div className="page-container">
@@ -110,12 +136,13 @@ export default function ReviewList() {
 
       <div className="card">
         <div className="card-header review-header">
+          {/* (Phần filter giữ nguyên) */}
           <h3 className="card-title">Danh sách đánh giá</h3>
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             className="filter-select"
-            style={{ minWidth: '200px' }} // Đặt chiều rộng
+            style={{ minWidth: '200px' }}
           >
             <option value="all">Tất cả</option>
             <option value="Pending">Chờ duyệt</option>
@@ -137,50 +164,124 @@ export default function ReviewList() {
                 </tr>
               </thead>
               <tbody>
-                {filteredReviews.map((review) => (
-                  <tr key={review.id}>
-                    <td>{review.product}</td>
-                    <td>{review.customer}</td>
-                    <td>
-                      <div className="rating-cell">
-                        {renderStars(review.rating)}
-                        <span className="rating-text">({review.rating})</span>
-                      </div>
-                    </td>
-                    <td className="comment-cell">
-                      <p className="comment-truncate">{review.comment}</p>
-                    </td>
-                    <td>{new Date(review.date).toLocaleDateString('vi-VN')}</td>
-                    <td>
-                      <span className={`badge ${getStatusColor(review.status)}`}>
-                        {review.status === 'Approved' ? 'Đã duyệt' : 'Chờ duyệt'}
-                      </span>
-                    </td>
-                    <td className="text-right">
-                      <div className="action-buttons">
-                        {review.status === 'Pending' ? (
-                          <button className="action-button">
-                            <Eye width={16} height={16} />
-                            Duyệt
-                          </button>
-                        ) : (
-                          <button className="action-button">
-                            <EyeOff width={16} height={16} />
-                            Ẩn
-                          </button>
-                        )}
-                        <button className="action-button-icon-destructive">
-                          <Trash2 width={16} height={16} />
-                        </button>
-                      </div>
+                {filteredReviews.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '32px' }}>
+                      Không tìm thấy đánh giá nào.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  filteredReviews.map((review) => (
+                    <tr key={review.id}>
+                      <td>{review.product}</td>
+                      <td>{review.customer}</td>
+                      <td>
+                        <div className="rating-cell">
+                          {renderStars(review.rating)}
+                          <span className="rating-text">({review.rating})</span>
+                        </div>
+                      </td>
+                      <td className="comment-cell">
+                        {/* (Giữ nguyên) */}
+                        <p className="comment-truncate">{review.comment}</p>
+                      </td>
+                      <td>{new Date(review.date).toLocaleDateString('vi-VN')}</td>
+                      <td>
+                        <span className={`badge ${getStatusColor(review.status)}`}>
+                          {review.status === 'Approved' ? 'Đã duyệt' : 'Chờ duyệt'}
+                        </span>
+                      </td>
+                      <td className="text-right">
+                        {/* --- SỬA 4: Thêm nút "Xem" --- */}
+                        <div className="action-buttons">
+                          <button 
+                            className="action-button-icon"
+                            title="Xem chi tiết"
+                            onClick={() => handleOpenModal(review)}
+                          >
+                            <FileText width={16} height={16} />
+                          </button>
+                          
+                          <button 
+                            className="action-button"
+                            onClick={() => handleToggleStatus(review.id)}
+                          >
+                            {review.status === 'Pending' ? (
+                              <>
+                                <Eye width={16} height={16} /> Duyệt
+                              </>
+                            ) : (
+                              <>
+                                <EyeOff width={16} height={16} /> Ẩn
+                              </>
+                            )}
+                          </button>
+                          <button 
+                            className="action-button-icon-destructive"
+                            title="Xóa"
+                            onClick={() => handleDelete(review.id, review.customer)}
+                          >
+                            <Trash2 width={16} height={16} />
+                          </button>
+                        </div>
+                        {/* --- HẾT SỬA 4 --- */}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
       </div>
+
+      {/* --- SỬA 5: Thêm JSX cho Modal --- */}
+      {isModalOpen && selectedReview && (
+        <div className="dialog-overlay" onClick={handleCloseModal}>
+          <div className="dialog-content review-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="dialog-header">
+              <h3 className="dialog-title">Chi tiết đánh giá (ID: {selectedReview.id})</h3>
+            </div>
+            
+            <div className="dialog-body form-group-stack">
+              <div className="form-grid-2">
+                <div className="form-group">
+                  <label>Khách hàng</label>
+                  <p className="modal-info-text">{selectedReview.customer}</p>
+                </div>
+                <div className="form-group">
+                  <label>Ngày đánh giá</label>
+                  <p className="modal-info-text">{new Date(selectedReview.date).toLocaleDateString('vi-VN')}</p>
+                </div>
+              </div>
+              
+              <div className="form-group">
+                <label>Sản phẩm</label>
+                <p className="modal-info-text">{selectedReview.product}</p>
+              </div>
+              
+              <div className="form-group">
+                <label>Xếp hạng</label>
+                {renderStars(selectedReview.rating)}
+              </div>
+
+              <div className="form-group">
+                <label>Nội dung bình luận</label>
+                {/* Dùng <p> để hiển thị đầy đủ, không bị cắt */}
+                <p className="full-comment">{selectedReview.comment}</p>
+              </div>
+            </div>
+
+            <div className="form-footer">
+              <button className="button-primary" onClick={handleCloseModal}>
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* --- HẾT SỬA 5 --- */}
+
     </div>
   );
 }

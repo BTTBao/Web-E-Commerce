@@ -17,6 +17,8 @@ public partial class Review
 
     public DateTime? CreatedAt { get; set; }
 
+    public string Status { get; set; } = null!;
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual Product Product { get; set; } = null!;

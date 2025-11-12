@@ -334,6 +334,9 @@ public partial class ApplicationDbContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime");
             entity.Property(e => e.ProductId).HasColumnName("ProductID");
+            entity.Property(e => e.Status)
+                .HasMaxLength(20)
+                .HasDefaultValue("Pending");
 
             entity.HasOne(d => d.Account).WithMany(p => p.Reviews)
                 .HasForeignKey(d => d.AccountId)
