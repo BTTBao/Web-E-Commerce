@@ -60,7 +60,6 @@ export default function Home() {
 
   return (
     <>
-      Banner
       <section className="banner">
         <div className="slider">
           {images.map((src, index) => (
@@ -87,7 +86,7 @@ export default function Home() {
       {/* Product Grid */}
       <section className="product-section">
         <div className="container">
-          <h2 className="section-title">SẢN PHẨM MỚI</h2>
+          <h2 className="section-title1">TẤT CẢ SẢN PHẨM</h2>
 
           {loading ? (
             <div className="loading-container">

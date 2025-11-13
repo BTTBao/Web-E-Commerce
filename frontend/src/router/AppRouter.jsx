@@ -22,6 +22,7 @@ import CustomerList from "../pages/Admin/CustomerList";
 import CustomerDetail from "../pages/Admin/CustomerDetail";
 import Vouchers from "../pages/Admin/Vouchers";
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
+import BestsellerPage from "../pages/CategoryPage/BestsellerPage";
 import OrderSuccess from "../pages/OrderSuccess/OrderSuccess";
 
 export default function AppRouter() {
@@ -38,9 +39,11 @@ export default function AppRouter() {
         <Route path="profile" element={<Profile />} />
         <Route path="aboutUs" element={<AboutUs />} />
         <Route path="vouchers" element={<VoucherList />} />
+        <Route path="best-seller" element={<BestsellerPage />} />
         <Route path="reviews" element={<ReviewList />} />
         <Route path="category/:category/:subcategory" element={<CategoryPage />} />
-        <Route path="category/:category" element={<CategoryPage />} />
+        <Route path="category/:categoryName" element={<CategoryPage />} />
+        <Route path="shop" element={<CategoryPage />} />
       </Route>
 
       <Route path="/admin" element={<AdminLayout />}>

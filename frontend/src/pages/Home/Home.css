@@ -77,6 +77,12 @@
   padding: 0;
 }
 
+.section-title1 {
+  text-align: center;
+  align-items: center;
+  margin: 20px 0px;
+  margin-top: 70px;
+}
 
 .cap-xxx {
   position: absolute;
