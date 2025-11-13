@@ -11,25 +11,38 @@ export default function Login(){
   const {onLogin} = useCart();
   const navigate = useNavigate();
   const location = useLocation();
+
+
   const HandleLogin = () => {
     const from = location.state?.from || "/";
-    fetch(`https://localhost:7132/api/Account/login?username=${userName}&password=${passWord}`)
+    const loginData = {
+      Email: userName,
+      Password: passWord
+    };
+
+    fetch(`https://localhost:7132/api/Account/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(loginData)
+    })
     .then(res => {
-      if(!res.ok){
+      if (!res.ok) {
         alert('sai mật khẩu hoặc user');
         throw new Error('sai mật khẩu/user');
-      }else{
+      } else {
         return res.json();
       }
-    }).then(data =>{
+    }).then(data => {
       localStorage.setItem('token', data.token);
       localStorage.setItem('account', JSON.stringify(data.account));
       onLogin(data.account.accountId);
       navigate(from);
     })
-    .catch(error =>{
+    .catch(error => {
       console.log(error);
-    })
+    });
   }
   
   return (
