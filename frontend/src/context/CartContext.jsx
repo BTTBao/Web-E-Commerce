@@ -359,7 +359,8 @@ export function CartProvider({ children }) {
     shipping,
     total,
     itemCount,
-    cartCount
+    cartCount,
+    validateStock
   };
   return (
     <CartContext.Provider value={value}>{children}</CartContext.Provider>
