@@ -76,6 +76,7 @@
   margin-top: 8px;
 }
 
+
 .filter-options {
   max-height: 320px;
   overflow-y: auto;
@@ -178,34 +179,47 @@
 /* ProductGrid.css */
 .product-grid-container {
   width: 100%;
-  max-width: 1200px; 
-  margin: 0 auto; 
+  max-width: 1200px;
+  margin: 0 auto;
   padding: 0px 80px;
 }
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); 
-  gap: 20px; 
-  padding: 20px 140px;
+  grid-template-columns: repeat(4, 1fr); /* Desktop: 4 items per row */
+  gap: 20px;
 }
 
 
 @media (max-width: 992px) {
   .product-grid {
-    grid-template-columns: repeat(3, 1fr); 
+    grid-template-columns: repeat(3, 1fr); /* Tablet: 3 items per row */
   }
 }
 
+/* Sửa đổi: Đảm bảo mobile (dưới 768px) hiển thị 2 sản phẩm/hàng */
 @media (max-width: 768px) {
+  .product-grid-container {
+      padding: 0 15px; /* Giảm padding trên mobile */
+  }
   .product-grid {
-    grid-template-columns: repeat(2, 1fr); 
+    grid-template-columns: repeat(2, 1fr); /* Mobile: 2 items per row */
     gap: 15px;
   }
 }
 
+/* Thêm breakpoint cho các thiết bị rất nhỏ (tùy chọn) */
+@media (max-width: 480px) {
+    .product-grid {
+        /* Nếu muốn 1 sản phẩm/hàng trên điện thoại rất nhỏ, bỏ comment dòng dưới */
+        /* grid-template-columns: repeat(1, 1fr); */
+        grid-template-columns: repeat(2, 1fr); /* Giữ 2 sản phẩm/hàng */
+    }
+}
+
+
 .pagination-controls {
   display: flex;
-  justify-content: flex-end; 
+  justify-content: flex-end;
   align-items: center;
   margin-top: 30px;
   padding: 10px 0;
@@ -256,6 +270,6 @@
 .pagination-dots {
   padding: 8px 5px;
   color: #666;
-  user-select: none; 
+  user-select: none;
   margin: 0 5px;
 }

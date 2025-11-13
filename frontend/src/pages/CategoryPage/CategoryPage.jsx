@@ -1,64 +1,61 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { Loader, AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import ProductGrid from '../../components/ProductGrid/ProductGridWithSearch';
 import './CategoryPage.css';
 
 const CategoryPage = () => {
   const { categoryName } = useParams();
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  // Khởi tạo products là mảng rỗng. 
+  // Trong khi chờ fetch, UI sẽ hiển thị "Hiện chưa có sản phẩm nào để hiển thị."
+  const [products, setProducts] = useState([]); 
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchProducts = async () => {
-      try {
-        setLoading(true);
-        setError(null);
+      setError(null);
 
-        // Gọi API từ backend
-        const response = await fetch(
-          `https://localhost:7132/api/product/category/${categoryName}`
-        );
+      // Xác định endpoint API
+      const isCategoryRoute = !!categoryName;
+      const endpoint = isCategoryRoute
+        ? `https://localhost:7132/api/product/category/${categoryName}`
+        : `https://localhost:7132/api/product`; 
+
+      try {
+        const response = await fetch(endpoint);
 
         if (!response.ok) {
-          throw new Error(`Lỗi: ${response.status} ${response.statusText}`);
+          throw new Error(`Lỗi ${response.status}: ${response.statusText}`);
         }
 
         const data = await response.json();
 
-        if ((data.status === "success" && Array.isArray(data.data)) || Array.isArray(data)) {
-            setProducts(data.data);
+        // Kiểm tra xem API trả về gì
+        let list = [];
+        if (Array.isArray(data)) {
+          list = data;
+        } else if (data?.data && Array.isArray(data.data)) {
+          list = data.data;
         } else {
-            throw new Error("Định dạng dữ liệu không hợp lệ");
+          if (Object.keys(data).length === 0) {
+            list = [];
+          } else {
+            throw new Error('Định dạng dữ liệu không hợp lệ');
+          }
         }
 
+        setProducts(list);
       } catch (err) {
         console.error('Lỗi khi tải sản phẩm:', err);
         setError(err.message || 'Không thể tải sản phẩm. Vui lòng thử lại.');
-      } finally {
-        setLoading(false);
+        setProducts([]);
       }
     };
 
-    if (categoryName) {
-      fetchProducts();
-    }
+    fetchProducts();
   }, [categoryName]);
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="category-page">
-        <div className="loading-container">
-          <Loader className="loading-spinner" />
-          <p>Đang tải sản phẩm...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Error state
+  // Trạng thái lỗi (sẽ hiển thị ngay lập tức nếu fetchProducts() gặp lỗi)
   if (error) {
     return (
       <div className="category-page">
@@ -66,7 +63,7 @@ const CategoryPage = () => {
           <AlertCircle className="error-icon" />
           <h2>Đã xảy ra lỗi</h2>
           <p>{error}</p>
-          <button 
+          <button
             className="retry-button"
             onClick={() => window.location.reload()}
           >
@@ -77,18 +74,16 @@ const CategoryPage = () => {
     );
   }
 
-  // Format category name for display
-  const formattedCategoryName = categoryName
-    ? categoryName
-        .split('-')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ')
-    : 'Sản phẩm';
+  // Nếu không có lỗi, hiển thị nội dung chính.
+  // Trong lúc chờ tải, products là [], nên sẽ hiển thị thông báo "Hiện chưa có sản phẩm nào..."
+  const headerTitle = categoryName
+    ? categoryName.toUpperCase()
+    : 'TẤT CẢ SẢN PHẨM';
 
   return (
     <div className="category-page">
       <div className="category-header">
-        <h1 className="category-title">{formattedCategoryName}</h1>
+        <h1 className="category-title">{headerTitle}</h1>
         <p className="category-subtitle">
           {products.length > 0
             ? `${products.length} sản phẩm có sẵn`
@@ -102,7 +97,7 @@ const CategoryPage = () => {
         </div>
       ) : (
         <div className="empty-category">
-          <p>Hiện chưa có sản phẩm trong danh mục này.</p>
+          <p>Hiện chưa có sản phẩm nào để hiển thị.</p>
         </div>
       )}
     </div>
