@@ -1,6 +1,8 @@
 ﻿using backend.Data;
 using backend.Entities;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
@@ -70,22 +72,24 @@ namespace backend.Controllers
         }
 
         [HttpPost("add")]
-        public IActionResult AddAddress([FromBody] UserAddressDto newAddressDto)
+        [Authorize]
+        public async Task<IActionResult> AddAddress([FromBody] UserAddressDto newAddressDto)
         {
-            if (newAddressDto == null || newAddressDto.AccountId == 0 ||
-                string.IsNullOrWhiteSpace(newAddressDto.ReceiverFullName) ||
-                string.IsNullOrWhiteSpace(newAddressDto.ReceiverPhone) ||
-                string.IsNullOrWhiteSpace(newAddressDto.AddressLine) ||
-                string.IsNullOrWhiteSpace(newAddressDto.Ward) ||
-                string.IsNullOrWhiteSpace(newAddressDto.District) ||
-                string.IsNullOrWhiteSpace(newAddressDto.Province))
+            var userEmail = User.Identity?.Name;
+            if (string.IsNullOrEmpty(userEmail))
             {
-                return BadRequest(new { message = "Dữ liệu không hợp lệ!" });
+                return Unauthorized(new { message = "Token không hợp lệ." });
+            }
+
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Email == userEmail);
+            if (account == null)
+            {
+                return NotFound(new { message = "Không tìm thấy tài khoản." });
             }
 
             var newAddress = new UserAddress
             {
-                AccountId = newAddressDto.AccountId,
+                AccountId = account.AccountId,
                 ReceiverFullName = newAddressDto.ReceiverFullName,
                 ReceiverPhone = newAddressDto.ReceiverPhone,
                 AddressLine = newAddressDto.AddressLine,
@@ -97,22 +101,35 @@ namespace backend.Controllers
 
             if (newAddress.IsDefault == true)
             {
-                var existingAddresses = _context.UserAddresses
-                    .Where(x => x.AccountId == newAddress.AccountId && x.IsDefault == true)
-                    .ToList();
+                var existingAddresses = await _context.UserAddresses
+                    .Where(x => x.AccountId == account.AccountId && x.IsDefault == true)
+                    .ToListAsync();
 
                 foreach (var addr in existingAddresses)
                 {
                     addr.IsDefault = false;
                 }
-                _context.SaveChanges();
             }
 
             _context.UserAddresses.Add(newAddress);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
 
-            return Ok(new { message = "Thêm địa chỉ thành công!", newAddress });
+            var addressResponse = new
+            {
+                newAddress.AddressId,
+                newAddress.AccountId,
+                newAddress.ReceiverFullName,
+                newAddress.ReceiverPhone,
+                newAddress.AddressLine,
+                newAddress.Ward,
+                newAddress.District,
+                newAddress.Province,
+                newAddress.IsDefault
+            };
+
+            return Ok(new { message = "Thêm địa chỉ thành công!", newAddress = addressResponse });
         }
+
 
 
     }

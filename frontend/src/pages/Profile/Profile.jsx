@@ -143,65 +143,24 @@ export default function Profile() {
       .catch(console.error);
   };
 
-const LoadAddress = () => {
-    const token = localStorage.getItem('token');
-    fetch(`https://localhost:7132/api/Address/get`, {
-        method: 'GET',
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(res => {
-        if (!res.ok) {
-            throw new Error(`Lỗi HTTP! Status: ${res.status}`);
-        }
-        return res.json(); // Chỉ parse JSON khi response OK
-    })
-    .then(data => {
-        // data ở đây chắc chắn là JSON hợp lệ từ API
-        setAddress(data);
-    })
-    .catch(error => {
-        console.error("Không thể tải địa chỉ:", error);
-        // Có thể hiển thị lỗi cho người dùng
-        // Ví dụ: alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-    });
-};
 
-// ==================================================================
-// CẢI TIẾN: Cập nhật URL để khớp với route RESTful [HttpDelete("delete/{id}")]
-// ==================================================================
-const HandleDeleteAddress = async (id) => {
-    const token = localStorage.getItem('token');
+
+  const LoadAddress = () => {
+    fetch(`https://localhost:7132/api/Address/get?accountId=${user.accountId}`)
+      .then(res => res.ok && res.json())
+      .then(data => data && setAddress(data))
+      .catch(console.error);
+  };
+
+  const HandleDeleteAddress = async (id) => {
     if (!window.confirm("Xóa địa chỉ này?")) return;
-    const res = await fetch(`https://localhost:7132/api/Address/delete/${id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (res.ok) {
-        LoadAddress();
-    } else {
-        alert("Xóa thất bại!");
-    }
-};
-
-// ==================================================================
-// CẢI TIẾN: Cập nhật URL để khớp với route RESTful [HttpPut("setdefault/{id}")]
-// ==================================================================
-const HandleSetDefault = async (id) => {
-    const token = localStorage.getItem('token');
-    const res = await fetch(`https://localhost:7132/api/Address/setdefault/${id}`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (res.ok) {
-        LoadAddress();
-    } else {
-        alert("Cập nhật thất bại!");
-    }
-};
+    const res = await fetch(`https://localhost:7132/api/Address/delete?id=${id}`, { method: 'DELETE' });
+    if (res.ok) LoadAddress(); else alert("Xóa thất bại!");
+  };
+  const HandleSetDefault = async  (id) => {
+    const res = await fetch(`https://localhost:7132/api/Address/setdefault?id=${id}`, { method: 'PUT' });
+    if (res.ok) LoadAddress(); else alert("Cập nhật thất bại!");
+  };
 
   const HandleAddAddress = async (e) => {
     e.preventDefault();
