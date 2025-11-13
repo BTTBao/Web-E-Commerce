@@ -1,5 +1,8 @@
 ﻿using backend.Data;
+using backend.DTOs;
 using backend.Entities;
+using BCrypt.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +18,6 @@ namespace backend.Controllers
         public string Password { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
-
         public string FullName { get; set; }
         public string Gender { get; set; }
         public DateOnly? DateOfBirth { get; set; }
@@ -55,18 +57,21 @@ namespace backend.Controllers
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
         [HttpPost("register")]
         public IActionResult Register([FromBody] RegisterRequest request)
         {
-            if (string.IsNullOrEmpty(request.Username) || string.IsNullOrEmpty(request.Password))
-                return BadRequest(new { message = "Username và mật khẩu là bắt buộc" });
+            if (string.IsNullOrEmpty(request.Phone) || string.IsNullOrEmpty(request.Password))
+                return BadRequest(new { message = "Số điện thoại và mật khẩu là bắt buộc" });
 
             if (_context.Accounts.Any(a => a.Phone == request.Phone))
-                return BadRequest(new { message = "Username đã tồn tại" });
+                return BadRequest(new { message = "Số điện thoại đã tồn tại" }); 
+
             if (_context.Accounts.Any(a => a.Email == request.Email))
                 return BadRequest(new { message = "Email đã tồn tại" });
 
-            var passwordHash = request.Password;
+            var passwordHash = BCrypt.Net.BCrypt.HashPassword(request.Password);
+            // ----------------------------------------
 
             var account = new Account
             {
@@ -94,17 +99,21 @@ namespace backend.Controllers
 
             return Ok(new { message = "Đăng ký thành công" });
         }
-        [HttpGet("login")]
-        public IActionResult Login([FromQuery] string username, [FromQuery] string password)
+
+        [HttpPost("login")] // <-- ĐỔI SANG HTTPPOST
+        public IActionResult Login([FromBody] LoginRequest request) // <-- NHẬN TỪ BODY
         {
             var account = _context.Accounts
                 .Include(a => a.User)
-                .FirstOrDefault(x => x.Phone == username && x.PasswordHash == password);
+                .FirstOrDefault(x => x.Email == request.Email);
 
-            if (account == null)
+            // Xác thực mật khẩu
+            if (account == null || !BCrypt.Net.BCrypt.Verify(request.Password, account.PasswordHash))
+            {
                 return Unauthorized(new { message = "Sai tài khoản hoặc mật khẩu" });
+            }
 
-            var token = GenerateJwtToken(account.Phone, account.Role);
+            var token = GenerateJwtToken(account.Email, account.Role);
 
             return Ok(new
             {
@@ -127,6 +136,105 @@ namespace backend.Controllers
                     }
                 }
             });
+       
+        }
+        [HttpPut("update-info")]
+        [Authorize]
+        public async Task<IActionResult> UpdateInfo([FromBody] UpdateInfoDto request)
+        {
+            var userEmail = User.Identity?.Name;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return Unauthorized(new { message = "Token không hợp lệ hoặc đã hết hạn." });
+            }
+
+            var account = await _context.Accounts
+                                          .Include(a => a.User)
+                                          .FirstOrDefaultAsync(a => a.Email == userEmail); 
+
+            if (account == null)
+            {
+
+                return NotFound(new { message = "Không tìm thấy tài khoản." });
+            }
+            if (account.Phone != request.Phone && !string.IsNullOrEmpty(request.Phone))
+            {
+                if (await _context.Accounts.AnyAsync(a => a.Phone == request.Phone))
+                {
+                    return BadRequest(new { message = "Số điện thoại này đã được sử dụng." });
+                }
+                account.Phone = request.Phone;
+            }
+
+
+            if (account.User == null)
+            {
+                return StatusCode(500, new { message = "Lỗi dữ liệu: Không tìm thấy hồ sơ người dùng." });
+            }
+
+
+            account.User.FullName = request.FullName;
+            account.User.Gender = request.Gender;
+            account.User.DateOfBirth = request.DateOfBirth;
+
+
+            await _context.SaveChangesAsync();
+
+            var updatedAccountResponse = new
+            {
+                account.AccountId,
+                account.Email,
+                account.Phone,
+                role = account.Role.ToString(),
+                createdAt = account.CreatedAt,
+                user = new
+                {
+                    account.User.FullName,
+                    account.User.Gender,
+                    account.User.DateOfBirth,
+                    account.User.AvatarUrl,
+                    account.User.AccountId
+                }
+            };
+
+            return Ok(new
+            {
+                message = "Cập nhật thông tin thành công!",
+                account = updatedAccountResponse
+            });
+        }
+        [HttpPost("change-password")]
+        [Authorize] // Bắt buộc người dùng phải đăng nhập
+        public async Task<IActionResult> ChangePassword([FromBody] PasswordDto request)
+        {
+            var userEmail = User.Identity?.Name;
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return Unauthorized(new { message = "Token không hợp lệ." });
+            }
+
+            var account = await _context.Accounts.FirstOrDefaultAsync(a => a.Email == userEmail);
+            if (account == null)
+            {
+                return NotFound(new { message = "Không tìm thấy tài khoản." });
+            }
+
+            if (!BCrypt.Net.BCrypt.Verify(request.OldPassword, account.PasswordHash))
+            {
+                return BadRequest(new { message = "Mật khẩu cũ không chính xác." });
+            }
+            var newPasswordHash = BCrypt.Net.BCrypt.HashPassword(request.NewPassword);
+            account.PasswordHash = newPasswordHash;
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                return BadRequest(new { message = "Lỗi khi lưu CSDL.", error = ex.Message });
+            }
+
+            return Ok(new { message = "Đổi mật khẩu thành công." });
         }
     }
 }
