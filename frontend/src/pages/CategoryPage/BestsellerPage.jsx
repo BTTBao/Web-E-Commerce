@@ -14,7 +14,7 @@ const BestsellerPage = () => {
         setLoading(true);
         setError(null);
 
-        const response = await fetch('https://localhost:7132/api/product/bestseller');
+        const response = await fetch('https://localhost:7132/api/product/best-seller');
 
         if (!response.ok) {
           throw new Error(`Lỗi: ${response.status} ${response.statusText}`);

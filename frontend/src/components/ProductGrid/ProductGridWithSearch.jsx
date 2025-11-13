@@ -15,8 +15,8 @@ const PRICE_RANGES = [
   { id: 'over500k', label: 'Trên 500.000 VNĐ', min: 500000, max: Infinity },
 ];
 
-const COLORS = ['Đen', 'Trắng', 'Xanh dương', 'Đỏ', 'Vàng', 'Titan Tự nhiên', 'Xám'];
-const SIZES = ['128GB', '256GB', '512GB', '1TB', 'S', 'M', 'L', 'XL'];
+const COLORS = ['Đen', 'Trắng', 'Xanh dương', 'Đỏ', 'Vàng', 'Titan', 'Xám'];
+const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 
 const SORT_OPTIONS = [
   { id: 'relevance', label: 'Liên quan' },

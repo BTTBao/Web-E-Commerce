@@ -165,11 +165,7 @@ CREATE TABLE Reviews (
     Rating INT CHECK (Rating BETWEEN 1 AND 5),
     Comment NVARCHAR(MAX),
     CreatedAt DATETIME DEFAULT GETDATE(),
-
-    -- ⚠️ THÊM DÒNG NÀY ⚠️
-    -- Cột này dùng cho trang Admin (ReviewList.jsx) để Duyệt/Ẩn
-    Status NVARCHAR(20) NOT NULL DEFAULT 'Pending' CHECK (Status IN ('Pending', 'Approved')),
-
+	  Status NVARCHAR(20) NOT NULL DEFAULT 'Pending' CHECK (Status IN ('Pending', 'Approved')),
     FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE,
     FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID) ON DELETE CASCADE
 );

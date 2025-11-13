@@ -86,17 +86,17 @@ export default function MobileHeader() {
 
             <input className="search-input" placeholder="Tìm kiếm..." />
 
-            <ul className="menu-list">
+            <ul className="menu-list1">
               {Object.entries(menuData).map(([mainTitle, data]) => (
                 <li key={mainTitle}>
                   {data.items ? (
                     // Có submenu (SHOP)
                     <div
-                      className="menu-item"
+                      className="menu-item1"
                       onClick={() => toggleMain(mainTitle)}
                       style={{ cursor: "pointer" }}
                     >
-                      <span>{mainTitle}</span>
+                      <Link to={data.path} onClick={() => setOpen(false)}>{mainTitle}</Link>
                       {activeMain === mainTitle ? (
                         <FiChevronUp />
                       ) : (
@@ -107,7 +107,7 @@ export default function MobileHeader() {
                     // Không có submenu → gắn Link
                     <Link
                       to={data.path}
-                      className="menu-item"
+                      className="menu-item1"
                       onClick={() => setOpen(false)}
                     >
                       {mainTitle}
