@@ -24,7 +24,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
         policy => policy
-            .WithOrigins("http://localhost:5173")
+            .WithOrigins("http://localhost:5174")
             // .AllowAnyOrigin() // cho phép MỌI domain truy cập
             //Cho phép MỌI loại header
             .AllowAnyHeader()

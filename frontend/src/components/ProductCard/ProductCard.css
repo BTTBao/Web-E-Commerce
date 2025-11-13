@@ -1,31 +1,47 @@
 .product-card {
+  width: 100%; /* Đảm bảo card chiếm toàn bộ cột lưới */
   /* width: 250px; */
   border: 1px solid #eee;
   border-radius: 8px;
   overflow: hidden;
   font-family: Arial, sans-serif;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: white;
+}
   padding: 10px 0;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
 }
 
 .product-card:hover {
   cursor: pointer;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
 }
 
 .product-image-container {
   width: 100%;
+  padding-top: 100%; 
+  position: relative;
   height: 300px;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
-  align-items: center;
   margin-bottom: 10px;
 }
 
 .product-image {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover; /* Đảm bảo hình ảnh vừa khít và không bị biến dạng */
   display: block;
+}
+
+.product-details {
+  padding: 0 5px;
+  text-align: left;
 }
 
 .product-card-details {
@@ -33,20 +49,25 @@
   flex-direction: column;
   justify-content: center;
   align-items: center;
+
 }
 
 .product-title {
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 16px !important;
+  font-weight: 300 !important;
   color: #333;
   margin-bottom: 0px;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
+
 
 .price-section {
   display: flex;
   align-items: baseline;
-  justify-content: flex-start;
+  justify-content: flex-start !important;
   margin-bottom: 5px;
 }
 
@@ -69,6 +90,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 5px;
   width: -webkit-fill-available;
   padding: 0 20px;
 }
@@ -76,8 +98,6 @@
 .rating-section {
   display: flex;
   align-items: center;
-  text-align: center;
-  justify-content: center;
 }
 
 .rating-score {
@@ -100,10 +120,12 @@
 
 .add-to-cart-button {
   background-color: transparent;
+  border: 1px solid #ccc; /* Thêm border mặc định */
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  padding: 8px 10px;
+  width: 35px;
+  height: 35px;
   transition: background-color 0.3s ease, border-color 0.3s ease;
   display: flex;
   align-items: center;
@@ -122,4 +144,23 @@
 .cart-icon {
   font-size: 20px;
   color: #333;
+  transition: color 0.3s ease;
+}
+
+/* Điều chỉnh kích thước chữ cho mobile 
+  (Các kích thước này sẽ được kế thừa từ 768px trở xuống, 
+  giúp giá và tiêu đề không quá lớn trên màn hình nhỏ)
+*/
+@media (max-width: 768px) {
+  .product-title {
+    font-size: 14px !important;
+  }
+
+  .current-price {
+    font-size: 18px;
+  }
+
+  .old-price {
+    font-size: 12px;
+  }
 }

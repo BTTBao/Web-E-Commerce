@@ -384,3 +384,570 @@
   color: #6b7280;
   font-size: 14px;
 }
+/* Nút đính kèm file */
+.attach-file-button {
+  background-color: transparent;
+  border: none;
+  padding: 8px;
+  margin-left: 4px; /* Thêm margin trái */
+  margin-right: 4px; /* Thêm margin phải */
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--color-text-secondary); /* Màu icon */
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.attach-file-button:hover {
+  background-color: var(--color-background-muted); /* Màu nền khi hover */
+  color: var(--color-text-primary);
+}
+
+/* Khu vực preview file (phía trên input text) */
+.file-preview-area {
+  padding: 8px 16px;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-background-secondary);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+}
+
+.file-preview-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background-color: var(--color-background-muted);
+  padding: 8px;
+  border-radius: 8px;
+  max-width: 300px; /* Giới hạn chiều rộng */
+}
+
+.file-preview-image {
+  width: 40px;
+  height: 40px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+}
+
+.file-preview-icon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-background-primary);
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
+
+.file-preview-name {
+  flex-grow: 1;
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.remove-file-button {
+  background-color: transparent;
+  border: none;
+  padding: 4px;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: background-color 0.2s, color 0.2s;
+  flex-shrink: 0; /* Không co lại */
+}
+
+.remove-file-button:hover {
+  background-color: var(--color-border);
+  color: var(--color-text-primary);
+}
+
+
+/* Tin nhắn tạm (Optimistic) */
+.message-bubble.optimistic {
+  opacity: 0.7;
+  /* Thêm hiệu ứng loading nếu muốn */
+  /* animation: pulse 1.5s infinite; */
+}
+
+/* @keyframes pulse {
+  0% { opacity: 0.7; }
+  50% { opacity: 0.5; }
+  100% { opacity: 0.7; }
+} */
+
+
+/* --- Cập nhật style cũ --- */
+
+/* Style cho ảnh trong tin nhắn */
+.message-image {
+  max-width: 100%; /* Giới hạn chiều rộng */
+  height: auto;
+  border-radius: 12px;
+  margin-top: 4px;
+  /* Nếu có cả text và ảnh, thêm margin */
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.message-image:hover {
+    opacity: 0.9;
+}
+
+/* Đảm bảo text và ảnh hiển thị đúng */
+.message-bubble {
+  display: flex;
+  flex-direction: column; /* Xếp ảnh và text theo chiều dọc */
+  max-width: 70%;
+  padding: 10px 16px;
+  border-radius: 18px;
+  word-wrap: break-word; /* Tự xuống dòng */
+}
+
+/* Điều chỉnh lại nếu chỉ có ảnh, không có text */
+.message-bubble .message-text:only-child {
+   margin-bottom: 0;
+}
+.message-bubble .message-image:only-child {
+   margin: 0;
+}
+/* Nếu có cả 2 */
+.message-bubble .message-image + .message-text {
+   margin-top: 8px;
+}
+.message-bubble .message-text + .message-image {
+   margin-top: 8px;
+}
+
+
+/* Điều chỉnh message-input-area để chứa nút attach */
+.message-input-area {
+  display: flex;
+  align-items: center; /* Căn giữa theo chiều dọc */
+  padding: 12px 16px;
+  border-top: 1px solid var(--color-border);
+  background-color: var(--color-background-primary);
+}
+
+/* Input chiếm hết không gian còn lại */
+.message-input {
+  flex-grow: 1;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  background-color: var(--color-background-secondary);
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  resize: none; /* (Nếu bạn dùng textarea) */
+}
+
+.message-input:focus {
+  outline: none;
+  border-color: var(--color-brand);
+  box-shadow: 0 0 0 2px var(--color-brand-light);
+}
+
+/* Nút Gửi */
+.send-button {
+  margin-left: 10px; /* Tạo khoảng cách với input */
+  flex-shrink: 0; /* Không co lại */
+}
+
+
+/* --- CSS GỐC (Đã tồn tại) --- */
+/* (Giả sử các biến CSS này đã được định nghĩa ở file khác) */
+:root {
+  --color-text-primary: #111;
+  --color-text-secondary: #555;
+  --color-border: #e0e0e0;
+  --color-background-primary: #fff;
+  --color-background-secondary: #f9f9f9;
+  --color-background-muted: #f1f1f1;
+  --color-brand: #007bff;
+  --color-brand-light: #e6f2ff;
+}
+
+/* ... (Các style khác của ChatSupport.css và Orders.css) ... */
+
+.chat-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Hoặc một chiều cao cố định */
+  background-color: var(--color-background-secondary);
+}
+
+.page-header {
+  /* ... */
+}
+.page-title {
+  /* ... */
+}
+/* ... (v.v.) ... */
+
+.chat-layout {
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden; /* Quan trọng */
+    gap: 16px;
+    padding: 16px;
+}
+
+.card {
+    background-color: var(--color-background-primary);
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    display: flex;
+    flex-direction: column;
+}
+
+.room-list-card {
+    width: 320px;
+    flex-shrink: 0;
+}
+
+.chat-window-card {
+    flex-grow: 1;
+}
+
+.card-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--color-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-content {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Quan trọng */
+}
+
+.scroll-area {
+    overflow-y: auto;
+    flex-grow: 1;
+}
+
+/* ... (Các style cho room-list, avatar, v.v.) ... */
+
+.messages-area {
+    padding: 16px 20px;
+}
+
+.message-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.message-bubble-wrapper {
+    display: flex;
+}
+
+.message-bubble-wrapper.customer {
+    justify-content: flex-start;
+}
+
+.message-bubble-wrapper.admin {
+    justify-content: flex-end;
+}
+
+.message-bubble.customer {
+    background-color: var(--color-background-muted);
+    color: var(--color-text-primary);
+    border-bottom-left-radius: 4px;
+}
+
+.message-bubble.admin {
+    background-color: var(--color-brand);
+    color: white;
+    border-bottom-right-radius: 4px;
+}
+
+.message-text {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.message-timestamp {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+    margin-top: 4px;
+    text-align: right;
+}
+
+.message-bubble.admin .message-timestamp {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+
+.no-room-selected {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+    color: var(--color-text-secondary);
+    padding: 20px;
+}
+
+.no-room-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--color-background-muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    color: var(--color-text-secondary);
+}
+
+/* ... (Các style khác) ... */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+.status-dot.active {
+  background-color: #28a745; /* green */
+}
+.status-dot.offline {
+  background-color: #6c757d; /* gray */
+}
+.status-indicator {
+    display: flex;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+/* === BỔ SUNG: Nút Mở Chat Mới === */
+.new-chat-button {
+    background-color: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: none;
+    border-radius: 50%; /* Làm nút tròn */
+    width: 36px; /* Kích thước cố định */
+    height: 36px; /* Kích thước cố định */
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.2s;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.new-chat-button:hover {
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+/* Đảm bảo header căn chỉnh đúng */
+.room-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.room-list-title {
+    margin: 0;
+    flex: 1; /* Cho title chiếm không gian */
+}
+
+
+/* === BỔ SUNG: Modal Tìm Khách Hàng === */
+.chat-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    backdrop-filter: blur(4px);
+    animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.chat-modal-content {
+    background-color: white;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    max-width: 500px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 70vh;
+    animation: scaleIn 0.2s ease-out;
+}
+
+@keyframes scaleIn {
+    from { 
+        opacity: 0;
+        transform: scale(0.95); 
+    }
+    to { 
+        opacity: 1;
+        transform: scale(1); 
+    }
+}
+
+.chat-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    flex-shrink: 0;
+}
+
+.chat-modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.button-icon.close-modal-button {
+    background: none;
+    border: none;
+    padding: 4px;
+    border-radius: 50%;
+    cursor: pointer;
+    color: #6b7280;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.button-icon.close-modal-button:hover {
+    background-color: #f3f4f6;
+}
+
+
+.chat-modal-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    overflow: hidden; /* Ngăn body tự cuộn */
+    flex: 1; /* Cho body chiếm hết không gian */
+}
+
+.search-bar-wrapper {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.search-bar-wrapper .search-icon {
+    position: absolute;
+    top: 50%;
+    left: 14px;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none; /* Icon không bị click */
+}
+
+.search-bar-wrapper .search-input {
+    width: 100%;
+    padding: 12px 16px 12px 44px; /* Thêm padding trái cho icon */
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.search-bar-wrapper .search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.search-results-list {
+    flex: 1; /* Chiếm hết không gian còn lại */
+    min-height: 150px; /* Chiều cao tối thiểu */
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background-color: #f9fafb;
+}
+
+.search-results-placeholder {
+    padding: 32px 24px;
+    text-align: center;
+    color: #6b7280;
+}
+
+.search-result-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    border-bottom: 1px solid #e5e7eb;
+    transition: background-color 0.2s;
+}
+.search-result-item:last-child {
+    border-bottom: none;
+}
+.search-result-item:hover {
+    background-color: #eff6ff;
+}
+
+.search-result-item .avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+    flex-shrink: 0;
+    /* (Style avatar đã có, nhưng copy lại cho chắc) */
+    background: linear-gradient(to bottom right, #60a5fa, #a78bfa);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 500;
+}
+
+.search-result-item .customer-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0; /* Cho phép text-overflow */
+}
+
+.search-result-item .customer-name {
+    font-weight: 500;
+    color: #111827;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.search-result-item .customer-phone {
+    font-size: 12px;
+    color: #6b7280;
+}

@@ -70,18 +70,22 @@ const Header = () => {
           return (
             <div
               key={menu}
-              className="menu-item"
+              className="menu-item2"
               onMouseEnter={() => handleMenuEnter(menu)}
               onMouseLeave={handleMenuLeave}
             >
               {/* Nếu có submenu items (SHOP) */}
               {menuItem.items && Object.keys(menuItem.items).length > 0 ? (
-                <span
+                <Link
+                  to={menuItem.path} // -> Điều hướng đến /shop
                   className={`menu-text ${activeMenu === menu ? "active" : ""}`}
-                  style={{ cursor: "pointer" }}
+                  onClick={() => {
+                    setActiveMenu(null);
+                    setActiveSubMenu(null);
+                  }}
                 >
                   {menu}
-                </span>
+                </Link>
               ) : (
                 // Nếu chỉ có path (CONTACT, ABOUT US, BEST SELLER)
                 <Link to={menuItem.path} className="menu-text">
@@ -116,6 +120,7 @@ const Header = () => {
                                 to={item.path}
                                 className="sub-item"
                                 onClick={() => {
+                                  e.stopPropagation();
                                   setActiveMenu(null);
                                   setActiveSubMenu(null);
                                 }}
@@ -138,7 +143,6 @@ const Header = () => {
       <div className="icons">
         <div className="search-box">
           <input type="text" placeholder="Tìm kiếm..." />
-          <Search size={18} className="search-icon" />
         </div>
 
         {/* Icon đăng nhập */}
