@@ -1,5 +1,5 @@
 using backend.Data;
-// using backend.DTOs; // Không cần nếu DTOs ở ngay dưới
+using backend.DTOs; // <--- THÊM DÒNG NÀY
 using backend.Entities;
 using backend.Hubs;
 using backend.Interfaces.IServices;
@@ -9,77 +9,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
-    // --- CÁC LỚP DTO CHO CHAT ---
-    // (Bạn có thể chuyển các class này ra file riêng, ví dụ: DTOs/ChatDtos.cs)
+    // --- CÁC LỚP DTO ĐÃ ĐƯỢC CHUYỂN RA FILE DTOs/ChatDtos.cs ---
 
-    /// <summary>
-    /// DTO dùng để nhận Form Data khi gửi tin nhắn (text + file)
-    /// </summary>
-    public class ChatMessageCreateDto
-    {
-        [FromForm(Name = "roomId")]
-        public string RoomId { get; set; }
 
-        [FromForm(Name = "senderId")]
-        public int SenderId { get; set; }
-
-        [FromForm(Name = "message")]
-        public string? Message { get; set; } // Có thể rỗng nếu chỉ gửi file
-
-        [FromForm(Name = "tempId")]
-        public string TempId { get; set; } // Rất quan trọng cho optimistic update
-
-        [FromForm(Name = "file")]
-        public IFormFile? File { get; set; } // File đính kèm (có thể null)
-        
-        // Bỏ [FromForm(Name = "timestamp")] vì server sẽ tự tạo
-    }
-
-    /// <summary>
-    /// DTO trả về cho API / SignalR
-    /// </summary>
-    public class ChatMessageDto
-    {
-        public int Id { get; set; }
-        public string RoomId { get; set; }
-        public int SenderId { get; set; }
-        public string SenderName { get; set; }
-        public bool IsAdmin { get; set; }
-        public string Message { get; set; }
-        public string Timestamp { get; set; }
-        public string? AttachmentUrl { get; set; } 
-        public string? AttachmentType { get; set; }
-        public string? TempId { get; set; }
-    }
-    
-    /// <summary>
-    /// DTO trả về khi tìm kiếm khách hàng
-    /// </summary>
-    public class CustomerSearchDto
-    {
-        public int AccountId { get; set; }
-        public string FullName { get; set; }
-        public string Phone { get; set; }
-        public string? AvatarUrl { get; set; }
-    }
-
-    /// <summary>
-    /// DTO nhận ID của Admin khi gán phòng
-    /// </summary>
-    public class AdminAssignDto
-    {
-        public int AdminId { get; set; }
-    }
-    
-    /// <summary>
-    /// DTO khi khách hàng (client) tạo phòng
-    /// </summary>
-    public class CreateRoomDto
-    {
-        public int CustomerId { get; set; }
-    }
-
-    
     // --- CONTROLLER CHÍNH ---
 
     [ApiController]
@@ -108,9 +40,9 @@ namespace backend.Controllers
                 // Sắp xếp bằng SQL (OrderByDescending) TRƯỚC khi Select
                 .OrderByDescending(r => 
                     r.ChatMessages
-                     .OrderByDescending(m => m.CreatedAt)
-                     .Select(m => m.CreatedAt)
-                     .FirstOrDefault()
+                        .OrderByDescending(m => m.CreatedAt)
+                        .Select(m => m.CreatedAt)
+                        .FirstOrDefault()
                 )
                 
                 .Select(r => new
@@ -412,88 +344,119 @@ namespace backend.Controllers
 
             return Ok();
         }
-    }
+    
     // 🟢 [MỚI] Lấy danh sách phòng chat của 1 khách hàng (user)
-[HttpGet("user-rooms/{customerId}")]
-public async Task<IActionResult> GetUserRooms(int customerId)
-{
-    // Kiểm tra tài khoản có tồn tại không
-    var customer = await _context.Accounts
-        .Include(a => a.User)
-        .FirstOrDefaultAsync(a => a.AccountId == customerId && a.Role == 0);
+    [HttpGet("user-rooms/{customerId}")]
+    public async Task<IActionResult> GetUserRooms(int customerId)
+    {
+        // Kiểm tra tài khoản có tồn tại không
+        var customer = await _context.Accounts
+            .Include(a => a.User)
+            .FirstOrDefaultAsync(a => a.AccountId == customerId && a.Role == 0);
 
-    if (customer == null)
-        return NotFound(new { message = "Customer not found." });
+        if (customer == null)
+            return NotFound(new { message = "Customer not found." });
 
-    // Lấy danh sách phòng chat mà user là chủ
-    var rooms = await _context.ChatRooms
-        .Include(r => r.Admin).ThenInclude(a => a.User)
-        .Where(r => r.CustomerId == customerId)
-        .OrderByDescending(r => 
-            r.ChatMessages
-                .OrderByDescending(m => m.CreatedAt)
-                .Select(m => m.CreatedAt)
-                .FirstOrDefault()
-        )
-        .Select(r => new
+        // --- BƯỚC 1: LẤY DỮ LIỆU THÔ TỪ DATABASE ---
+        var roomsFromDb = await _context.ChatRooms
+            .Include(r => r.Admin.User) // Include Admin.User để lấy tên
+            .Where(r => r.CustomerId == customerId)
+            .OrderByDescending(r =>
+                r.ChatMessages
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Select(m => m.CreatedAt)
+                    .FirstOrDefault()
+            )
+            .Select(r => new
+            {
+                // Lấy các giá trị thô
+                r.RoomId,
+                r.IsClosed,
+                Admin = r.Admin, // Lấy cả object Admin
+                AdminFullName = r.Admin != null ? r.Admin.User.FullName : null,
+                AdminPhone = r.Admin != null ? r.Admin.Phone : null,
+                
+                // Lấy tin nhắn cuối
+                LastMessageData = r.ChatMessages
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Select(m => new {
+                        Text = m.MessageText,
+                        HasAttachment = m.ChatAttachments.Any()
+                    })
+                    .FirstOrDefault(),
+                
+                // Lấy thời gian cuối (kiểu DateTime? nullable)
+                LastMessageTimeData = r.ChatMessages
+                    .OrderByDescending(m => m.CreatedAt)
+                    .Select(m => m.CreatedAt)
+                    .FirstOrDefault()
+            })
+            .ToListAsync(); // <--- Thực thi truy vấn SQL
+
+        // --- BƯỚC 2: FORMAT DỮ LIỆU BẰNG C# (TRONG MEMORY) ---
+        var customerName = customer.User?.FullName ?? customer.Phone ?? "Customer";
+
+        var roomsDto = roomsFromDb.Select(r => new
         {
             id = "CR" + r.RoomId,
-            customerName = customer.User?.FullName ?? customer.Phone ?? "Customer",
-            adminName = r.Admin != null 
-                ? (r.Admin.User != null ? r.Admin.User.FullName : r.Admin.Phone)
+            customerName = customerName,
+            
+            // Logic C# (dùng ?: và ??) chạy bình thường
+            adminName = r.Admin != null
+                ? (r.AdminFullName ?? r.AdminPhone)
                 : "(Chưa có admin)",
+                
             isClosed = r.IsClosed ?? false,
-            lastMessage = r.ChatMessages
-                .OrderByDescending(m => m.CreatedAt)
-                .Select(m => m.ChatAttachments.Any() ? "[Hình ảnh]" : m.MessageText)
-                .FirstOrDefault() ?? "...",
-            lastMessageTime = r.ChatMessages
-                .OrderByDescending(m => m.CreatedAt)
-                .Select(m => m.CreatedAt)
-                .FirstOrDefault()
-                .ToString("yyyy-MM-dd HH:mm:ss")
-        })
-        .ToListAsync();
+            
+            // Logic C# cho tin nhắn cuối
+            lastMessage = r.LastMessageData == null
+                ? "..."
+                : (r.LastMessageData.HasAttachment ? "[Hình ảnh]" : r.LastMessageData.Text),
 
-    return Ok(rooms);
-}
+            // Logic C# (dùng ?. và ToString()) chạy bình thường
+            lastMessageTime = r.LastMessageTimeData?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""
+        }).ToList();
+
+        return Ok(roomsDto);
+    }
 
 
-// 🟢 [MỚI] Lấy tin nhắn trong phòng (user dùng)
-[HttpGet("user-rooms/{roomId}/messages")]
-public async Task<IActionResult> GetUserMessages(string roomId, [FromQuery] int customerId)
-{
-    // Kiểm tra format "CRxxx"
-    if (string.IsNullOrEmpty(roomId) || !roomId.StartsWith("CR") || !int.TryParse(roomId.AsSpan(2), out int idValue))
-        return BadRequest("Invalid Room ID format. Expected 'CR' prefix.");
+    // 🟢 [MỚI] Lấy tin nhắn trong phòng (user dùng)
+    [HttpGet("user-rooms/{roomId}/messages")]
+    public async Task<IActionResult> GetUserMessages(string roomId, [FromQuery] int customerId)
+    {
+        // Kiểm tra format "CRxxx"
+        if (string.IsNullOrEmpty(roomId) || !roomId.StartsWith("CR") || !int.TryParse(roomId.AsSpan(2), out int idValue))
+            return BadRequest("Invalid Room ID format. Expected 'CR' prefix.");
 
-    // Kiểm tra quyền truy cập
-    var room = await _context.ChatRooms.FindAsync(idValue);
-    if (room == null)
-        return NotFound("Room not found.");
-    if (room.CustomerId != customerId)
-        return Forbid("You are not allowed to access this room.");
+        // Kiểm tra quyền truy cập
+        var room = await _context.ChatRooms.FindAsync(idValue);
+        if (room == null)
+            return NotFound("Room not found.");
+        if (room.CustomerId != customerId)
+            return Forbid("You are not allowed to access this room.");
 
-    // Lấy tin nhắn
-    var messages = await _context.ChatMessages
-        .Include(m => m.Sender).ThenInclude(a => a.User)
-        .Include(m => m.ChatAttachments)
-        .Where(m => m.RoomId == idValue)
-        .OrderBy(m => m.CreatedAt)
-        .Select(m => new ChatMessageDto
-        {
-            Id = m.MessageId,
-            RoomId = "CR" + m.RoomId,
-            SenderId = m.SenderId,
-            SenderName = m.Sender.User != null ? m.Sender.User.FullName : m.Sender.Phone,
-            IsAdmin = m.Sender.Role == 1,
-            Message = m.MessageText ?? "",
-            Timestamp = m.CreatedAt.HasValue ? m.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
-            AttachmentUrl = m.ChatAttachments.Select(a => a.FileUrl).FirstOrDefault(),
-            AttachmentType = m.ChatAttachments.Select(a => a.FileType).FirstOrDefault()
-        })
-        .ToListAsync();
+        // Lấy tin nhắn
+        var messages = await _context.ChatMessages
+            .Include(m => m.Sender).ThenInclude(a => a.User)
+            .Include(m => m.ChatAttachments)
+            .Where(m => m.RoomId == idValue)
+            .OrderBy(m => m.CreatedAt)
+            .Select(m => new ChatMessageDto
+            {
+                Id = m.MessageId,
+                RoomId = "CR" + m.RoomId,
+                SenderId = m.SenderId,
+                SenderName = m.Sender.User != null ? m.Sender.User.FullName : m.Sender.Phone,
+                IsAdmin = m.Sender.Role == 1,
+                Message = m.MessageText ?? "",
+                Timestamp = m.CreatedAt.HasValue ? m.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
+                AttachmentUrl = m.ChatAttachments.Select(a => a.FileUrl).FirstOrDefault(),
+                AttachmentType = m.ChatAttachments.Select(a => a.FileType).FirstOrDefault()
+            })
+            .ToListAsync();
 
-    return Ok(messages);
-}
+        return Ok(messages);
+    }
+    }
 }
