@@ -6,9 +6,13 @@
     text-align: left;
 }
 
+.product-header {
+    text-align: center;
+}
+
 .product-header h1 {
     font-size: 24px;
-    font-weight: 400;
+    font-weight: 600;
     margin-bottom: 0.5rem;
     text-align: center;
 }

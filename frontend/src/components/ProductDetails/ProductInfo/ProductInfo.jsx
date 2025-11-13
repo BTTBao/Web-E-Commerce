@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react'
+import { useState, useCallback, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
@@ -10,9 +10,9 @@ function ProductInfo({ product }) {
   const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState(null);
   const [variantId, setVariantId] = useState(undefined)
-  const { addItem } = useCart();
+  const { addItem, validateStock } = useCart();
 
-  const { productId, name, price, productImages, reviews } = product;
+  const { productId, name, price, productImages, reviews, soldCount } = product;
   const variants = product.productVariants && product.productVariants.length
     ? product.productVariants
     : [];
@@ -38,13 +38,21 @@ function ProductInfo({ product }) {
     variantName: selectedSize,
     image
   };
-  const handleBuyNow = useCallback(() => {
+  const handleBuyNow = useCallback(async () => {
     // validate biến thể
     if (variantId == 0) {
       toast.dismiss();
       toast.warning("Vui lòng chọn biến thể");
       return;
     }
+    // Kiểm tra tồn kho
+    const isStockValid = await validateStock(
+      singleItem.id || singleItem.productId,
+      singleItem.variantId,
+      singleItem.quantity
+    );
+
+    if (!isStockValid) return;
 
     navigate('/checkout?type=buynow', {
       state: { items: [singleItem], mode: 'buynow' },
@@ -60,6 +68,7 @@ function ProductInfo({ product }) {
           <span class="price">{formatPrice(price)}</span>
           <span class="old-price">{formatPrice(price * 0.9)}</span>
         </div>
+        <p>Đã bán: {soldCount}+</p>
       </div>
 
       {/* Size Selection */}

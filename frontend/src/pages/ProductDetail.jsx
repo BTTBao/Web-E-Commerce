@@ -9,6 +9,7 @@ import productApi from '../api/productApi'
 import { useParams } from 'react-router-dom'
 import { useState } from 'react'
 import ProductGrid from '../components/ProductGrid/ProductGrid'
+import ProductReview from '../components/ProductDetails/ProductReview/ProductReview'
 
 function ProductDetail() {
   const { id } = useParams()
@@ -42,9 +43,12 @@ function ProductDetail() {
           <ProductGallery images={product.productImages} />
         </div>
         <div className="col-12 col-lg-5">
-          <ProductInfo product={product}/>
+          <ProductInfo product={product} />
         </div>
-        <ProductRelated category = {product.categoryId}/>
+        <div className='mt-5'>
+          <ProductReview product={product} />
+        </div>
+        <ProductRelated category={product.categoryId} />
       </div>
     </>
   )
