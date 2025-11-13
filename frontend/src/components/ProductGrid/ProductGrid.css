@@ -187,6 +187,15 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr); /* Desktop: 4 items per row */
   gap: 20px;
+  /* max-width: 1200px;  */
+  margin: 0 auto; 
+  /* padding: 0px 80px; */
+}
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 20px; 
+  /* padding: 20px 140px; */
 }
 
 

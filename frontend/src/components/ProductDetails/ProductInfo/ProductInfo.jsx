@@ -1,4 +1,4 @@
-import React, {useState, useCallback, useMemo } from 'react'
+import React, { useState, useCallback, useMemo, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom';
 import { ShoppingCart } from 'lucide-react';
 import { toast } from 'sonner';
@@ -9,11 +9,21 @@ import './ProductInfo.css'
 function ProductInfo({ product }) {
   const navigate = useNavigate();
   const [selectedSize, setSelectedSize] = useState(null);
-  const [variantId, setVariantId] = useState(0)
+  const [variantId, setVariantId] = useState(undefined)
   const { addItem } = useCart();
 
   const { productId, name, price, productImages, reviews } = product;
-  const variants = product.productVariants || ['S', 'M', 'L', 'XL'] // fallback
+  const variants = product.productVariants && product.productVariants.length
+    ? product.productVariants
+    : [];
+  // Khi product thay đổi, gán variantId mặc định
+  useEffect(() => {
+    if (variants.length > 0) {
+      setVariantId(0); // lấy biến thể đầu tiên mặc định
+    } else {
+      setVariantId(undefined); // không có biến thể
+    }
+  }, [variants]);
 
   const image = useMemo(
     () => productImages.find(img => img?.isPrimary)?.imageUrl || undefined,
@@ -55,7 +65,7 @@ function ProductInfo({ product }) {
       {/* Size Selection */}
       <div class="size-section">
         <div class="size-header">
-          <label>Chọn biến thể</label>
+          {variants.length ? <label>Chọn biến thể</label> : ""}
         </div>
         <div class="size-options">
           {variants.map((size) => (
@@ -86,7 +96,7 @@ function ProductInfo({ product }) {
               name: name,
               price: price,
               quantity: 1,
-              variantId: variantId,
+              variantId,
               variantName: selectedSize,
               image
             })
