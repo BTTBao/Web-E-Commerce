@@ -54,4 +54,16 @@ namespace backend.DTOs
         public List<RecentOrderDto> RecentOrders { get; set; }
         public List<RecentReviewDto> RecentReviews { get; set; }
     }
+
+    public class TopSellingProductDto
+    {
+        public int ProductId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public decimal? Price { get; set; }
+        public int SoldThisMonth { get; set; }
+        public decimal RevenueThisMonth { get; set; }
+        public string? PrimaryImage { get; set; }
+        public string? Category { get; set; }
+        public int StockQuantity { get; set; }
+    }
 }

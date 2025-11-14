@@ -8,7 +8,6 @@ namespace backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // Yêu cầu đăng nhập
     public class DashboardController : ControllerBase
     {
         private readonly IDashboardService _dashboardService;
@@ -185,6 +184,51 @@ namespace backend.Controllers
                 {
                     success = false,
                     message = "Có lỗi xảy ra khi lấy danh sách đánh giá"
+                });
+            }
+        }
+
+        [HttpGet("top-selling-products")]
+        public async Task<IActionResult> GetTopSellingProducts([FromQuery] int count = 10)
+        {
+            try
+            {
+                if (count < 1 || count > 50)
+                {
+                    return BadRequest(new
+                    {
+                        success = false,
+                        message = "Số lượng phải từ 1 đến 50"
+                    });
+                }
+
+                var data = await _dashboardService.GetTopSellingProductsAsync(count);
+                
+                // Lấy thông tin tháng hiện tại để hiển thị
+                var now = DateTime.Now;
+                var monthYear = $"tháng {now.Month}/{now.Year}";
+
+                return Ok(new
+                {
+                    success = true,
+                    data = data,
+                    message = $"Lấy top {count} sản phẩm bán chạy nhất {monthYear} thành công",
+                    metadata = new
+                    {
+                        count = data.Count(),
+                        month = now.Month,
+                        year = now.Year,
+                        period = monthYear
+                    }
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting top selling products");
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = "Có lỗi xảy ra khi lấy danh sách sản phẩm bán chạy"
                 });
             }
         }

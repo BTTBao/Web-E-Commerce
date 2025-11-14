@@ -1,5 +1,6 @@
 ﻿using backend.DTOs;
 using backend.Interfaces.IServices;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace backend.Controllers
@@ -213,6 +214,51 @@ namespace backend.Controllers
                 {
                     status = "success",
                     message = $"Xóa sản phẩm có ID {id} thành công."
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
+            }
+        }
+
+        // ✅ Thêm method này vào ProductController.cs
+
+        [HttpGet("search")]
+        public async Task<IActionResult> SearchProducts([FromQuery] string keyword)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(keyword))
+                {
+                    return BadRequest(new
+                    {
+                        status = "error",
+                        message = "Vui lòng nhập từ khóa tìm kiếm."
+                    });
+                }
+
+                var products = await _service.SearchProducts(keyword);
+
+                if (products == null || !products.Any())
+                {
+                    return Ok(new
+                    {
+                        status = "success",
+                        message = $"Không tìm thấy sản phẩm nào với từ khóa '{keyword}'.",
+                        data = new List<ProductDto>()
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = $"Tìm thấy {products.Count()} sản phẩm.",
+                    data = products
                 });
             }
             catch (Exception ex)

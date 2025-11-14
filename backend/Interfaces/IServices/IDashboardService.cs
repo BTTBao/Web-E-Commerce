@@ -17,5 +17,7 @@ namespace backend.Interfaces.IServices
         Task<List<RecentOrderDto>> GetRecentOrdersAsync(int count = 5);
 
         Task<List<RecentReviewDto>> GetRecentReviewsAsync(int count = 5);
+
+        Task<IEnumerable<TopSellingProductDto>> GetTopSellingProductsAsync(int count = 10);
     }
 }

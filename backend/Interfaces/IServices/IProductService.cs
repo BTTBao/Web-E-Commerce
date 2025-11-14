@@ -11,5 +11,6 @@ namespace backend.Interfaces.IServices
         Task<ProductDto> AddProduct(ProductDto product);
         Task<bool> UpdateProduct(int id, ProductDto product);
         Task<bool> DeleteProduct(int id);
+        Task<IEnumerable<ProductDto>> SearchProducts(string keyword);
     }
 }
