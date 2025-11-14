@@ -37,7 +37,7 @@ export default function Login(){
 
     }).then(data =>{
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.account));
+      localStorage.setItem('account', JSON.stringify(data.account));
       onLogin(data.account.accountId);
       navigate(from);
     })

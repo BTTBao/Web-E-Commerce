@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     const initialToken = localStorage.getItem('token') || null;
 
     // 2. Tải user và phân tích cú pháp (parse) JSON NGAY LÚC KHỞI TẠO
-    const initialUserJson = localStorage.getItem('user');
+    const initialUserJson = localStorage.getItem('account');
     let initialUser = null;
 
     try {
@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }) => {
 
         // BẮT BUỘC: Lưu token và user vào Local Storage
         localStorage.setItem('token', tok);
-        localStorage.setItem('user', JSON.stringify(userData)); // <-- LƯU USER DƯỚI DẠNG CHUỖI JSON
+        localStorage.setItem('account', JSON.stringify(userData)); // <-- LƯU USER DƯỚI DẠNG CHUỖI JSON
 
         setToken(tok);
         setUser(userData); // <-- Cập nhật state user
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }) => {
 
     const logout = () => {
         localStorage.removeItem('token');
-        localStorage.removeItem('user'); // <-- XÓA CẢ USER KHI ĐĂNG XUẤT
+        localStorage.removeItem('account'); // <-- XÓA CẢ USER KHI ĐĂNG XUẤT
         setToken(null);
         setUser(null);
     };

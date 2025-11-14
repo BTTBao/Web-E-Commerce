@@ -24,7 +24,7 @@ const ProductCard = ({ product }) => {
     : 0;
 
   const handleAddToCart = async () => {
-    const user = JSON.parse(localStorage.getItem('user'));
+    const user = JSON.parse(localStorage.getItem('account'));
 
     if (!user) {
       const cart = JSON.parse(localStorage.getItem('cart')) || [];
