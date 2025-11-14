@@ -47,9 +47,11 @@ namespace backend.Dtos
     public class OrderDetailDto
     {
         public string id { get; set; }
+        public int accountId { get; set; }
         public string customerName { get; set; }
         public DateTime date { get; set; }
         public decimal total { get; set; }
+        public bool isReviewed { get; set; }
         public string status { get; set; }
         public string paymentStatus { get; set; }
         public string paymentMethod { get; set; }

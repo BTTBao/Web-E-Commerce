@@ -29,6 +29,7 @@ namespace backend.Controllers
                 {
                     o.OrderId,
                     o.TotalAmount,
+                    o.IsReviewed,
                     o.Status,
                     CreatedAt = o.CreatedAt.HasValue ? o.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : null,
                     ShippingAddress = o.Address != null ? new

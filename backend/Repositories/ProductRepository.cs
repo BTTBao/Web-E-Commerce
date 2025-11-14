@@ -19,7 +19,7 @@ namespace backend.Repositories
             return await _context.Products
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariants)
-                //.Include(p => p.Reviews)
+                .Include(p => p.Reviews)
                 .ToListAsync();
         }
 
@@ -30,7 +30,7 @@ namespace backend.Repositories
             return await _context.Products
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariants)
-                //.Include(p => p.Reviews)
+                .Include(p => p.Reviews)
                 .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 

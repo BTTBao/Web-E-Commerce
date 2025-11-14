@@ -100,7 +100,7 @@ namespace backend.Services
 
             // === SỬA LỖI 1: XÓA KHỐI NÀY ===
             // ProductService không nên cập nhật Reviews
-            /*
+            
             existing.Reviews = dto.Reviews
                 .Select(r => new Review
                 {
@@ -109,10 +109,11 @@ namespace backend.Services
                     AccountId = r.AccountId, // <-- LỖI
                     Rating = r.Rating,
                     Comment = r.Comment,
-                    CreatedAt = r.CreatedAt // <-- LỖI
+                    CreatedAt = r.CreatedAt, // <-- LỖI
+                    Status = r.Status
                 })
                 .ToList();
-            */
+            
             // === HẾT SỬA LỖI 1 ===
 
             await _repository.UpdateAsync(existing);
@@ -176,7 +177,7 @@ namespace backend.Services
 
                 // === SỬA LỖI 2: XÓA KHỐI NÀY ===
                 // Tương tự, không map Reviews ở đây
-                /*
+                
                 Reviews = p.Reviews?.Select(r => new ReviewDto
                 {
                     ReviewId = r.ReviewId, // <-- LỖI
@@ -184,10 +185,11 @@ namespace backend.Services
                     AccountId = r.AccountId, // <-- LỖI
                     Rating = r.Rating, // <-- LỖI (int? vs int)
                     Comment = r.Comment,
-                    CreatedAt = r.CreatedAt // <-- LỖI
+                    CreatedAt = r.CreatedAt, // <-- LỖI
+                    Status = r.Status
                 }).ToList() ?? new List<ReviewDto>()
-                */
-                Reviews = new List<ReviewDto>() // Trả về danh sách rỗng
+                
+                //Reviews = new List<ReviewDto>() // Trả về danh sách rỗng
                 // === HẾT SỬA LỖI 2 ===
             };
         }
@@ -226,7 +228,7 @@ namespace backend.Services
 
                 // === SỬA LỖI 3: XÓA KHỐI NÀY ===
                 // Tương tự, không map Reviews ở đây
-                /*
+                
                 Reviews = dto.Reviews.Select(r => new Review
                 {
                     ReviewId = r.ReviewId, // <-- LỖI
@@ -234,10 +236,11 @@ namespace backend.Services
                     AccountId = r.AccountId, // <-- LỖI
                     Rating = r.Rating,
                     Comment = r.Comment,
-                    CreatedAt = r.CreatedAt // <-- LỖI
+                    CreatedAt = r.CreatedAt, // <-- LỖI
+                    Status = r.Status
                 }).ToList()
-                */
-                Reviews = new List<Review>() // Gán danh sách rỗng
+                
+                //Reviews = new List<Review>() // Gán danh sách rỗng
                 // === HẾT SỬA LỖI 3 ===
             };
         }
@@ -314,16 +317,16 @@ namespace backend.Services
                 }).ToList() ?? new List<ProductVariantDto>(),
 
                 // Map Reviews (lấy tên khách hàng từ Account thông qua AccountId)
-                Reviews = p.Reviews?.Select(r => new ReviewDto
-                {
-                    Id = r.ReviewId.ToString(),
-                    Product = p.Name,
-                    Customer = r.Account?.User?.FullName ?? "Anonymous", // Lấy từ relation Account
-                    Rating = (int) r.Rating,
-                    Comment = r.Comment ?? string.Empty,
-                    Date = r.CreatedAt?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd"),
-                    Status = r.Status ?? "Pending"
-                }).ToList() ?? new List<ReviewDto>()
+                //Reviews = p.Reviews?.Select(r => new ReviewDto
+                //{
+                //    Id = r.ReviewId.ToString(),
+                //    Product = p.Name,
+                //    Customer = r.Account?.User?.FullName ?? "Anonymous", // Lấy từ relation Account
+                //    Rating = (int) r.Rating,
+                //    Comment = r.Comment ?? string.Empty,
+                //    Date = r.CreatedAt?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd"),
+                //    Status = r.Status ?? "Pending"
+                //}).ToList() ?? new List<ReviewDto>()
             });
         }
     }

@@ -17,6 +17,8 @@ public partial class Order
 
     public DateTime? CreatedAt { get; set; }
 
+    public bool IsReviewed { get; set; }
+
     public virtual Account Account { get; set; } = null!;
 
     public virtual UserAddress? Address { get; set; }
