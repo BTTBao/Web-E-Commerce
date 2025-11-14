@@ -8,7 +8,7 @@ import { useAuth } from './context/useAuth.js';
 function App() {
 
   const token = localStorage.getItem('token');
-  const user = localStorage.getItem('account');
+  const user = JSON.parse(localStorage.getItem('account'));
   return (
     <>
       <Toaster
