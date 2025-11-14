@@ -9,20 +9,39 @@ export default function ChatWindow({ currentRoom, currentMessages, handleSendMes
     // Clear input/file khi đổi phòng
     useEffect(() => {
         setMessage('');
+        // Thu hồi URL blob cũ nếu có
+        if (selectedFile && selectedFile.previewUrl) {
+             URL.revokeObjectURL(selectedFile.previewUrl);
+        }
         setSelectedFile(null);
+        
+        return () => {
+             // Dọn dẹp khi component unmount hoặc khi currentRoom thay đổi (sẽ chạy trước effect)
+             if (fileInputRef.current?.files?.[0] && fileInputRef.current.files[0].previewUrl) {
+                 URL.revokeObjectURL(fileInputRef.current.files[0].previewUrl);
+             }
+        };
     }, [currentRoom]);
 
     // Xử lý File Upload
     const handleFileChange = (event) => {
         const file = event.target.files[0];
         if (file) {
+            // Thêm thuộc tính previewUrl để thu hồi sau
+            file.previewUrl = URL.createObjectURL(file); 
             setSelectedFile(file);
         }
         event.target.value = null; 
     };
+    
+    // Xử lý loại bỏ file
     const handleFileRemove = () => {
+        if (selectedFile && selectedFile.previewUrl) {
+            URL.revokeObjectURL(selectedFile.previewUrl); // Thu hồi URL blob của preview
+        }
         setSelectedFile(null);
     };
+    
     const handleAttachClick = () => {
         fileInputRef.current.click();
     };
@@ -30,7 +49,15 @@ export default function ChatWindow({ currentRoom, currentMessages, handleSendMes
     // Xử lý gửi tin nhắn
     const handleSend = () => {
         if (!message.trim() && !selectedFile) return;
+        
+        // Gửi tin nhắn và file
         handleSendMessage(message, selectedFile);
+        
+        // Thu hồi URL blob của preview sau khi gửi xong
+        if (selectedFile && selectedFile.previewUrl) {
+            URL.revokeObjectURL(selectedFile.previewUrl); 
+        }
+        
         setMessage('');
         setSelectedFile(null);
     };
@@ -93,11 +120,10 @@ export default function ChatWindow({ currentRoom, currentMessages, handleSendMes
                                             src={msg.attachmentUrl} 
                                             alt="Attachment" 
                                             className="message-image" 
-                                            onLoad={(e) => {
-                                                if (msg.isOptimistic && msg.attachmentUrl.startsWith('blob:')) {
-                                                    URL.revokeObjectURL(e.currentTarget.src);
-                                                }
-                                            }}
+                                            // 💡 Sửa: Không cần revokeObjectURL ở đây
+                                            // Blob URL của tin nhắn optimistic nên được dọn dẹp bởi parent (ChatSupport.jsx) 
+                                            // khi nó được thay thế bằng tin nhắn thật. 
+                                            // Giữ lại có thể dẫn đến lỗi nếu URL là URL thật từ server.
                                         />
                                     )}
                                     
@@ -121,10 +147,10 @@ export default function ChatWindow({ currentRoom, currentMessages, handleSendMes
                         <div className="file-preview-item">
                             {selectedFile.type.startsWith('image/') ? (
                                 <img 
-                                    src={URL.createObjectURL(selectedFile)} 
+                                    src={selectedFile.previewUrl || URL.createObjectURL(selectedFile)} 
                                     alt="Preview" 
                                     className="file-preview-image"
-                                    onLoad={(e) => URL.revokeObjectURL(e.currentTarget.src)}
+                                    // 💡 Sửa: Đã chuyển logic thu hồi ra handleFileRemove và handleSend
                                 />
                             ) : (
                                 <div className="file-preview-icon">

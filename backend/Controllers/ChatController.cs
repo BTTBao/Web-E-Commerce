@@ -344,119 +344,146 @@ namespace backend.Controllers
 
             return Ok();
         }
-    
-    // 🟢 [MỚI] Lấy danh sách phòng chat của 1 khách hàng (user)
-    [HttpGet("user-rooms/{customerId}")]
-    public async Task<IActionResult> GetUserRooms(int customerId)
-    {
-        // Kiểm tra tài khoản có tồn tại không
-        var customer = await _context.Accounts
-            .Include(a => a.User)
-            .FirstOrDefaultAsync(a => a.AccountId == customerId && a.Role == 0);
-
-        if (customer == null)
-            return NotFound(new { message = "Customer not found." });
-
-        // --- BƯỚC 1: LẤY DỮ LIỆU THÔ TỪ DATABASE ---
-        var roomsFromDb = await _context.ChatRooms
-            .Include(r => r.Admin.User) // Include Admin.User để lấy tên
-            .Where(r => r.CustomerId == customerId)
-            .OrderByDescending(r =>
-                r.ChatMessages
-                    .OrderByDescending(m => m.CreatedAt)
-                    .Select(m => m.CreatedAt)
-                    .FirstOrDefault()
-            )
-            .Select(r => new
-            {
-                // Lấy các giá trị thô
-                r.RoomId,
-                r.IsClosed,
-                Admin = r.Admin, // Lấy cả object Admin
-                AdminFullName = r.Admin != null ? r.Admin.User.FullName : null,
-                AdminPhone = r.Admin != null ? r.Admin.Phone : null,
-                
-                // Lấy tin nhắn cuối
-                LastMessageData = r.ChatMessages
-                    .OrderByDescending(m => m.CreatedAt)
-                    .Select(m => new {
-                        Text = m.MessageText,
-                        HasAttachment = m.ChatAttachments.Any()
-                    })
-                    .FirstOrDefault(),
-                
-                // Lấy thời gian cuối (kiểu DateTime? nullable)
-                LastMessageTimeData = r.ChatMessages
-                    .OrderByDescending(m => m.CreatedAt)
-                    .Select(m => m.CreatedAt)
-                    .FirstOrDefault()
-            })
-            .ToListAsync(); // <--- Thực thi truy vấn SQL
-
-        // --- BƯỚC 2: FORMAT DỮ LIỆU BẰNG C# (TRONG MEMORY) ---
-        var customerName = customer.User?.FullName ?? customer.Phone ?? "Customer";
-
-        var roomsDto = roomsFromDb.Select(r => new
+        
+        // 🟢 [MỚI] Lấy danh sách phòng chat của 1 khách hàng (user)
+        [HttpGet("user-rooms/{customerId}")]
+        public async Task<IActionResult> GetUserRooms(int customerId)
         {
-            id = "CR" + r.RoomId,
-            customerName = customerName,
-            
-            // Logic C# (dùng ?: và ??) chạy bình thường
-            adminName = r.Admin != null
-                ? (r.AdminFullName ?? r.AdminPhone)
-                : "(Chưa có admin)",
-                
-            isClosed = r.IsClosed ?? false,
-            
-            // Logic C# cho tin nhắn cuối
-            lastMessage = r.LastMessageData == null
-                ? "..."
-                : (r.LastMessageData.HasAttachment ? "[Hình ảnh]" : r.LastMessageData.Text),
+            // Kiểm tra tài khoản có tồn tại không
+            var customer = await _context.Accounts
+                .Include(a => a.User)
+                .FirstOrDefaultAsync(a => a.AccountId == customerId && a.Role == 0);
 
-            // Logic C# (dùng ?. và ToString()) chạy bình thường
-            lastMessageTime = r.LastMessageTimeData?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""
-        }).ToList();
+            if (customer == null)
+                return NotFound(new { message = "Customer not found." });
 
-        return Ok(roomsDto);
-    }
+            // --- BƯỚC 1: LẤY DỮ LIỆU THÔ TỪ DATABASE ---
+            var roomsFromDb = await _context.ChatRooms
+                .Include(r => r.Admin.User) // Include Admin.User để lấy tên
+                .Where(r => r.CustomerId == customerId)
+                .OrderByDescending(r =>
+                    r.ChatMessages
+                        .OrderByDescending(m => m.CreatedAt)
+                        .Select(m => m.CreatedAt)
+                        .FirstOrDefault()
+                )
+                .Select(r => new
+                {
+                    // Lấy các giá trị thô
+                    r.RoomId,
+                    r.IsClosed,
+                    Admin = r.Admin, // Lấy cả object Admin
+                    AdminFullName = r.Admin != null ? r.Admin.User.FullName : null,
+                    AdminPhone = r.Admin != null ? r.Admin.Phone : null,
+                    
+                    // Lấy tin nhắn cuối
+                    LastMessageData = r.ChatMessages
+                        .OrderByDescending(m => m.CreatedAt)
+                        .Select(m => new {
+                            Text = m.MessageText,
+                            HasAttachment = m.ChatAttachments.Any()
+                        })
+                        .FirstOrDefault(),
+                    
+                    // Lấy thời gian cuối (kiểu DateTime? nullable)
+                    LastMessageTimeData = r.ChatMessages
+                        .OrderByDescending(m => m.CreatedAt)
+                        .Select(m => m.CreatedAt)
+                        .FirstOrDefault()
+                })
+                .ToListAsync(); // <--- Thực thi truy vấn SQL
 
+            // --- BƯỚC 2: FORMAT DỮ LIỆU BẰNG C# (TRONG MEMORY) ---
+            var customerName = customer.User?.FullName ?? customer.Phone ?? "Customer";
 
-    // 🟢 [MỚI] Lấy tin nhắn trong phòng (user dùng)
-    [HttpGet("user-rooms/{roomId}/messages")]
-    public async Task<IActionResult> GetUserMessages(string roomId, [FromQuery] int customerId)
-    {
-        // Kiểm tra format "CRxxx"
-        if (string.IsNullOrEmpty(roomId) || !roomId.StartsWith("CR") || !int.TryParse(roomId.AsSpan(2), out int idValue))
-            return BadRequest("Invalid Room ID format. Expected 'CR' prefix.");
-
-        // Kiểm tra quyền truy cập
-        var room = await _context.ChatRooms.FindAsync(idValue);
-        if (room == null)
-            return NotFound("Room not found.");
-        if (room.CustomerId != customerId)
-            return Forbid("You are not allowed to access this room.");
-
-        // Lấy tin nhắn
-        var messages = await _context.ChatMessages
-            .Include(m => m.Sender).ThenInclude(a => a.User)
-            .Include(m => m.ChatAttachments)
-            .Where(m => m.RoomId == idValue)
-            .OrderBy(m => m.CreatedAt)
-            .Select(m => new ChatMessageDto
+            var roomsDto = roomsFromDb.Select(r => new
             {
-                Id = m.MessageId,
-                RoomId = "CR" + m.RoomId,
-                SenderId = m.SenderId,
-                SenderName = m.Sender.User != null ? m.Sender.User.FullName : m.Sender.Phone,
-                IsAdmin = m.Sender.Role == 1,
-                Message = m.MessageText ?? "",
-                Timestamp = m.CreatedAt.HasValue ? m.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
-                AttachmentUrl = m.ChatAttachments.Select(a => a.FileUrl).FirstOrDefault(),
-                AttachmentType = m.ChatAttachments.Select(a => a.FileType).FirstOrDefault()
-            })
-            .ToListAsync();
+                id = "CR" + r.RoomId,
+                customerName = customerName,
+                
+                // Logic C# (dùng ?: và ??) chạy bình thường
+                adminName = r.Admin != null
+                    ? (r.AdminFullName ?? r.AdminPhone)
+                    : "(Chưa có admin)",
+                    
+                isClosed = r.IsClosed ?? false,
+                
+                // Logic C# cho tin nhắn cuối
+                lastMessage = r.LastMessageData == null
+                    ? "..."
+                    : (r.LastMessageData.HasAttachment ? "[Hình ảnh]" : r.LastMessageData.Text),
 
-        return Ok(messages);
-    }
+                // Logic C# (dùng ?. và ToString()) chạy bình thường
+                lastMessageTime = r.LastMessageTimeData?.ToString("yyyy-MM-dd HH:mm:ss") ?? ""
+            }).ToList();
+
+            return Ok(roomsDto);
+        }
+
+
+        // 🟢 [MỚI] Lấy tin nhắn trong phòng (user dùng)
+        [HttpGet("user-rooms/{roomId}/messages")]
+        public async Task<IActionResult> GetUserMessages(string roomId, [FromQuery] int customerId)
+        {
+            // Kiểm tra format "CRxxx"
+            if (string.IsNullOrEmpty(roomId) || !roomId.StartsWith("CR") || !int.TryParse(roomId.AsSpan(2), out int idValue))
+                return BadRequest("Invalid Room ID format. Expected 'CR' prefix.");
+
+            // Kiểm tra quyền truy cập
+            var room = await _context.ChatRooms.FindAsync(idValue);
+            if (room == null)
+                return NotFound("Room not found.");
+            if (room.CustomerId != customerId)
+                return Forbid("You are not allowed to access this room.");
+
+            // Lấy tin nhắn
+            var messages = await _context.ChatMessages
+                .Include(m => m.Sender).ThenInclude(a => a.User)
+                .Include(m => m.ChatAttachments)
+                .Where(m => m.RoomId == idValue)
+                .OrderBy(m => m.CreatedAt)
+                .Select(m => new ChatMessageDto
+                {
+                    Id = m.MessageId,
+                    RoomId = "CR" + m.RoomId,
+                    SenderId = m.SenderId,
+                    SenderName = m.Sender.User != null ? m.Sender.User.FullName : m.Sender.Phone,
+                    IsAdmin = m.Sender.Role == 1,
+                    Message = m.MessageText ?? "",
+                    Timestamp = m.CreatedAt.HasValue ? m.CreatedAt.Value.ToString("yyyy-MM-dd HH:mm:ss") : "",
+                    AttachmentUrl = m.ChatAttachments.Select(a => a.FileUrl).FirstOrDefault(),
+                    AttachmentType = m.ChatAttachments.Select(a => a.FileType).FirstOrDefault()
+                })
+                .ToListAsync();
+
+            return Ok(messages);
+        }
+        
+        // 🟢 [ENDPOINT MỚI] Đóng phòng chat
+        // PUT: /api/chat/rooms/{roomId}/close
+        [HttpPut("rooms/{roomId}/close")]
+        public async Task<IActionResult> CloseRoom(string roomId)
+        {
+            if (string.IsNullOrEmpty(roomId) || !roomId.StartsWith("CR") || !int.TryParse(roomId.AsSpan(2), out int idValue))
+                return BadRequest("Invalid Room ID format. Expected 'CR' prefix.");
+
+            var room = await _context.ChatRooms.FindAsync(idValue);
+            
+            if (room == null)
+                return NotFound("Room not found.");
+
+            if (room.IsClosed == true)
+                return Ok(new { message = "Room is already closed." });
+
+            // Cập nhật trạng thái
+            room.IsClosed = true;
+            await _context.SaveChangesAsync();
+
+            // Tùy chọn: Gửi SignalR thông báo phòng đã đóng (cho cả admin và khách)
+            await _hubContext.Clients.Group(roomId)
+                .SendAsync("RoomClosed", new { roomId = roomId, closed = true });
+
+            return Ok(new { message = "Room successfully closed." });
+        }
     }
 }
