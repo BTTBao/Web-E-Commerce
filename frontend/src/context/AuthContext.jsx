@@ -6,10 +6,10 @@ export const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     
     // 1. Tải token từ Local Storage
-    const initialToken = localStorage.getItem('skynet_token') || null;
+    const initialToken = localStorage.getItem('token') || null;
 
     // 2. Tải user và phân tích cú pháp (parse) JSON NGAY LÚC KHỞI TẠO
-    const initialUserJson = localStorage.getItem('skynet_user');
+    const initialUserJson = localStorage.getItem('user');
     let initialUser = null;
 
     try {
@@ -44,8 +44,8 @@ export const AuthProvider = ({ children }) => {
         const userData = res.data.account; // Giả định API trả về account trong data
 
         // BẮT BUỘC: Lưu token và user vào Local Storage
-        localStorage.setItem('skynet_token', tok);
-        localStorage.setItem('skynet_user', JSON.stringify(userData)); // <-- LƯU USER DƯỚI DẠNG CHUỖI JSON
+        localStorage.setItem('token', tok);
+        localStorage.setItem('user', JSON.stringify(userData)); // <-- LƯU USER DƯỚI DẠNG CHUỖI JSON
 
         setToken(tok);
         setUser(userData); // <-- Cập nhật state user
@@ -54,8 +54,8 @@ export const AuthProvider = ({ children }) => {
     };
 
     const logout = () => {
-        localStorage.removeItem('skynet_token');
-        localStorage.removeItem('skynet_user'); // <-- XÓA CẢ USER KHI ĐĂNG XUẤT
+        localStorage.removeItem('token');
+        localStorage.removeItem('user'); // <-- XÓA CẢ USER KHI ĐĂNG XUẤT
         setToken(null);
         setUser(null);
     };
