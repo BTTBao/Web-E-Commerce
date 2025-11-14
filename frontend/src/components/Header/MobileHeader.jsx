@@ -11,6 +11,7 @@ export default function MobileHeader() {
   const [open, setOpen] = useState(false);
   const [activeMain, setActiveMain] = useState(null);
   const [activeSub, setActiveSub] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const { cartCount } = useCart();
   const navigate = useNavigate();
 
@@ -38,6 +39,22 @@ export default function MobileHeader() {
     } else {
       navigate("/login");
     }
+  };
+
+  const handleSearchKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); 
+      const trimmedSearch = searchTerm.trim();
+      
+      if (trimmedSearch && trimmedSearch.length > 0) {
+        navigate(`/search?q=${encodeURIComponent(trimmedSearch)}`);
+        setSearchTerm("");
+      }
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   return (
@@ -84,7 +101,12 @@ export default function MobileHeader() {
               />
             </div>
 
-            <input className="search-input" placeholder="Tìm kiếm..." />
+            <input className="search-input" 
+                  placeholder="Tìm kiếm..." 
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  onKeyDown={handleSearchKeyPress}
+            />
 
             <ul className="menu-list1">
               {Object.entries(menuData).map(([mainTitle, data]) => (

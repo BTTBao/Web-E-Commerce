@@ -270,5 +270,39 @@ namespace backend.Controllers
                 });
             }
         }
+
+        [HttpGet("best-seller")]
+        public async Task<IActionResult> GetBestSellers()
+        {
+            try
+            {
+                var products = await _service.GetBestSellerProducts(32);
+
+                if (products == null || !products.Any())
+                {
+                    return Ok(new
+                    {
+                        status = "success",
+                        message = "Hiện chưa có sản phẩm best seller nào.",
+                        data = new List<ProductDto>()
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Lấy danh sách sản phẩm best seller thành công.",
+                    data = products
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
+            }
+        }
     }
 }
