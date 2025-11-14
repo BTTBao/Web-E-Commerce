@@ -6,6 +6,7 @@ namespace backend.DTOs
     public class CustomerDetailDto
     {
         // 1. Thông tin cơ bản (cho cột phải)
+        public int AccountId { get; set; }
         public string FullName { get; set; }
         public string Email { get; set; }
         public string Phone { get; set; }
