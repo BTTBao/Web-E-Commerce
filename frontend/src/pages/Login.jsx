@@ -36,8 +36,8 @@ export default function Login(){
       }
 
     }).then(data =>{
-      localStorage.setItem('skynet_token', data.token);
-      localStorage.setItem('skynet_user', JSON.stringify(data.account));
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.account));
       onLogin(data.account.accountId);
       navigate(from);
     })
