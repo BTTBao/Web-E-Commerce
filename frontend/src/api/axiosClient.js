@@ -11,7 +11,7 @@ const axiosClient = axios.create({
 // ✅ Thêm interceptor để tự động gắn token vào mọi request
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('skynet_token');
+    const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
