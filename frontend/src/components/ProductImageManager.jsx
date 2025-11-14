@@ -34,7 +34,7 @@ export function ProductImageManager({ images, primaryImageIndex, onImageUpload, 
               src={image.imageUrl} // Đọc 'imageUrl' từ object
               alt={`Product ${index + 1}`}
               className="image-preview"
-              onError={(e) => (e.currentTarget.src = 'https://via.placeholder.com/150')}
+              onError={(e) => (e.currentTarget.src = 'https://mms.img.susercontent.com/vn-11134513-7ra0g-ma9ikz1jh88i38@resize_ss1242x600!@crop_w1242_h600_cT')}
             />
             <div className="image-overlay">
               <button 

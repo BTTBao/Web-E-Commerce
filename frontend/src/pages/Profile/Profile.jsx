@@ -69,7 +69,7 @@ export default function Profile() {
 
   const [availableDistricts, setAvailableDistricts] = useState([]);
   const [availableWards, setAvailableWards] = useState([]);
-
+  const [loading, setLoading] = useState(false);
   useEffect(() => {
     if (user) {
       setFormData({
@@ -130,42 +130,79 @@ export default function Profile() {
     setAvailableWards([]);
   };
 
-  const LoadOrders = (type = 'all') => {
-    const token = localStorage.getItem('token');
-    setPage(1);
-    setActiveOrder(type);
-    fetch(`https://localhost:7132/api/Order/getall?accountId=${user.accountId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${token}`
+const LoadOrders = async (type = 'all') => {
+      setLoading(true);
+      const token = localStorage.getItem('token');
+      setPage(1);
+      setActiveOrder(type);
+
+      try {
+        const res = await fetch(`https://localhost:7132/api/Order/getall?accountId=${user.accountId}`, {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          setOrders(data);
+        } else {
+          console.error("Lỗi load đơn hàng!");
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
-    })
-      .then(res => res.ok && res.json())
-      .then(data => data && setOrders(data))
-      .catch(console.error);
-  };
+    };
 
+    const LoadAddress = async () => {
+      setLoading(true);
+      try {
+        const res = await fetch(`https://localhost:7132/api/Address/get?accountId=${user.accountId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setAddress(data);
+        } else console.error("Lỗi load địa chỉ!");
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
+    const HandleDeleteAddress = async (id) => {
+      if (!window.confirm("Xóa địa chỉ này?")) return;
+      setLoading(true);
+      try {
+        const res = await fetch(`https://localhost:7132/api/Address/delete?id=${id}`, { method: 'DELETE' });
+        if (res.ok) LoadAddress(); 
+        else alert("Xóa thất bại!");
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi xảy ra!");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const LoadAddress = () => {
-    fetch(`https://localhost:7132/api/Address/get?accountId=${user.accountId}`)
-      .then(res => res.ok && res.json())
-      .then(data => data && setAddress(data))
-      .catch(console.error);
-  };
+    const HandleSetDefault = async (id) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`https://localhost:7132/api/Address/setdefault?id=${id}`, { method: 'PUT' });
+        if (res.ok) LoadAddress(); 
+        else alert("Cập nhật thất bại!");
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi xảy ra!");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const HandleDeleteAddress = async (id) => {
-    if (!window.confirm("Xóa địa chỉ này?")) return;
-    const res = await fetch(`https://localhost:7132/api/Address/delete?id=${id}`, { method: 'DELETE' });
-    if (res.ok) LoadAddress(); else alert("Xóa thất bại!");
-  };
-  const HandleSetDefault = async (id) => {
-    const res = await fetch(`https://localhost:7132/api/Address/setdefault?id=${id}`, { method: 'PUT' });
-    if (res.ok) LoadAddress(); else alert("Cập nhật thất bại!");
-  };
-
-  const HandleAddAddress = async (e) => {
-    e.preventDefault();
+    const HandleAddAddress = async (e) => {
+      e.preventDefault();
+      if (loading) return; // tránh spam
+      setLoading(true);
 
     const token = localStorage.getItem('token');
     if (!token) {
@@ -173,7 +210,7 @@ export default function Profile() {
       navigate('/login');
       return;
     }
-
+    
     const body = {
       AccountId: user.accountId,
       ReceiverFullName: newAddress.receiverFullName,
@@ -185,32 +222,33 @@ export default function Profile() {
       IsDefault: newAddress.isDefault,
     };
     console.log('Gửi địa chỉ:', body);
-
+    
     try {
       const res = await fetch(`https://localhost:7132/api/Address/add`, {
         method: "POST",
-        headers: {
+        headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}` 
         },
         body: JSON.stringify(body)
       });
 
-      const data = await res.json();
-      console.log('Phản hồi server:', data);
+        const data = await res.json();
 
-      if (res.ok) {
-        alert("Thêm địa chỉ thành công!");
-        resetAddressForm();
-        LoadAddress();
-      } else {
-        alert("Thêm thất bại: " + (data.message || JSON.stringify(data) || "Lỗi không rõ"));
+        if (res.ok) {
+          alert("Thêm địa chỉ thành công!");
+          resetAddressForm();
+          LoadAddress();
+        } else {
+          alert("Thêm thất bại: " + (data.message || JSON.stringify(data) || "Lỗi không rõ"));
+        }
+      } catch (err) {
+        console.error(err);
+        alert("Lỗi xảy ra, thử lại sau!");
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      console.error("Lỗi thêm địa chỉ:", err);
-      alert("Lỗi xảy ra, thử lại sau!");
-    }
-  };
+    };
 
   const HandleExit = () => {
     localStorage.clear();
@@ -299,14 +337,53 @@ export default function Profile() {
     e.preventDefault();
 
     const accountData = JSON.parse(localStorage.getItem('account'));
+  if (!formData.fullName.trim()) {
+    alert("Họ tên không được để trống!");
+    return;
+  }
 
-    const token = localStorage.getItem('token');
+  if (!formData.gender) {
+    alert("Vui lòng chọn giới tính!");
+    return;
+  }
 
-    if (!token) {
-      alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
-      navigate('/login');
-      return;
-    }
+  if (!formData.dateOfBirth) {
+    alert("Vui lòng chọn ngày sinh!");
+    return;
+  }
+
+  const d = new Date(formData.dateOfBirth);
+  if (isNaN(d.getTime())) {
+    alert("Ngày sinh không hợp lệ!");
+    return;
+  }
+
+  const today = new Date();
+  if (d > today) {
+    alert("Ngày sinh không được lớn hơn hôm nay!");
+    return;
+  }
+
+  let age = today.getFullYear() - d.getFullYear();
+  const m = today.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+  if (age < 10) {
+    alert("Bạn phải ít nhất 10 tuổi.");
+    return;
+  }
+
+  const phoneRegex = /^(0[0-9]{9})$/;
+  if (!phoneRegex.test(formData.phone)) {
+    alert("Số điện thoại không hợp lệ! Phải 10 số và bắt đầu bằng 0.");
+    return;
+  }
+  const token = localStorage.getItem('token');
+
+  if (!token) {
+    alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
+    navigate('/login');
+    return;
+  }
 
     const body = {
       fullName: formData.fullName,
@@ -354,6 +431,36 @@ export default function Profile() {
     }
   };
 
+const [cancelingOrderId, setCancelingOrderId] = useState(null);
+const HandleCancelOrder = async (orderId) => {
+  if (!window.confirm("Bạn có chắc muốn hủy đơn này?")) return;
+
+  setCancelingOrderId(orderId);
+  const token = localStorage.getItem('token');
+
+  try {
+    const res = await fetch(`https://localhost:7132/api/orders/${orderId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      alert("Hủy đơn thành công!");
+      LoadOrders(activeOrder);
+    } else {
+      alert("Hủy đơn thất bại: " + (data.message || "Lỗi không rõ"));
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Lỗi kết nối máy chủ.");
+  } finally {
+    setCancelingOrderId(null);
+  }
+};
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -362,7 +469,7 @@ export default function Profile() {
     }
     if (activeTab === 'order') LoadOrders();
     if (activeTab === 'address') LoadAddress();
-  }, [activeTab, user.accountId, navigate]);
+  }, [activeTab, user.accountId, navigate]); 
 
 
   return (
@@ -516,27 +623,14 @@ export default function Profile() {
                               ))}
                             </tbody>
                           </table>
-                          <div className='mt-3 d-flex justify-content-center gap-2'>
-                            <button
-                              className="btn btn-outline-dark"
-                              onClick={() => navigate(`/orders/${o.orderId}`)}
+                          {o.status === 'Pending' && (
+                            <button 
+                              className='btn btn-dark' 
+                              onClick={() => HandleCancelOrder(o.orderId)}
                             >
-                              <Eye /> Xem chi tiết
+                              Hủy đơn
                             </button>
-
-                            {o.status.toLowerCase() === "delivered" && !o.isReviewed && (
-                                <button
-                                  className="btn btn-outline-primary"
-                                  onClick={() => {
-                                    console.log(o);
-                                    
-                                    navigate(`/review/${o.orderId}`)
-                                  }}
-                                >
-                                  Viết đánh giá
-                                </button>
-                              )}
-                          </div>
+                          )}
                         </div>
                       ))}
                       <div className='d-flex justify-content-center gap-2 mt-3'>
