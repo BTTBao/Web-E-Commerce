@@ -41,7 +41,7 @@ export default function AppRouter() {
         <Route path="vouchers" element={<VoucherList />} />
         <Route path="best-seller" element={<BestsellerPage />} />
         <Route path="reviews" element={<ReviewList />} />
-        <Route path="category/:category/:subcategory" element={<CategoryPage />} />
+        <Route path="search" element={<CategoryPage />} />
         <Route path="category/:categoryName" element={<CategoryPage />} />
         <Route path="shop" element={<CategoryPage />} />
       </Route>

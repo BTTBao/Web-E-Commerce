@@ -9,6 +9,7 @@ import { useCart } from "../../hooks/useCart";
 const Header = () => {
   const [activeMenu, setActiveMenu] = useState(null);
   const [activeSubMenu, setActiveSubMenu] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
   const hideMenuTimeout = useRef(null);
   const hideSubMenuTimeout = useRef(null);
   const { cartCount } = useCart();
@@ -53,6 +54,40 @@ const Header = () => {
     } else {
       navigate("/login");
     }
+  };
+
+  // Xử lý tìm kiếm - CHỈ chuyển trang khi có dữ liệu
+  const handleSearch = (e) => {
+    if (e) e.preventDefault();
+    
+    const trimmedSearch = searchTerm.trim();
+    
+    // CHỈ chuyển trang khi có từ khóa
+    if (trimmedSearch && trimmedSearch.length > 0) {
+      navigate(`/search?q=${encodeURIComponent(trimmedSearch)}`);
+      // Xóa input sau khi search
+      setSearchTerm("");
+    }
+    // Nếu không có từ khóa, không làm gì cả
+  };
+
+  // Xử lý khi nhấn Enter trong ô search
+  const handleSearchKeyPress = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Ngăn form submit mặc định
+      const trimmedSearch = searchTerm.trim();
+      
+      // CHỈ chuyển trang khi có từ khóa
+      if (trimmedSearch && trimmedSearch.length > 0) {
+        navigate(`/search?q=${encodeURIComponent(trimmedSearch)}`);
+        setSearchTerm("");
+      }
+    }
+  };
+
+  // Xử lý thay đổi input search
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
   };
 
   return (
@@ -119,7 +154,7 @@ const Header = () => {
                                 key={item.name}
                                 to={item.path}
                                 className="sub-item"
-                                onClick={() => {
+                                onClick={(e) => {
                                   e.stopPropagation();
                                   setActiveMenu(null);
                                   setActiveSubMenu(null);
@@ -142,7 +177,22 @@ const Header = () => {
       {/* Icons */}
       <div className="icons">
         <div className="search-box">
-          <input type="text" placeholder="Tìm kiếm..." />
+          <input
+            type="text"
+            placeholder="Tìm kiếm..."
+            value={searchTerm}
+            onChange={handleSearchChange}
+            onKeyDown={handleSearchKeyPress}
+          />
+          <Search
+            size={20}
+            className="search-icon"
+            onClick={handleSearch}
+            style={{ 
+              cursor: searchTerm.trim() ? "pointer" : "not-allowed",
+              opacity: searchTerm.trim() ? 1 : 0.5
+            }}
+          />
         </div>
 
         {/* Icon đăng nhập */}
