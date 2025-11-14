@@ -356,8 +356,6 @@ const HandleUpdateInfo = async (e) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-      navigate('/login');
       return;
     }
     if (activeTab === 'order') LoadOrders();
