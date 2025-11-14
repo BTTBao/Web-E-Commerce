@@ -7,8 +7,8 @@ import { useState } from 'react'
 import ProductGallery from '../../components/ProductDetails/ProductGallery/ProductGallery'
 import ProductInfo from '../../components/ProductDetails/ProductInfo/ProductInfo'
 import ProductRelated from '../../components/ProductDetails/ProductRelated/ProductRelated'
-import ProductReview from './ProductReview'
 import productApi from '../../api/productApi'
+import ProductReview from '../../components/ProductDetails/ProductReview/ProductReview'
 
 function ProductDetail() {
   const { id } = useParams()

@@ -22,11 +22,12 @@
     margin-bottom: 1rem;
 }
 
-.price-section {
+.product-header .price-section {
     display: flex;
     align-items: baseline;
-    justify-content: center;
+    justify-content: center !important;
     gap: 1rem;
+    font-weight: bold;
 }
 
 .old-price {

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosClient from "../../api/axiosClient";
 import "./css/ProductReview.css";
+import { toast } from "sonner";
 
 const StarRatingInput = ({ rating, setRating }) => {
   const [hoverRating, setHoverRating] = useState(0);
@@ -112,7 +113,7 @@ function ProductReview() {
     if (order) {
       const initial = {};
       order.items.forEach((item) => {
-        initial[item.productId] = { rating: 0, comment: "" };
+        initial[item.productId] = { rating: 5, comment: "" };
       });
       setReviews(initial);
     }
@@ -126,10 +127,33 @@ function ProductReview() {
     setReviews((prev) => ({ ...prev, [productId]: review }));
   };
 
-  const handleSubmit = () => {
-    console.log("Submitted reviews:", reviews);
-    alert("Cảm ơn bạn đã gửi đánh giá! (Test: Chưa lưu backend)");
-    setTimeout(() => navigate(-1), 1000);
+  const handleSubmit = async () => {
+    try {
+      console.log(order);
+
+      const payload = {
+        orderId: Number(order.id.replace("DH", "")),
+        reviews: Object.keys(reviews).map((productId) => ({
+          productId: Number(productId),
+          accountId: order.accountId,
+          rating: reviews[productId].rating,
+          comment: reviews[productId].comment
+        }))
+      };
+
+      console.log("Sending payload:", payload);
+
+      await axiosClient.post("/reviews", payload);
+
+      toast.success("Cảm ơn bạn đã gửi đánh giá!");
+      setTimeout(() => {
+        navigate("/profile");
+      }, 1000);
+
+    } catch (err) {
+      console.error(err);
+      toast.error("Gửi đánh giá thất bại!");
+    }
   };
 
   return (

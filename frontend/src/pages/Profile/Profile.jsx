@@ -5,6 +5,7 @@ import './Profile.css';
 import provinces from '../../../data/provinces.json';
 import districts from '../../../data/districts.json';
 import wards from '../../../data/wards.json';
+import { Eye, PencilLineIcon, SquarePen } from 'lucide-react';
 
 
 
@@ -44,10 +45,10 @@ export default function Profile() {
   const [page, setPage] = useState(1);
   const [address, setAddress] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  
+
   const [user, setUser] = useState(JSON.parse(localStorage.getItem('account')) || {});
 
-  
+
   const [newAddress, setNewAddress] = useState({
     receiverFullName: '',
     receiverPhone: '',
@@ -84,8 +85,8 @@ export default function Profile() {
   useEffect(() => {
     if (newAddress.province) {
       const provinceData = provinces.find(p => p.name === newAddress.province);
-      const filtered = provinceData 
-        ? districts.filter(d => d.province_code === Number(provinceData.code)) 
+      const filtered = provinceData
+        ? districts.filter(d => d.province_code === Number(provinceData.code))
         : [];
       setAvailableDistricts(filtered);
     } else {
@@ -96,8 +97,8 @@ export default function Profile() {
   useEffect(() => {
     if (newAddress.district) {
       const districtData = districts.find(d => d.name === newAddress.district);
-      const filtered = districtData 
-        ? wards.filter(w => w.district_code === Number(districtData.code)) 
+      const filtered = districtData
+        ? wards.filter(w => w.district_code === Number(districtData.code))
         : [];
       setAvailableWards(filtered);
     } else {
@@ -107,37 +108,38 @@ export default function Profile() {
   }, [newAddress.district]);
 
   const handleNewAddressChange = (e) => {
-      const { name, value, type, checked } = e.target;
-      setNewAddress(prev => ({
-        ...prev,
-        [name]: type === 'checkbox' ? checked : value
-      }));
-    };
+    const { name, value, type, checked } = e.target;
+    setNewAddress(prev => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value
+    }));
+  };
 
-    const resetAddressForm = () => {
-      setShowForm(false);
-      setNewAddress({
-        receiverFullName: '',
-        receiverPhone: '',
-        addressLine: '',
-        ward: '',
-        district: '',
-        province: '',
-        isDefault: false,
-      });
-      setAvailableDistricts([]);
-      setAvailableWards([]);
-    };
+  const resetAddressForm = () => {
+    setShowForm(false);
+    setNewAddress({
+      receiverFullName: '',
+      receiverPhone: '',
+      addressLine: '',
+      ward: '',
+      district: '',
+      province: '',
+      isDefault: false,
+    });
+    setAvailableDistricts([]);
+    setAvailableWards([]);
+  };
 
   const LoadOrders = (type = 'all') => {
     const token = localStorage.getItem('token');
     setPage(1);
     setActiveOrder(type);
     fetch(`https://localhost:7132/api/Order/getall?accountId=${user.accountId}`, {
-    method: 'GET',
-    headers: {
+      method: 'GET',
+      headers: {
         'Authorization': `Bearer ${token}`
-    }})
+      }
+    })
       .then(res => res.ok && res.json())
       .then(data => data && setOrders(data))
       .catch(console.error);
@@ -157,7 +159,7 @@ export default function Profile() {
     const res = await fetch(`https://localhost:7132/api/Address/delete?id=${id}`, { method: 'DELETE' });
     if (res.ok) LoadAddress(); else alert("Xóa thất bại!");
   };
-  const HandleSetDefault = async  (id) => {
+  const HandleSetDefault = async (id) => {
     const res = await fetch(`https://localhost:7132/api/Address/setdefault?id=${id}`, { method: 'PUT' });
     if (res.ok) LoadAddress(); else alert("Cập nhật thất bại!");
   };
@@ -171,7 +173,7 @@ export default function Profile() {
       navigate('/login');
       return;
     }
-    
+
     const body = {
       AccountId: user.accountId,
       ReceiverFullName: newAddress.receiverFullName,
@@ -183,13 +185,13 @@ export default function Profile() {
       IsDefault: newAddress.isDefault,
     };
     console.log('Gửi địa chỉ:', body);
-    
+
     try {
       const res = await fetch(`https://localhost:7132/api/Address/add`, {
         method: "POST",
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(body)
       });
@@ -223,134 +225,134 @@ export default function Profile() {
     }));
   };
 
-const [passwords, setPasswords] = useState({
- oldPassword: '',
- newPassword: '',
- confirmPassword: '',
- });
- const [passwordMessage, setPasswordMessage] = useState(''); // Thông báo thành công
- const [passwordError, setPasswordError] = useState(''); // Thông báo lỗi
+  const [passwords, setPasswords] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  });
+  const [passwordMessage, setPasswordMessage] = useState(''); // Thông báo thành công
+  const [passwordError, setPasswordError] = useState(''); // Thông báo lỗi
 
-const handlePasswordChange = (e) => {
-  const { name, value } = e.target;
-  setPasswords((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-};
-
-const HandleChangePassword = async (e) => {
-  e.preventDefault();
-  setPasswordMessage('');
-  setPasswordError('');
-
-  // 1. Kiểm tra mật khẩu xác nhận
-  if (passwords.newPassword !== passwords.confirmPassword) {
-    setPasswordError('Mật khẩu mới và mật khẩu xác nhận không khớp.');
-    return;
-  }
-
-  // 2. Lấy token
-  const token = localStorage.getItem('token');
-  if (!token) {
-    setPasswordError('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
-    return;
-  }
-
-  // 3. Gọi API đổi mật khẩu
-  try {
-    const res = await fetch('https://localhost:7132/api/Account/change-password', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        OldPassword: passwords.oldPassword,
-        NewPassword: passwords.newPassword,
-      }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      setPasswordMessage('Đổi mật khẩu thành công!');
-      setPasswordError('');
-
-      // Xóa dữ liệu trong form
-      setPasswords({
-        oldPassword: '',
-        newPassword: '',
-        confirmPassword: '',
-      });
-    } else {
-      // Hiển thị lỗi từ server (ví dụ: "Mật khẩu cũ không chính xác.")
-      setPasswordError(data.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
-    }
-  } catch (err) {
-    console.error('Lỗi đổi mật khẩu:', err);
-    setPasswordError('Không thể kết nối đến máy chủ.');
-  }
-};
-
-const HandleUpdateInfo = async (e) => {
-  e.preventDefault();
-
-  const accountData = JSON.parse(localStorage.getItem('account'));
-
-  const token = localStorage.getItem('token');
-
-  if (!token) {
-    alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
-    navigate('/login');
-    return;
-  }
-
-  const body = {
-    fullName: formData.fullName,
-    gender: formData.gender,
-    dateOfBirth: formData.dateOfBirth,
-    phone: formData.phone,
+  const handlePasswordChange = (e) => {
+    const { name, value } = e.target;
+    setPasswords((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
-  // 4. Gọi API
-  try {
-    const res = await fetch(`https://localhost:7132/api/Account/update-info`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // Gửi token để xác thực
-      },
-      body: JSON.stringify(body)
-    });
+  const HandleChangePassword = async (e) => {
+    e.preventDefault();
+    setPasswordMessage('');
+    setPasswordError('');
 
-    const data = await res.json();
-
-    if (res.ok) {
-      // 5. CẬP NHẬT THÀNH CÔNG
-      alert(data.message); // Hiển thị "Cập nhật thông tin thành công!"
-
-      // Lấy token cũ, vì server không trả về token mới khi update info
-      const updatedAccountData = { ...data.account, token: token };
-
-      // Cập nhật lại 'account' trong localStorage
-      localStorage.setItem('account', JSON.stringify(updatedAccountData));
-      
-      // Cập nhật state 'account' để component re-render
-      // (Điều này sẽ tự động kích hoạt useEffect để cập nhật lại formData)
-      setUser(updatedAccountData);
-    
-    } else {
-      // 6. XỬ LÝ LỖI TỪ SERVER
-      alert("Cập nhật thất bại: " + (data.message || "Lỗi không rõ"));
+    // 1. Kiểm tra mật khẩu xác nhận
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      setPasswordError('Mật khẩu mới và mật khẩu xác nhận không khớp.');
+      return;
     }
 
-  } catch (err) {
-    // 7. XỬ LÝ LỖI MẠNG
-    console.error("Lỗi cập nhật thông tin:", err);
-    alert("Lỗi kết nối máy chủ. Vui lòng thử lại.");
-  }
-};
+    // 2. Lấy token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setPasswordError('Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.');
+      return;
+    }
+
+    // 3. Gọi API đổi mật khẩu
+    try {
+      const res = await fetch('https://localhost:7132/api/Account/change-password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          OldPassword: passwords.oldPassword,
+          NewPassword: passwords.newPassword,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setPasswordMessage('Đổi mật khẩu thành công!');
+        setPasswordError('');
+
+        // Xóa dữ liệu trong form
+        setPasswords({
+          oldPassword: '',
+          newPassword: '',
+          confirmPassword: '',
+        });
+      } else {
+        // Hiển thị lỗi từ server (ví dụ: "Mật khẩu cũ không chính xác.")
+        setPasswordError(data.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
+      }
+    } catch (err) {
+      console.error('Lỗi đổi mật khẩu:', err);
+      setPasswordError('Không thể kết nối đến máy chủ.');
+    }
+  };
+
+  const HandleUpdateInfo = async (e) => {
+    e.preventDefault();
+
+    const accountData = JSON.parse(localStorage.getItem('account'));
+
+    const token = localStorage.getItem('token');
+
+    if (!token) {
+      alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
+      navigate('/login');
+      return;
+    }
+
+    const body = {
+      fullName: formData.fullName,
+      gender: formData.gender,
+      dateOfBirth: formData.dateOfBirth,
+      phone: formData.phone,
+    };
+
+    // 4. Gọi API
+    try {
+      const res = await fetch(`https://localhost:7132/api/Account/update-info`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` // Gửi token để xác thực
+        },
+        body: JSON.stringify(body)
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // 5. CẬP NHẬT THÀNH CÔNG
+        alert(data.message); // Hiển thị "Cập nhật thông tin thành công!"
+
+        // Lấy token cũ, vì server không trả về token mới khi update info
+        const updatedAccountData = { ...data.account, token: token };
+
+        // Cập nhật lại 'account' trong localStorage
+        localStorage.setItem('account', JSON.stringify(updatedAccountData));
+
+        // Cập nhật state 'account' để component re-render
+        // (Điều này sẽ tự động kích hoạt useEffect để cập nhật lại formData)
+        setUser(updatedAccountData);
+
+      } else {
+        // 6. XỬ LÝ LỖI TỪ SERVER
+        alert("Cập nhật thất bại: " + (data.message || "Lỗi không rõ"));
+      }
+
+    } catch (err) {
+      // 7. XỬ LÝ LỖI MẠNG
+      console.error("Lỗi cập nhật thông tin:", err);
+      alert("Lỗi kết nối máy chủ. Vui lòng thử lại.");
+    }
+  };
 
 
   useEffect(() => {
@@ -360,7 +362,7 @@ const HandleUpdateInfo = async (e) => {
     }
     if (activeTab === 'order') LoadOrders();
     if (activeTab === 'address') LoadAddress();
-  }, [activeTab, user.accountId, navigate]); 
+  }, [activeTab, user.accountId, navigate]);
 
 
   return (
@@ -377,8 +379,8 @@ const HandleUpdateInfo = async (e) => {
               {tab === 'info'
                 ? 'Thông tin của tôi'
                 : tab === 'order'
-                ? 'Đơn hàng của tôi'
-                : tab === 'password' ? 'Đổi mật khẩu' : 'Địa chỉ'}
+                  ? 'Đơn hàng của tôi'
+                  : tab === 'password' ? 'Đổi mật khẩu' : 'Địa chỉ'}
 
             </button>
           ))}
@@ -389,7 +391,7 @@ const HandleUpdateInfo = async (e) => {
           {activeTab === 'info' && (
             <div className='bg-white text-dark p-3 p-md-4 rounded shadow-sm'>
               <h2 className="mb-4 fw-bold">Thông tin cá nhân</h2>
-              
+
               <form onSubmit={HandleUpdateInfo}>
                 <div className="mb-3">
                   <label htmlFor="fullName" className="form-label">Họ và tên</label>
@@ -431,7 +433,7 @@ const HandleUpdateInfo = async (e) => {
                     />
                   </div>
                 </div>
-                
+
                 <div className="mb-3">
                   <label htmlFor="email" className="form-label">Email</label>
                   <input
@@ -514,6 +516,27 @@ const HandleUpdateInfo = async (e) => {
                               ))}
                             </tbody>
                           </table>
+                          <div className='mt-3 d-flex justify-content-center gap-2'>
+                            <button
+                              className="btn btn-outline-dark"
+                              onClick={() => navigate(`/orders/${o.orderId}`)}
+                            >
+                              <Eye /> Xem chi tiết
+                            </button>
+
+                            {o.status.toLowerCase() === "delivered" && !o.isReviewed && (
+                                <button
+                                  className="btn btn-outline-primary"
+                                  onClick={() => {
+                                    console.log(o);
+                                    
+                                    navigate(`/review/${o.orderId}`)
+                                  }}
+                                >
+                                  Viết đánh giá
+                                </button>
+                              )}
+                          </div>
                         </div>
                       ))}
                       <div className='d-flex justify-content-center gap-2 mt-3'>
@@ -528,7 +551,7 @@ const HandleUpdateInfo = async (e) => {
             </div>
           )}
           {activeTab === 'password' && (
-            <div className="bg-white text-dark p-3 p-md-4 rounded shadow-sm" style={{width:500}}>
+            <div className="bg-white text-dark p-3 p-md-4 rounded shadow-sm" style={{ width: 500 }}>
               <h2 className="mb-4 fw-bold">Đổi mật khẩu</h2>
 
               <form onSubmit={HandleChangePassword}>
@@ -629,7 +652,7 @@ const HandleUpdateInfo = async (e) => {
               {showForm && (
                 <form className='border p-3 rounded bg-light mt-3' onSubmit={HandleAddAddress}>
                   <h4>Thêm địa chỉ mới</h4>
-                  
+
                   {/* Nhóm Họ tên và SĐT */}
                   <div className="row g-2 mb-2">
                     <div className="col-md">

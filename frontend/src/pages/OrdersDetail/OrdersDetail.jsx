@@ -43,7 +43,9 @@ function OrdersDetail() {
   return (
     <div className="container page-container">
       <div className="mx-auto" style={{ maxWidth: "900px" }}>
-        <button className="btn-back">
+        <button
+          onClick={() => {navigate('/shop')}} 
+          className="btn-back">
           <ArrowLeftIcon size={20} />
           Tiếp tục mua sắm
         </button>
