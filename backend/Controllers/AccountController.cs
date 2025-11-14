@@ -96,7 +96,10 @@ namespace backend.Controllers
 
             _context.Users.Add(user);
             _context.SaveChanges();
+            var emailToken = GenerateJwtToken(account.Email, 0);
 
+            var confirmationLink = $"{Request.Scheme}://{Request.Host}/api/email/confirm-email?token={emailToken}";
+            SendMail.SendMailFor(account.Email, confirmationLink);
             return Ok(new { message = "Đăng ký thành công" });
         }
 
@@ -126,6 +129,7 @@ namespace backend.Controllers
                     account.Phone,
                     role = account.Role.ToString(),
                     createdAt = account.CreatedAt,
+                    account.IsActive,
                     user = account.User == null ? null : new
                     {
                         account.User.FullName,
@@ -203,6 +207,7 @@ namespace backend.Controllers
                 account = updatedAccountResponse
             });
         }
+
         [HttpPost("change-password")]
         [Authorize] // Bắt buộc người dùng phải đăng nhập
         public async Task<IActionResult> ChangePassword([FromBody] PasswordDto request)

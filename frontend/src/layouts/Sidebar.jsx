@@ -16,6 +16,7 @@ const menuItems = [
   { id: 'vouchers', label: 'Quản lý Vouchers', icon: Tag, path: '/admin/vouchers' },
   { id: 'reviews', label: 'Quản lý Đánh giá', icon: Tag, path: '/admin/reviews' },
   { id: 'chat', label: 'Hỗ trợ Trực tuyến', icon: MessageSquare, path: '/admin/chat' },
+  { id: 'logout', label: 'Đăng xuất', icon: Tag, action: 'logout' },
 ];
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
@@ -44,7 +45,24 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
           const Icon = item.icon;
           const isActive = location.pathname === item.path || 
                            (item.path !== '/admin' && location.pathname.startsWith(item.path));
-          
+          if(item.action === 'logout')
+          {
+            return (
+              <button
+                key={item.id}
+                className="nav-link"
+                onClick={() => {
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('account');
+                  setSidebarOpen(false);
+                  window.location.href = '/login';
+                }}
+              >
+                <Icon className="nav-icon" />
+                <span>{item.label}</span>
+              </button>
+            );
+          }
           return (
             // Dùng class 'active'
             <Link
