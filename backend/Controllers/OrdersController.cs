@@ -71,10 +71,12 @@ public class OrdersController : ControllerBase
             {
                 id = "DH" + o.OrderId.ToString("D5"), // <-- Sửa: OrderID -> OrderId
                 customerName = o.Address.ReceiverFullName ?? "N/A", // <-- SỬA 1
+                accountId =  o.Account.AccountId,
                 date = o.CreatedAt.GetValueOrDefault(), // <-- SỬA 2
                 total = o.TotalAmount.GetValueOrDefault(), // <-- SỬA 2
                 status = o.Status,
-                
+                isReviewed = o.IsReviewed,
+
                 paymentStatus = o.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault().PaymentStatus ?? "Pending",
                 paymentMethod = o.Payments.OrderByDescending(p => p.CreatedAt).FirstOrDefault().Method ?? "N/A",
 

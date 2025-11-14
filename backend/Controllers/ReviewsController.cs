@@ -4,10 +4,6 @@ using backend.DTOs;
 using backend.Entities; // <-- Quan trọng: dùng Entities
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace backend.Controllers
 {
@@ -34,24 +30,25 @@ namespace backend.Controllers
                 .OrderByDescending(r => r.CreatedAt)
                 .Select(r => new ReviewDto
                 {
-                    // Lỗi CS1501 thực ra là ở dòng "Date" bên dưới, nhưng trình biên dịch
-                    // báo nhầm lên dòng "Id". Dòng "Id" này là đúng.
-                    Id = "R" + r.ReviewId.ToString("D3"), 
+                    // ✔ 1. ĐÚNG THEO DTO — KHÔNG DÙNG STRING "R001"
+                    ReviewId = r.ReviewId,
 
-                    Product = r.Product.Name, // Giả sử Product.Name không null
+                    // ✔ 2. TRẢ VỀ ID chứ không trả về tên
+                    ProductId = r.ProductId,
 
-                    // SỬA 1: Xử lý nếu User hoặc FullName bị null
-                    Customer = r.Account.User.FullName ?? "Người dùng ẩn danh", 
-                    
-                    // SỬA 2: Lỗi CS0266 - Cung cấp giá trị mặc định cho int?
-                    Rating = r.Rating ?? 0, 
+                    AccountId = r.AccountId,
 
-                    Comment = r.Comment, // string có thể là null, nên ok
-                    
-                    // SỬA 3: Lỗi CS1501 - Phải kiểm tra HasValue trước khi format
-                    Date = r.CreatedAt.HasValue ? r.CreatedAt.Value.ToString("yyyy-MM-dd") : "", 
+                    // ✔ 3. Rating nullable => giữ nguyên
+                    Rating = r.Rating,
 
-                    Status = r.Status // Status là NOT NULL, nên ok
+                    // ✔ 4. Comment giữ nguyên (có thể null)
+                    Comment = r.Comment,
+
+                    // ✔ 5. Trả đúng DateTime? theo DTO
+                    CreatedAt = r.CreatedAt,
+
+                    // ✔ 6. Status
+                    Status = r.Status
                 })
                 .ToListAsync();
 
@@ -61,49 +58,29 @@ namespace backend.Controllers
         // --- 2. CHUYỂN ĐỔI TRẠNG THÁI (DUYỆT/ẨN) ---
         // PATCH: /api/reviews/{reviewId}/toggle
         [HttpPatch("{reviewId}/toggle")]
-        public async Task<IActionResult> ToggleReviewStatus(string reviewId)
+        public async Task<IActionResult> ToggleReviewStatus(int reviewId)
         {
-            // Parse "R001" thành số 1
-            if (string.IsNullOrEmpty(reviewId) || !reviewId.StartsWith("R") || !int.TryParse(reviewId.AsSpan(1), out int id))
-            {
-                return BadRequest(new { status = "error", message = "ID đánh giá không hợp lệ." });
-            }
-
-            var review = await _context.Reviews.FindAsync(id);
+            var review = await _context.Reviews.FindAsync(reviewId);
 
             if (review == null)
             {
                 return NotFound(new { status = "error", message = "Không tìm thấy đánh giá." });
             }
 
-            // Logic chuyển đổi
-            if (review.Status == "Pending")
-            {
-                review.Status = "Approved";
-            }
-            else if (review.Status == "Approved")
-            {
-                review.Status = "Pending";
-            }
+            // ✔ Đổi trạng thái
+            review.Status = review.Status == "Pending" ? "Approved" : "Pending";
 
             await _context.SaveChangesAsync();
 
-            // Trả về trạng thái mới để React cập nhật
             return Ok(new { newStatus = review.Status });
         }
 
         // --- 3. XÓA ĐÁNH GIÁ ---
         // DELETE: /api/reviews/{reviewId}
         [HttpDelete("{reviewId}")]
-        public async Task<IActionResult> DeleteReview(string reviewId)
+        public async Task<IActionResult> DeleteReview(int reviewId)
         {
-            // Parse "R001" thành số 1
-            if (string.IsNullOrEmpty(reviewId) || !reviewId.StartsWith("R") || !int.TryParse(reviewId.AsSpan(1), out int id))
-            {
-                return BadRequest(new { status = "error", message = "ID đánh giá không hợp lệ." });
-            }
-
-            var review = await _context.Reviews.FindAsync(id);
+            var review = await _context.Reviews.FindAsync(reviewId);
             if (review == null)
             {
                 return NotFound(new { status = "error", message = "Không tìm thấy đánh giá." });
@@ -114,5 +91,71 @@ namespace backend.Controllers
 
             return Ok(new { status = "success", message = "Xóa đánh giá thành công." });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateReviews([FromBody] CreateReviewRequest request)
+        {
+            if (request == null || request.Reviews == null || !request.Reviews.Any())
+                return BadRequest(new { status = "error", message = "Dữ liệu không hợp lệ." });
+
+            // kiểm tra đơn hàng
+            var order = await _context.Orders.FindAsync(request.OrderId);
+            if (order == null)
+                return NotFound(new { status = "error", message = "Không tìm thấy đơn hàng." });
+
+            if (order.IsReviewed)
+                return BadRequest(new { status = "error", message = "Đơn hàng này đã được đánh giá rồi." });
+
+            foreach (var dto in request.Reviews)
+            {
+                // kiểm tra sản phẩm
+                var product = await _context.Products.FindAsync(dto.ProductId);
+                if (product == null)
+                    return NotFound(new { status = "error", message = $"Không tìm thấy sản phẩm {dto.ProductId}." });
+
+                // kiểm tra tài khoản
+                var account = await _context.Accounts.FindAsync(dto.AccountId);
+                if (account == null)
+                    return NotFound(new { status = "error", message = $"Không tìm thấy tài khoản {dto.AccountId}." });
+
+                var review = new Review
+                {
+                    ProductId = dto.ProductId,
+                    AccountId = dto.AccountId,
+                    Rating = dto.Rating ?? 5,
+                    Comment = dto.Comment ?? "",
+                    Status = "Pending",
+                    CreatedAt = DateTime.Now
+                };
+
+                _context.Reviews.Add(review);
+            }
+
+            // đánh dấu đơn hàng đã review
+            order.IsReviewed = true;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Đánh giá đơn hàng thành công."
+            });
+        }
+
+    }
+
+    public class CreateReviewRequest
+    {
+        public int OrderId { get; set; }
+        public List<CreateReviewDto> Reviews { get; set; } = new();
+    }
+
+    public class CreateReviewDto
+    {
+        public int ProductId { get; set; }
+        public int AccountId { get; set; }
+        public int? Rating { get; set; }
+        public string? Comment { get; set; }
     }
 }

@@ -99,6 +99,24 @@ namespace backend.Services
                 })
                 .ToList();
 
+            // === SỬA LỖI 1: XÓA KHỐI NÀY ===
+            // ProductService không nên cập nhật Reviews
+            
+            existing.Reviews = dto.Reviews
+                .Select(r => new Review
+                {
+                    ReviewId = r.ReviewId, // <-- LỖI
+                    ProductId = r.ProductId, // <-- LỖI
+                    AccountId = r.AccountId, // <-- LỖI
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt, // <-- LỖI
+                    Status = r.Status
+                })
+                .ToList();
+            
+            // === HẾT SỬA LỖI 1 ===
+
             await _repository.UpdateAsync(existing);
 
             try
@@ -202,16 +220,22 @@ namespace backend.Services
                     StockQuantity = v.StockQuantity
                 }).ToList() ?? new List<ProductVariantDto>(),
 
+                // === SỬA LỖI 2: XÓA KHỐI NÀY ===
+                // Tương tự, không map Reviews ở đây
+                
                 Reviews = p.Reviews?.Select(r => new ReviewDto
                 {
-                    Id = r.ReviewId.ToString(),
-                    Product = p.Name,
-                    Customer = r.Account?.User?.FullName ?? "Anonymous",
-                    Rating = (int)r.Rating,
-                    Comment = r.Comment ?? string.Empty,
-                    Date = r.CreatedAt?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd"),
-                    Status = r.Status ?? "Pending"
+                    ReviewId = r.ReviewId, // <-- LỖI
+                    ProductId = r.ProductId, // <-- LỖI
+                    AccountId = r.AccountId, // <-- LỖI
+                    Rating = r.Rating, // <-- LỖI (int? vs int)
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt, // <-- LỖI
+                    Status = r.Status
                 }).ToList() ?? new List<ReviewDto>()
+                
+                //Reviews = new List<ReviewDto>() // Trả về danh sách rỗng
+                // === HẾT SỬA LỖI 2 ===
             };
         }
 
@@ -249,7 +273,22 @@ namespace backend.Services
                     StockQuantity = v.StockQuantity
                 }).ToList(),
 
-                Reviews = new List<Review>()
+                // === SỬA LỖI 3: XÓA KHỐI NÀY ===
+                // Tương tự, không map Reviews ở đây
+                
+                Reviews = dto.Reviews.Select(r => new Review
+                {
+                    ReviewId = r.ReviewId, // <-- LỖI
+                    ProductId = r.ProductId, // <-- LỖI
+                    AccountId = r.AccountId, // <-- LỖI
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt, // <-- LỖI
+                    Status = r.Status
+                }).ToList()
+                
+                //Reviews = new List<Review>() // Gán danh sách rỗng
+                // === HẾT SỬA LỖI 3 ===
             };
         }
 
@@ -264,6 +303,79 @@ namespace backend.Services
 
             if (dto.StockQuantity.HasValue && dto.StockQuantity < 0)
                 throw new ArgumentException("Số lượng tồn kho không hợp lệ");
+        }
+
+        public async Task<IEnumerable<ProductDto>> SearchProducts(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return new List<ProductDto>();
+            }
+
+            // Chuẩn hóa keyword để tìm kiếm không phân biệt hoa thường
+            var normalizedKeyword = keyword.Trim().ToLower();
+
+            // Tìm kiếm trong Name (ProductName) và SKU của ProductVariant
+            var products = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Reviews)
+                    .ThenInclude(r => r.Account) // ⭐ Include Account để lấy tên khách hàng
+                .Where(p => 
+                    // Tìm trong tên sản phẩm (Name)
+                    EF.Functions.Like(p.Name.ToLower(), $"%{normalizedKeyword}%") ||
+                    // Tìm trong SKU của các variant
+                    p.ProductVariants.Any(v => EF.Functions.Like(v.Sku.ToLower(), $"%{normalizedKeyword}%"))
+                )
+                .OrderBy(p => p.Name) // Sắp xếp theo tên
+                .ToListAsync();
+
+            // Map sang DTO
+            return products.Select(p => new ProductDto
+            {
+                ProductId = p.ProductId,
+                CategoryId = p.CategoryId,
+                Name = p.Name,
+                Description = p.Description,
+                Price = p.Price,
+                StockQuantity = p.StockQuantity,
+                SoldCount = p.SoldCount,
+                Status = p.Status,
+                CreatedAt = p.CreatedAt,
+
+                // Map ProductImages
+                ProductImages = p.ProductImages?.Select(img => new ProductImageDto
+                {
+                    ImageId = img.ImageId,
+                    ProductId = img.ProductId,
+                    ImageUrl = img.ImageUrl,
+                    IsPrimary = img.IsPrimary
+                }).ToList() ?? new List<ProductImageDto>(),
+
+                // Map ProductVariants
+                ProductVariants = p.ProductVariants?.Select(v => new ProductVariantDto
+                {
+                    VariantId = v.VariantId,
+                    ProductId = v.ProductId,
+                    Size = v.Size,
+                    Color = v.Color,
+                    Sku = v.Sku,
+                    Price = v.Price,
+                    StockQuantity = v.StockQuantity
+                }).ToList() ?? new List<ProductVariantDto>(),
+
+                // Map Reviews (lấy tên khách hàng từ Account thông qua AccountId)
+                //Reviews = p.Reviews?.Select(r => new ReviewDto
+                //{
+                //    Id = r.ReviewId.ToString(),
+                //    Product = p.Name,
+                //    Customer = r.Account?.User?.FullName ?? "Anonymous", // Lấy từ relation Account
+                //    Rating = (int) r.Rating,
+                //    Comment = r.Comment ?? string.Empty,
+                //    Date = r.CreatedAt?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd"),
+                //    Status = r.Status ?? "Pending"
+                //}).ToList() ?? new List<ReviewDto>()
+            });
         }
     }
 }

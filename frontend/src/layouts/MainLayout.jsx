@@ -7,7 +7,7 @@ export default function MainLayout() {
 
   // không dùng footer
   const location = useLocation();
-  const noFooterRouters = ["/cart", "/checkout", "/product", "/order-success"]
+  const noFooterRouters = ["/cart", "/checkout", "/product", "/order-success", "/review", "/order"]
 
   const hideFooter = noFooterRouters.some((path) =>
     location.pathname.startsWith(path)

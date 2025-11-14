@@ -1,7 +1,6 @@
 import { Routes, Route } from "react-router-dom";
 import MainLayout from "../layouts/MainLayout";
 import Home from "../pages/Home/Home";
-import ProductDetail from "../pages/ProductDetail";
 import Cart from "../pages/Cart";
 import Checkout from "../pages/Checkout/Checkout";
 import Login from "../pages/Login";
@@ -25,12 +24,19 @@ import CategoryPage from "../pages/CategoryPage/CategoryPage";
 import BestsellerPage from "../pages/CategoryPage/BestsellerPage";
 import OrderSuccess from "../pages/OrderSuccess/OrderSuccess";
 import ProtectedRouter from "./ProtectedRouter";
+import NotFound from "../pages/NotFound/NotFound";
+import ProductReview from "../pages/Product/ProductReview";
+import ProductDetail from "../pages/Product/ProductDetail";
+import OrdersDetail from "../pages/OrdersDetail/OrdersDetail";
+
 export default function AppRouter() {
   return (
     <Routes>
       <Route path='/' element={<MainLayout />}>
         <Route index element={<Home />} />
         <Route path="product/:id" element={<ProductDetail />} />
+        <Route path="review/:id" element={<ProductReview />} />
+        <Route path="orders/:id" element={<OrdersDetail />} />
         <Route path="/order-success/:orderId" element={<OrderSuccess />} />
         <Route path="cart" element={<Cart />} />
         <Route path="checkout" element={<Checkout />} />
@@ -64,6 +70,8 @@ export default function AppRouter() {
         <Route path="vouchers" element={<Vouchers />} />
         <Route path="reviews" element={<ReviewList />} />
       </Route>
+
+      <Route path="*" element={<NotFound/>}></Route>
     </Routes>
 
   );
