@@ -131,6 +131,8 @@ CREATE TABLE Orders (
     -- Đã sửa: Dùng NO ACTION để phá vỡ chuỗi cascade xung đột
     FOREIGN KEY (AddressID) REFERENCES UserAddresses(AddressID) ON DELETE NO ACTION -- ON UPDATE NO ACTION
 );
+ALTER TABLE Orders
+ADD IsReviewed BIT NOT NULL DEFAULT 0;
 
 CREATE TABLE OrderDetails (
     OrderDetailID INT IDENTITY(1,1) PRIMARY KEY,
