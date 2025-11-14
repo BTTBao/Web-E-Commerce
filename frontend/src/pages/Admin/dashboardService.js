@@ -12,11 +12,6 @@ const apiClient = axios.create({
   },
 });
 
-
-<<<<<<< HEAD
-
-=======
-// Interceptor để xử lý lỗi response
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -27,7 +22,7 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
->>>>>>> pthuan
+
 
 const dashboardService = {
   /**
