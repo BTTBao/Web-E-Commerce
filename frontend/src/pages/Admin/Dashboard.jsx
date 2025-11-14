@@ -1,7 +1,5 @@
-// src/pages/Admin/Dashboard.jsx
-
 import React, { useState, useEffect } from 'react';
-import { DollarSign, ShoppingCart, Users, Package } from 'lucide-react';
+import { DollarSign, ShoppingCart, Users, Package, TrendingUp } from 'lucide-react';
 import { LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import dashboardService from './dashboardService.js';
 import './Dashboard.css';
@@ -14,7 +12,8 @@ export default function Dashboard() {
     revenueData: [],
     orderStatusData: [],
     recentOrders: [],
-    recentReviews: []
+    recentReviews: [],
+    topSellingProducts: [] // ⭐ THÊM MỚI
   });
 
   useEffect(() => {
@@ -26,12 +25,19 @@ export default function Dashboard() {
       setLoading(true);
       setError(null);
 
-      const response = await dashboardService.getAllDashboardData();
+      // Gọi API song song
+      const [dashboardResponse, topProductsResponse] = await Promise.all([
+        dashboardService.getAllDashboardData(),
+        dashboardService.getTopSellingProducts(10)
+      ]);
       
-      if (response.success) {
-        setDashboardData(response.data);
+      if (dashboardResponse.success) {
+        setDashboardData({
+          ...dashboardResponse.data,
+          topSellingProducts: topProductsResponse.success ? topProductsResponse.data : []
+        });
       } else {
-        setError(response.message || 'Có lỗi xảy ra');
+        setError(dashboardResponse.message || 'Có lỗi xảy ra');
       }
     } catch (err) {
       console.error('Error fetching dashboard data:', err);
@@ -46,6 +52,10 @@ export default function Dashboard() {
       style: 'currency',
       currency: 'VND'
     }).format(amount);
+  };
+
+  const formatNumber = (num) => {
+    return new Intl.NumberFormat('vi-VN').format(num);
   };
 
   if (loading) {
@@ -108,7 +118,7 @@ export default function Dashboard() {
     );
   }
 
-  const { kpi, revenueData, orderStatusData, recentOrders, recentReviews } = dashboardData;
+  const { kpi, revenueData, orderStatusData, recentOrders, recentReviews, topSellingProducts } = dashboardData;
 
   return (
     <div className="dashboard-container">
@@ -248,6 +258,83 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* ⭐ TOP SELLING PRODUCTS - TABLE FORMAT */}
+      <div className="card" style={{ marginTop: '24px' }}>
+        <div className="card-header">
+          <h3 className="card-title chart-title">
+            <div className="chart-icon-wrapper icon-green">
+              <TrendingUp />
+            </div>
+            Top 10 Sản Phẩm Bán Chạy Tháng Này
+          </h3>
+        </div>
+        <div className="card-content">
+          {topSellingProducts.length > 0 ? (
+            <div className="table-container">
+              <table className="top-products-table">
+                <thead>
+                  <tr>
+                    <th style={{ width: '50px', textAlign: 'center' }}>#</th>
+                    <th style={{ width: '80px' }}>Ảnh</th>
+                    <th>Tên sản phẩm</th>
+                    <th style={{ textAlign: 'right' }}>Giá</th>
+                    <th style={{ textAlign: 'center' }}>Lượt bán</th>
+                    <th style={{ textAlign: 'center' }}>Tồn kho</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {topSellingProducts.map((product, index) => (
+                    <tr key={product.productId}>
+                      <td style={{ textAlign: 'center' }}>
+                        <div className={`rank-badge rank-${index + 1}`}>
+                          {index + 1}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="table-product-image">
+                          {product.primaryImage ? (
+                            <img src={product.primaryImage} alt={product.name} />
+                          ) : (
+                            <div className="no-image-small">
+                              <Package size={20} />
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td>
+                        <div className="product-name-cell">
+                          <div className="product-name-text">{product.name}</div>
+                          <div className="product-category-text">
+                            {product.category || 'Chưa phân loại'}
+                          </div>
+                        </div>
+                      </td>
+                      <td style={{ textAlign: 'right', fontWeight: '600' }}>
+                        {formatCurrency(product.price)}
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className="sold-badge">
+                          {formatNumber(product.soldThisMonth)}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={`stock-badge ${product.stockQuantity < 10 ? 'stock-low' : 'stock-normal'}`}>
+                          {formatNumber(product.stockQuantity)}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p style={{ textAlign: 'center', color: '#999', padding: '50px' }}>
+              Chưa có dữ liệu sản phẩm bán chạy
+            </p>
+          )}
+        </div>
+      </div>
+
       {/* Recent Activities */}
       <div className="recent-activity-grid">
         <div className="card">
@@ -309,8 +396,8 @@ export default function Dashboard() {
                           </span>
                         ))}
                       </div>
-                      <span className="badge badge-blue">
-                        Chờ duyệt
+                      <span className={`badge ${review.status === 'Pending' ? 'badge-warning' : 'badge-success'}`}>
+                        {review.status === 'Pending' ? 'Chờ duyệt' : 'Đã duyệt'}
                       </span>
                     </div>
                   </div>

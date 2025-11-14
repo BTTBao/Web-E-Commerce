@@ -336,7 +336,7 @@ const HandleUpdateInfo = async (e) => {
       // Cập nhật lại 'account' trong localStorage
       localStorage.setItem('account', JSON.stringify(updatedAccountData));
       
-      // Cập nhật state 'user' để component re-render
+      // Cập nhật state 'account' để component re-render
       // (Điều này sẽ tự động kích hoạt useEffect để cập nhật lại formData)
       setUser(updatedAccountData);
     
@@ -356,8 +356,6 @@ const HandleUpdateInfo = async (e) => {
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
-      alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
-      navigate('/login');
       return;
     }
     if (activeTab === 'order') LoadOrders();

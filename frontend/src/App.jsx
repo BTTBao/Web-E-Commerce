@@ -7,7 +7,8 @@ import { useAuth } from './context/useAuth.js';
 
 function App() {
 
-  const { token, user } = useAuth();
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('account'));
   return (
     <>
       <Toaster
@@ -26,12 +27,12 @@ function App() {
       
       <AppRouter />
       
-      {/* * Truyền 'token' và 'user' vào ChatWidget.
-        * Đổi tên prop 'user' thành 'currentUser' để ChatWidget hiểu.
+      {/* * Truyền 'token' và 'account' vào ChatWidget.
+        * Đổi tên prop 'account' thành 'currentUser' để ChatWidget hiểu.
       */}
       <ChatWidget 
         token={token} 
-        currentUser={user} // <--- Truyền 'user' vào prop 'currentUser'
+        currentUser={user} // <--- Truyền 'account' vào prop 'currentUser'
       />
     </>
   );

@@ -178,7 +178,7 @@ namespace backend.Services
                     Product = r.Product.Name,
                     Customer = r.Account.User.FullName ?? "Khách hàng",
                     Rating = r.Rating ?? 5,
-                    Status = "Pending"
+                    Status = r.Status
                 })
                 .ToListAsync();
 
@@ -199,6 +199,55 @@ namespace backend.Services
                 DayOfWeek.Sunday => "CN",
                 _ => ""
             };
+        }
+
+        public async Task<IEnumerable<TopSellingProductDto>> GetTopSellingProductsAsync(int count = 10)
+        {
+                // Tự động lấy tháng hiện tại
+                var now = DateTime.Now;
+                var startOfMonth = new DateTime(now.Year, now.Month, 1);
+                var endOfMonth = startOfMonth.AddMonths(1).AddSeconds(-1); // 23:59:59 ngày cuối tháng
+
+                var topProducts = await _context.OrderDetails
+                    .Include(od => od.Order)
+                    .Include(od => od.Product)
+                        .ThenInclude(p => p.ProductImages)
+                    .Include(od => od.Product)
+                        .ThenInclude(p => p.Category)
+                    .Where(od => 
+                        od.Order.CreatedAt >= startOfMonth && 
+                        od.Order.CreatedAt <= endOfMonth &&
+                        (od.Order.Status == "Confirmed" || 
+                        od.Order.Status == "Shipped" || 
+                        od.Order.Status == "Delivered") // Chỉ tính đơn hàng thành công
+                    )
+                    .GroupBy(od => new 
+                    { 
+                        od.ProductId, 
+                        od.Product.Name,
+                        od.Product.Price,
+                        od.Product.StockQuantity,
+                        CategoryName = od.Product.Category.CategoryName,
+                        PrimaryImage = od.Product.ProductImages
+                            .FirstOrDefault(img => img.IsPrimary == true).ImageUrl
+                    })
+                    .Select(g => new TopSellingProductDto
+                    {
+                        ProductId = g.Key.ProductId,
+                        Name = g.Key.Name,
+                        Price = g.Key.Price,
+                        StockQuantity = g.Key.StockQuantity ?? 0,
+                        Category = g.Key.CategoryName,
+                        PrimaryImage = g.Key.PrimaryImage,
+                        SoldThisMonth = (int)g.Sum(od => od.Quantity),
+                        RevenueThisMonth = g.Sum(od => od.SubTotal ?? 0)
+                    })
+                    .OrderByDescending(p => p.SoldThisMonth)
+                    .Take(count)
+                    .ToListAsync();
+
+                return topProducts;
+            
         }
     }
 }

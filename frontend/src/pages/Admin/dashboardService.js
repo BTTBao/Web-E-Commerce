@@ -12,32 +12,17 @@ const apiClient = axios.create({
   },
 });
 
-// Interceptor để tự động thêm token vào mọi request
-apiClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-// Interceptor để xử lý lỗi response
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token hết hạn hoặc không hợp lệ
       localStorage.removeItem('token');
       window.location.href = '/login';
     }
     return Promise.reject(error);
   }
 );
+
 
 const dashboardService = {
   /**
@@ -109,6 +94,15 @@ const dashboardService = {
   getRecentReviews: async (count = 5) => {
     try {
       const response = await apiClient.get(`/dashboard/recent-reviews?count=${count}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  getTopSellingProducts: async (count = 10) => {
+    try {
+      const response = await apiClient.get(`/dashboard/top-selling-products?count=${count}`);
       return response.data;
     } catch (error) {
       throw error;

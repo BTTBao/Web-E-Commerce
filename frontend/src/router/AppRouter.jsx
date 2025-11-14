@@ -24,7 +24,7 @@ import Vouchers from "../pages/Admin/Vouchers";
 import CategoryPage from "../pages/CategoryPage/CategoryPage";
 import BestsellerPage from "../pages/CategoryPage/BestsellerPage";
 import OrderSuccess from "../pages/OrderSuccess/OrderSuccess";
-
+import ProtectedRouter from "./ProtectedRouter";
 export default function AppRouter() {
   return (
     <Routes>
@@ -36,17 +36,21 @@ export default function AppRouter() {
         <Route path="checkout" element={<Checkout />} />
         <Route path="login" element={<Login />} />
         <Route path="register" element={<Register />} />
-        <Route path="profile" element={<Profile />} />
+        <Route path="profile" element={<ProtectedRouter requiredRole={0}><Profile /></ProtectedRouter>} />
         <Route path="aboutUs" element={<AboutUs />} />
         <Route path="vouchers" element={<VoucherList />} />
         <Route path="best-seller" element={<BestsellerPage />} />
         <Route path="reviews" element={<ReviewList />} />
-        <Route path="category/:category/:subcategory" element={<CategoryPage />} />
+        <Route path="search" element={<CategoryPage />} />
         <Route path="category/:categoryName" element={<CategoryPage />} />
         <Route path="shop" element={<CategoryPage />} />
       </Route>
 
-      <Route path="/admin" element={<AdminLayout />}>
+      <Route path="/admin" element={
+        <ProtectedRouter requiredRole={1}>
+          <AdminLayout />
+        </ProtectedRouter>
+      }>
         <Route index element={<Dashboard />} />
         <Route path="products" element={<Products />} />
         <Route path="products/add" element={<ProductForm />} /> {/* Trang thêm mới */}
