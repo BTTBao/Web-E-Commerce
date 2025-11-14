@@ -19,10 +19,9 @@ const COLORS = ['Đen', 'Trắng', 'Xanh dương', 'Đỏ', 'Vàng', 'Titan', 'X
 const SIZES = ['S', 'M', 'L', 'XL', 'XXL'];
 
 const SORT_OPTIONS = [
-  { id: 'relevance', label: 'Liên quan' },
+  { id: 'newest', label: 'Mới nhất' },
   { id: 'price-asc', label: 'Giá: Thấp → Cao' },
   { id: 'price-desc', label: 'Giá: Cao → Thấp' },
-  { id: 'newest', label: 'Mới nhất' },
 ];
 
 const FilterDropdown = ({ title, options, selectedItems, onToggle, onClear, id, openDropdown, setOpenDropdown }) => {
@@ -75,7 +74,7 @@ const ProductGridWithSearch = ({ products }) => {
   const [selectedColors, setSelectedColors] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [sortBy, setSortBy] = useState('relevance');
-  const [openDropdown, setOpenDropdown] = useState(null); // 'price', 'color', 'size' hoặc null
+  const [openDropdown, setOpenDropdown] = useState(null); 
 
 
   const ITEMS_PER_ROW = 4;
@@ -95,18 +94,18 @@ const ProductGridWithSearch = ({ products }) => {
         if (!matchPrice) return false;
       }
 
-      // Lọc màu
+      // Lọc màu - Tìm trong productVariants
       if (selectedColors.length > 0) {
-        const hasColor = selectedColors.some(color =>
-          product.colors?.includes(color) || product.color === color
+        const hasColor = product.productVariants?.some(variant =>
+          selectedColors.includes(variant.color)
         );
         if (!hasColor) return false;
       }
 
-      // Lọc size
+      // Lọc size - Tìm trong productVariants
       if (selectedSizes.length > 0) {
-        const hasSize = selectedSizes.some(size =>
-          product.sizes?.includes(size) || product.size === size
+        const hasSize = product.productVariants?.some(variant =>
+          selectedSizes.includes(variant.size)
         );
         if (!hasSize) return false;
       }

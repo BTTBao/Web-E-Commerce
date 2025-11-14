@@ -184,9 +184,11 @@ export default function ChatWidget({ token, currentUser }) {
         }
     };
 
-    if (!token || !currentUser || currentUser.role !== "0") {
-        return null;
-    }
+   if (!token || !currentUser || Number(currentUser.role) !== 0) {
+    return null;
+}
+
+
 
     return (
         <div className="chat-widget-container">

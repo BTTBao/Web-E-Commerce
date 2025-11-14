@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import { HubConnectionBuilder } from '@microsoft/signalr';
+import { useLocation } from 'react-router-dom'; // 👈 Cần hook này!
 import './Orders.css';
 import './ChatSupport.css';
 
@@ -12,18 +13,24 @@ const API_URL = 'https://localhost:7132/api/chat';
 const HUB_URL = 'https://localhost:7132/chathub';
 
 export default function ChatSupport() {
+    const location = useLocation(); 
+    
     // --- STATE ---
     const [rooms, setRooms] = useState([]);
     const [messages, setMessages] = useState({});
-    const [hubConnection, setHubConnection] = useState(null);
+    // eslint-disable-next-line no-unused-vars
+    const [hubConnection, setHubConnection] = useState(null); 
     const [selectedRoom, setSelectedRoom] = useState(null);
-
-    // State cho Modal
     const [isModalOpen, setIsModalOpen] = useState(false);
+    
+    // Lấy ID khách hàng mục tiêu từ state của route (chỉ dùng 1 lần)
+    const targetCustomerId = location.state?.targetCustomerId;
+    const [initialCustomerId, setInitialCustomerId] = useState(targetCustomerId); 
 
     // --- REFS & MEMOS ---
     const messagesEndRef = useRef(null);
 
+    // Chỉ hiển thị các phòng CHƯA ĐÓNG
     const activeRooms = useMemo(() => rooms.filter((room) => !room.isClosed), [rooms]);
 
     const currentMessages = useMemo(() => {
@@ -34,93 +41,40 @@ export default function ChatSupport() {
         return rooms.find((room) => room.id === selectedRoom);
     }, [rooms, selectedRoom]);
 
-    // --- EFFECTS (Giữ nguyên) ---
-    useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, [currentMessages]);
+    // --- HÀM XỬ LÝ ---
 
-    // [EFFECT] Kết nối SignalR
-    useEffect(() => {
-        const connection = new HubConnectionBuilder()
-            .withUrl(HUB_URL, { skipNegotiation: true, transport: 1 })
-            .withAutomaticReconnect()
-            .build();
-
-        connection.on('ReceiveMessage', (newMessageDto) => {
-            setMessages(prevMessages => {
-                const roomMessages = prevMessages[newMessageDto.roomId] || [];
-                if (roomMessages.find(m => m.id === newMessageDto.id)) return prevMessages;
-                
-                // Xử lý optimistic update
-                if (newMessageDto.tempId) {
-                    const optimisticMessages = roomMessages.filter(m => m.id !== newMessageDto.tempId);
-                    return { ...prevMessages, [newMessageDto.roomId]: [...optimisticMessages, newMessageDto] };
-                }
-
-                return { ...prevMessages, [newMessageDto.roomId]: [...roomMessages, newMessageDto] };
+    // Xử lý bắt đầu chat mới (Tạo/Lấy phòng và cập nhật UI)
+    const handleStartChat = useCallback(async (customerId) => {
+        try {
+            // KHÁCH HÀNG ID ĐƯỢC ĐẢM BẢO LÀ SỐ NGUYÊN TẠI ĐÂY
+            const response = await fetch(`${API_URL}/rooms/get-or-create/${customerId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ adminId: 1 }) // Giả định Admin ID là 1
             });
 
-            // Cập nhật rooms
-            setRooms(prevRooms => prevRooms.map(room =>
-                room.id === newMessageDto.roomId
-                    ? { ...room, 
-                        lastMessage: newMessageDto.attachmentUrl ? '[Hình ảnh]' : newMessageDto.message, 
-                        lastMessageTime: newMessageDto.timestamp, 
-                        unread: room.id !== selectedRoom 
-                    }
-                    : room
-            ).sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime)));
-        });
+            if (!response.ok) throw new Error('Failed to create or get chat room');
 
-        connection.start()
-            .then(() => {
-                console.log('SignalR Connected!');
-                setHubConnection(connection);
-            })
-            .catch(e => console.error('SignalR Connection Error: ', e));
+            const newRoom = await response.json();
 
-        return () => { connection.stop(); };
-    }, []);
-
-    // [EFFECT] Lấy danh sách phòng chat
-    useEffect(() => {
-        fetch(`${API_URL}/rooms`)
-            .then(res => res.json())
-            .then(data => {
-                const sortedData = data.sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime));
-                setRooms(sortedData);
-                if (data.length > 0 && !selectedRoom) {
-                    setSelectedRoom(data[0].id);
+            setRooms(prevRooms => {
+                const roomExists = prevRooms.find(r => r.id === newRoom.id);
+                if (roomExists) {
+                    // Cập nhật room và đưa lên đầu danh sách active
+                    return [{ ...newRoom, isClosed: false }, ...prevRooms.filter(r => r.id !== newRoom.id)];
                 }
-            })
-            .catch(e => console.error("Failed to fetch rooms:", e));
+                // Thêm phòng mới vào danh sách
+                return [newRoom, ...prevRooms];
+            });
+
+            setSelectedRoom(newRoom.id);
+            setIsModalOpen(false); 
+        } catch (error) {
+            console.error('Error starting chat:', error);
+        }
     }, []);
 
-    // [EFFECT] Lấy tin nhắn và JoinRoom khi đổi phòng
-    useEffect(() => {
-        if (!selectedRoom || !hubConnection) return;
-
-        setRooms(prevRooms => prevRooms.map(r => 
-            r.id === selectedRoom ? { ...r, unread: false } : r
-        ));
-
-        hubConnection.invoke('JoinRoom', selectedRoom)
-            .catch(err => console.error(`Failed to join room ${selectedRoom}: `, err));
-
-        if (messages[selectedRoom]) return;
-
-        fetch(`${API_URL}/rooms/${selectedRoom}/messages`)
-            .then(res => res.json())
-            .then(data => {
-                setMessages(prev => ({ ...prev, [selectedRoom]: data }));
-            })
-            .catch(e => console.error("Failed to fetch messages:", e));
-    }, [selectedRoom, hubConnection, messages]);
-
-
-    // --- HÀM XỬ LÝ (Truyền xuống component con) ---
-
-    // Xử lý gửi tin nhắn (Tách ra để dùng trong ChatWindow)
+    // Xử lý gửi tin nhắn (Logic Optimistic Update và Blob URL)
     const handleSendMessage = useCallback(async (messageText, file) => {
         if (!messageText.trim() && !file) return;
         if (!selectedRoom) return;
@@ -136,7 +90,6 @@ export default function ChatSupport() {
         formData.append('message', messageText.trim());
         formData.append('timestamp', now.toISOString());
         formData.append('tempId', tempId); 
-
         if (file) {
             formData.append('file', file, file.name);
         }
@@ -172,6 +125,10 @@ export default function ChatSupport() {
             }
         } catch (error) {
             console.error("Error sending message:", error);
+            
+            if (optimisticMessage.attachmentUrl && optimisticMessage.attachmentUrl.startsWith('blob:')) {
+                 URL.revokeObjectURL(optimisticMessage.attachmentUrl);
+            }
             setMessages(prev => ({
                 ...prev,
                 [selectedRoom]: prev[selectedRoom].filter(m => m.id !== tempId)
@@ -179,45 +136,164 @@ export default function ChatSupport() {
         }
     }, [selectedRoom]);
 
-    // Xử lý đóng chat
-    const handleCloseChat = useCallback(() => {
+    // Xử lý đóng chat (Gọi API và cập nhật state)
+    const handleCloseChat = useCallback(async () => {
         if (!selectedRoom) return;
-        // TODO: Gọi API để set IsClosed = 1 trong DB
-        console.log('Closing chat room:', selectedRoom);
 
-        setRooms(prevRooms => prevRooms.map(r =>
-            r.id === selectedRoom ? { ...r, isClosed: true } : r
-        ));
-        setSelectedRoom(null);
+        try {
+            const res = await fetch(`${API_URL}/rooms/${selectedRoom}/close`, {
+                method: 'PUT',
+            });
+
+            if (!res.ok) {
+                throw new Error(`Server returned status ${res.status}`);
+            }
+
+            setRooms(prevRooms => prevRooms.map(r =>
+                r.id === selectedRoom ? { ...r, isClosed: true } : r
+            ));
+            
+            setSelectedRoom(null); 
+            
+            console.log(`Chat room ${selectedRoom} successfully closed.`);
+            
+        } catch (error) {
+            console.error('Error closing chat room:', error);
+            alert('Có lỗi xảy ra khi đóng phòng chat.');
+        }
     }, [selectedRoom]);
 
-    // Xử lý bắt đầu chat mới (Tách ra để dùng trong StartChatModal)
-    const handleStartChat = useCallback(async (customerId) => {
-        try {
-            const response = await fetch(`${API_URL}/rooms/get-or-create/${customerId}`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ adminId: 1 })
-            });
 
-            if (!response.ok) throw new Error('Failed to create or get chat room');
+    // --- EFFECTS ---
 
-            const newRoom = await response.json();
-
-            setRooms(prevRooms => {
-                const roomExists = prevRooms.find(r => r.id === newRoom.id);
-                if (roomExists) {
-                    return [{ ...newRoom, isClosed: false }, ...prevRooms.filter(r => r.id !== newRoom.id)];
-                }
-                return [newRoom, ...prevRooms];
-            });
-
-            setSelectedRoom(newRoom.id);
-            setIsModalOpen(false); // Đóng modal
-        } catch (error) {
-            console.error('Error starting chat:', error);
+    // 🟢 [EFFECT] Tự động mở phòng chat khi có ID được truyền (từ CustomerDetail)
+    useEffect(() => {
+        // initialCustomerId chỉ có giá trị khi chuyển từ CustomerDetail
+        if (initialCustomerId) {
+            console.log(`Tự động mở chat với Customer ID: ${initialCustomerId}`);
+            
+            handleStartChat(initialCustomerId)
+                .then(() => {
+                    // Đặt lại state để tránh chạy lại
+                    setInitialCustomerId(null); 
+                    // Xóa state khỏi location để tránh tự động mở lại khi refresh
+                    window.history.replaceState({}, document.title, location.pathname);
+                })
+                .catch(err => {
+                    console.error("Lỗi tự động mở chat:", err);
+                    setInitialCustomerId(null); 
+                });
         }
+    }, [initialCustomerId, handleStartChat, location.pathname]);
+
+
+    // [EFFECT] Cuộn xuống cuối tin nhắn
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [currentMessages]);
+
+    // [EFFECT] Kết nối SignalR và xử lý tin nhắn
+    useEffect(() => {
+        const connection = new HubConnectionBuilder()
+            .withUrl(HUB_URL, { skipNegotiation: true, transport: 1 })
+            .withAutomaticReconnect()
+            .build();
+
+        connection.on('ReceiveMessage', (newMessageDto) => {
+            setMessages(prevMessages => {
+                const roomMessages = prevMessages[newMessageDto.roomId] || [];
+                
+                if (roomMessages.find(m => m.id === newMessageDto.id)) return prevMessages;
+                
+                let updatedMessages = roomMessages;
+                
+                if (newMessageDto.tempId) {
+                    const tempMessage = roomMessages.find(m => m.id === newMessageDto.tempId);
+                    if (tempMessage && tempMessage.attachmentUrl && tempMessage.attachmentUrl.startsWith('blob:')) {
+                        URL.revokeObjectURL(tempMessage.attachmentUrl);
+                    }
+                    updatedMessages = roomMessages.filter(m => m.id !== newMessageDto.tempId);
+                } else {
+                    updatedMessages = roomMessages;
+                }
+                
+                return { ...prevMessages, [newMessageDto.roomId]: [...updatedMessages, newMessageDto] };
+            });
+
+            setRooms(prevRooms => prevRooms.map(room =>
+                room.id === newMessageDto.roomId
+                    ? { ...room, 
+                        lastMessage: newMessageDto.attachmentUrl ? '[Hình ảnh]' : newMessageDto.message, 
+                        lastMessageTime: newMessageDto.timestamp, 
+                        unread: room.id !== selectedRoom 
+                    }
+                    : room
+            ).sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime)));
+        });
+
+        connection.start()
+            .then(() => {
+                console.log('SignalR Connected!');
+                setHubConnection(connection);
+            })
+            .catch(e => console.error('SignalR Connection Error: ', e));
+
+        return () => { connection.stop(); };
     }, []);
+
+    // [EFFECT] Lấy danh sách phòng chat (Ưu tiên targetCustomerId)
+    useEffect(() => {
+        fetch(`${API_URL}/rooms`)
+            .then(res => res.json())
+            .then(data => {
+                const sortedData = data.sort((a, b) => new Date(b.lastMessageTime) - new Date(a.lastMessageTime));
+                setRooms(sortedData);
+                
+                // Chỉ tự động chọn phòng đầu tiên nếu KHÔNG có targetCustomerId
+                if (!targetCustomerId && data.length > 0 && !selectedRoom) {
+                    const firstActiveRoom = sortedData.find(r => !r.isClosed);
+                    if (firstActiveRoom) {
+                        setSelectedRoom(firstActiveRoom.id);
+                    } else if (sortedData.length > 0) {
+                        setSelectedRoom(sortedData[0].id);
+                    }
+                }
+            })
+            .catch(e => console.error("Failed to fetch rooms:", e));
+    }, [targetCustomerId]); 
+
+    // [EFFECT] Lấy tin nhắn và JoinRoom khi đổi phòng
+    useEffect(() => {
+        if (!selectedRoom || !hubConnection) return;
+        
+        setRooms(prevRooms => prevRooms.map(r => 
+            r.id === selectedRoom ? { ...r, unread: false } : r
+        ));
+
+        hubConnection.invoke('JoinRoom', selectedRoom)
+            .catch(err => console.error(`Failed to join room ${selectedRoom}: `, err));
+
+        if (messages[selectedRoom]) return;
+
+        fetch(`${API_URL}/rooms/${selectedRoom}/messages`)
+            .then(res => res.json())
+            .then(data => {
+                setMessages(prev => ({ ...prev, [selectedRoom]: data }));
+            })
+            .catch(e => console.error("Failed to fetch messages:", e));
+        
+        // CLEANUP: Dọn dẹp tất cả Blob URL còn sót lại khi unmount hoặc đổi phòng
+        return () => {
+             const roomMessages = messages[selectedRoom] || [];
+             roomMessages.forEach(m => {
+                 if (m.isOptimistic && m.attachmentUrl && m.attachmentUrl.startsWith('blob:')) {
+                     URL.revokeObjectURL(m.attachmentUrl);
+                 }
+             });
+        };
+        
+    }, [selectedRoom, hubConnection, messages]);
+
 
     // --- RENDER ---
     return (
@@ -234,7 +310,7 @@ export default function ChatSupport() {
 
             <div className="chat-layout">
                 {/* 1. Danh sách phòng chat */}
-                <RoomList 
+                <RoomList
                     activeRooms={activeRooms}
                     selectedRoom={selectedRoom}
                     setSelectedRoom={setSelectedRoom}
@@ -242,7 +318,7 @@ export default function ChatSupport() {
                 />
 
                 {/* 2. Cửa sổ chat */}
-                <ChatWindow 
+                <ChatWindow
                     currentRoom={currentRoom}
                     currentMessages={currentMessages}
                     handleSendMessage={handleSendMessage}
@@ -250,7 +326,7 @@ export default function ChatSupport() {
                     messagesEndRef={messagesEndRef}
                 />
             </div>
-            
+
             {/* 3. Modal Bắt đầu chat mới */}
             {isModalOpen && (
                 <StartChatModal

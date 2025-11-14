@@ -5,9 +5,7 @@ using backend.DTOs;
 using backend.Entities;
 using backend.Interfaces.IRepositories;
 using backend.Interfaces.IServices;
-using Humanizer;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Protocol.Core.Types;
 
 namespace backend.Services
 {
@@ -22,13 +20,14 @@ namespace backend.Services
             _context = context;
         }
 
-        // ... (GetAllProducts, GetProductById, GetProductsByCategory, AddProduct không đổi) ...
+        // ✅ Lấy tất cả sản phẩm
         public async Task<IEnumerable<ProductDto>> GetAllProducts()
         {
             var products = await _repository.GetAllAsync();
             return products.Select(MapToDto);
         }
 
+        // ✅ Lấy sản phẩm theo ID
         public async Task<ProductDto?> GetProductById(int id)
         {
             var product = await _repository.GetByIdAsync(id);
@@ -36,23 +35,25 @@ namespace backend.Services
             return MapToDto(product);
         }
 
+        // ✅ Lấy sản phẩm theo category
         public async Task<IEnumerable<ProductDto>> GetProductsByCategory(string categoryName)
         {
             var products = await _repository.GetByCategoryAsync(categoryName);
             return products.Select(MapToDto);
         }
 
+        // ✅ Thêm sản phẩm mới
         public async Task<ProductDto> AddProduct(ProductDto productDto)
         {
             ValidateForCreateOrUpdate(productDto);
             var entity = MapToEntity(productDto);
-            entity.CreatedAt = DateTime.UtcNow; // Giả sử model Entity có CreatedAt
+            entity.CreatedAt = DateTime.UtcNow;
             await _repository.AddAsync(entity);
-            await _context.SaveChangesAsync(); // Thường Repository sẽ lo việc này?
+            await _context.SaveChangesAsync();
             return MapToDto(entity);
         }
 
-
+        // ✅ Cập nhật sản phẩm
         public async Task<bool> UpdateProduct(int id, ProductDto dto)
         {
             if (id != dto.ProductId)
@@ -73,7 +74,7 @@ namespace backend.Services
             existing.Status = dto.Status;
             existing.CategoryId = dto.CategoryId;
 
-            // Cập nhật ProductImages (Đã đúng)
+            // Cập nhật ProductImages
             existing.ProductImages = dto.ProductImages
                 .Select(pi => new ProductImage
                 {
@@ -84,7 +85,7 @@ namespace backend.Services
                 })
                 .ToList();
 
-            // Cập nhật ProductVariants (Bạn đã sửa đúng)
+            // Cập nhật ProductVariants
             existing.ProductVariants = dto.ProductVariants
                 .Select(v => new ProductVariant
                 {
@@ -120,7 +121,7 @@ namespace backend.Services
 
             try
             {
-                await _context.SaveChangesAsync(); 
+                await _context.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -132,6 +133,7 @@ namespace backend.Services
             return true;
         }
 
+        // ✅ Xóa sản phẩm
         public async Task<bool> DeleteProduct(int id)
         {
             var product = await _repository.GetByIdAsync(id);
@@ -142,6 +144,49 @@ namespace backend.Services
             return true;
         }
 
+        // ✅ Tìm kiếm sản phẩm theo keyword
+        public async Task<IEnumerable<ProductDto>> SearchProducts(string keyword)
+        {
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                return new List<ProductDto>();
+            }
+
+            var normalizedKeyword = keyword.Trim().ToLower();
+
+            var products = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Reviews)
+                    .ThenInclude(r => r.Account)
+                        .ThenInclude(a => a.User)
+                .Where(p =>
+                    EF.Functions.Like(p.Name.ToLower(), $"%{normalizedKeyword}%") ||
+                    p.ProductVariants.Any(v => EF.Functions.Like(v.Sku.ToLower(), $"%{normalizedKeyword}%"))
+                )
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+
+            return products.Select(MapToDto);
+        }
+
+        // ✅ Lấy sản phẩm best seller
+        public async Task<IEnumerable<ProductDto>> GetBestSellerProducts(int limit)
+        {
+            var products = await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Reviews)
+                    .ThenInclude(r => r.Account)
+                        .ThenInclude(a => a.User)
+                .OrderByDescending(p => p.SoldCount)
+                .Take(limit)
+                .ToListAsync();
+
+            return products.Select(MapToDto);
+        }
+
+        // ✅ Map từ Entity sang DTO
         private static ProductDto MapToDto(Product p)
         {
             return new ProductDto
@@ -155,6 +200,7 @@ namespace backend.Services
                 SoldCount = p.SoldCount,
                 Status = p.Status,
                 CreatedAt = p.CreatedAt,
+
                 ProductImages = p.ProductImages?.Select(pi => new ProductImageDto
                 {
                     ImageId = pi.ImageId,
@@ -162,8 +208,7 @@ namespace backend.Services
                     ImageUrl = pi.ImageUrl,
                     IsPrimary = pi.IsPrimary
                 }).ToList() ?? new List<ProductImageDto>(),
-                
-                // (Bạn đã sửa đúng)
+
                 ProductVariants = p.ProductVariants?.Select(v => new ProductVariantDto
                 {
                     VariantId = v.VariantId,
@@ -193,6 +238,8 @@ namespace backend.Services
                 // === HẾT SỬA LỖI 2 ===
             };
         }
+
+        // ✅ Map từ DTO sang Entity
         private static Product MapToEntity(ProductDto dto)
         {
             return new Product
@@ -206,6 +253,7 @@ namespace backend.Services
                 SoldCount = dto.SoldCount,
                 Status = dto.Status,
                 CreatedAt = dto.CreatedAt,
+
                 ProductImages = dto.ProductImages.Select(pi => new ProductImage
                 {
                     ImageId = pi.ImageId,
@@ -213,8 +261,7 @@ namespace backend.Services
                     ImageUrl = pi.ImageUrl,
                     IsPrimary = pi.IsPrimary
                 }).ToList(),
-                
-                // (Bạn đã sửa đúng)
+
                 ProductVariants = dto.ProductVariants.Select(v => new ProductVariant
                 {
                     VariantId = v.VariantId,
@@ -245,14 +292,15 @@ namespace backend.Services
             };
         }
 
+        // ✅ Validate dữ liệu
         private static void ValidateForCreateOrUpdate(ProductDto dto)
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
                 throw new ArgumentException("Tên sản phẩm không được để trống");
-            
-            // Sửa logic check null cho Price và StockQuantity
+
             if (dto.Price.HasValue && dto.Price < 0)
                 throw new ArgumentException("Giá sản phẩm không hợp lệ");
+
             if (dto.StockQuantity.HasValue && dto.StockQuantity < 0)
                 throw new ArgumentException("Số lượng tồn kho không hợp lệ");
         }

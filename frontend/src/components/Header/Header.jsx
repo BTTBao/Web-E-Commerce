@@ -56,20 +56,6 @@ const Header = () => {
     }
   };
 
-  // Xử lý tìm kiếm - CHỈ chuyển trang khi có dữ liệu
-  const handleSearch = (e) => {
-    if (e) e.preventDefault();
-    
-    const trimmedSearch = searchTerm.trim();
-    
-    // CHỈ chuyển trang khi có từ khóa
-    if (trimmedSearch && trimmedSearch.length > 0) {
-      navigate(`/search?q=${encodeURIComponent(trimmedSearch)}`);
-      // Xóa input sau khi search
-      setSearchTerm("");
-    }
-    // Nếu không có từ khóa, không làm gì cả
-  };
 
   // Xử lý khi nhấn Enter trong ô search
   const handleSearchKeyPress = (e) => {
@@ -183,15 +169,6 @@ const Header = () => {
             value={searchTerm}
             onChange={handleSearchChange}
             onKeyDown={handleSearchKeyPress}
-          />
-          <Search
-            size={20}
-            className="search-icon"
-            onClick={handleSearch}
-            style={{ 
-              cursor: searchTerm.trim() ? "pointer" : "not-allowed",
-              opacity: searchTerm.trim() ? 1 : 0.5
-            }}
           />
         </div>
 
