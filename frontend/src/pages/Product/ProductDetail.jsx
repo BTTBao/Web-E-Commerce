@@ -1,15 +1,14 @@
 import React, { useEffect } from 'react'
-import ProductGallery from '../components/ProductDetails/ProductGallery/ProductGallery'
-import ProductInfo from '../components/ProductDetails/ProductInfo/ProductInfo'
-import ProductRelated from '../components/ProductDetails/ProductRelated/ProductRelated'
 import 'swiper/css'
 import 'swiper/css/navigation'
 import 'swiper/css/thumbs'
-import productApi from '../api/productApi'
 import { useParams } from 'react-router-dom'
 import { useState } from 'react'
-import ProductGrid from '../components/ProductGrid/ProductGrid'
-import ProductReview from '../components/ProductDetails/ProductReview/ProductReview'
+import ProductGallery from '../../components/ProductDetails/ProductGallery/ProductGallery'
+import ProductInfo from '../../components/ProductDetails/ProductInfo/ProductInfo'
+import ProductRelated from '../../components/ProductDetails/ProductRelated/ProductRelated'
+import ProductReview from './ProductReview'
+import productApi from '../../api/productApi'
 
 function ProductDetail() {
   const { id } = useParams()

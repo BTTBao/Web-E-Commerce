@@ -1,0 +1,155 @@
+/* Flex + alignment */
+.flex {
+  display: flex;
+}
+.items-center {
+  align-items: center;
+}
+
+/* Spacing tương ứng Tailwind */
+.p-1 {
+  padding: 4px;
+}
+.p-6 {
+  padding: 24px;
+}
+.mb-1 {
+  margin-bottom: 4px;
+}
+.mb-2 {
+  margin-bottom: 8px;
+}
+.mb-4 {
+  margin-bottom: 16px;
+}
+.mt-1 {
+  margin-top: 4px;
+}
+.mt-4 {
+  margin-top: 16px;
+}
+.mt-8 {
+  margin-top: 32px;
+}
+.mb-6 {
+  margin-bottom: 24px;
+}
+
+/* Text */
+.text-gray-600 {
+  color: #4b5563;
+}
+.text-gray-700 {
+  color: #374151;
+}
+.text-gray-800 {
+  color: #1f2937;
+}
+.text-gray-500 {
+  color: #6b7280;
+}
+.text-gray-900 {
+  color: #111827;
+}
+.text-danger {
+  color: #dc3545;
+}
+.font-bold {
+  font-weight: 700;
+}
+.font-medium {
+  font-weight: 500;
+}
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* Stars */
+.star-active {
+  color: #facc15; /* yellow-400 */
+}
+.star-inactive {
+  color: #d1d5db; /* gray-300 */
+}
+
+/* Image */
+.review-img {
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+/* Card */
+.review-card {
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.05);
+  padding: 24px;
+}
+.star-btn {
+  border: none;
+  background: transparent;
+  padding: 4px;
+  cursor: pointer;
+}
+
+.star-btn:focus,
+.star-btn:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Button submit */
+.btn-submit {
+  width: 100%;
+  background: #2563eb;
+  color: white;
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: none;
+  transition: 0.3s;
+}
+.btn-submit:hover {
+  background: #1e40af;
+}
+
+/* Back button */
+.btn-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #4b5563;
+  background: none;
+  border: none;
+}
+.btn-back:hover {
+  color: #111827;
+}
+
+/* Textarea */
+textarea.review-textarea {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  transition: 0.2s;
+}
+textarea.review-textarea:focus {
+  border-color: #2563eb;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+}
+
+/* Responsive gap like Tailwind sm:flex-row */
+@media (min-width: 576px) {
+  .flex-sm-row {
+    flex-direction: row;
+  }
+}
