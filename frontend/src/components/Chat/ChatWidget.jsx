@@ -1,20 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
-// Import icons (bạn cần cài 'lucide-react')
-import { MessageSquare, Send, X, ArrowDown } from 'lucide-react';
+// Import icons
+import { MessageSquare, Send, X, Paperclip } from 'lucide-react'; // Thêm Paperclip
 import { HubConnectionBuilder } from '@microsoft/signalr';
-import './ChatWidget.css'; // File CSS sẽ tạo ở bước 2
+import './ChatWidget.css'; 
 
-// Cập nhật URL này cho đúng
 const API_URL = 'https://localhost:7132/api/chat';
 const HUB_URL = 'https://localhost:7132/chathub';
 
-// Component này nhận thông tin user và token sau khi họ đăng nhập
 export default function ChatWidget({ token, currentUser }) {
     const [isOpen, setIsOpen] = useState(false);
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const [hubConnection, setHubConnection] = useState(null);
-    const [roomId, setRoomId] = useState(null); // ID phòng chat (ví dụ: CR1)
+    const [roomId, setRoomId] = useState(null); 
+    
+    // [BỔ SUNG] State và Ref cho File Upload
+    const [selectedFile, setSelectedFile] = useState(null); 
+    const fileInputRef = useRef(null); 
+
     const messagesEndRef = useRef(null);
 
     // Tự cuộn xuống tin nhắn mới nhất
@@ -24,23 +27,24 @@ export default function ChatWidget({ token, currentUser }) {
         }
     }, [messages, isOpen]);
 
-    // --- EFFECT 1: Kết nối SignalR (Một lần) ---
+    // --- EFFECT 1: Kết nối SignalR (Giữ nguyên) ---
     useEffect(() => {
-        if (!token) return; // Chỉ kết nối khi có token
+        if (!token) return; 
 
-        // Kết nối dùng token để xác thực (nếu Hub của bạn yêu cầu)
         const connection = new HubConnectionBuilder()
             .withUrl(HUB_URL, {
-                // Gửi token để Hub có thể xác thực user
-                accessTokenFactory: () => token 
+                accessTokenFactory: () => token
             })
             .withAutomaticReconnect()
             .build();
 
-        // Lắng nghe tin nhắn từ Admin
         connection.on('ReceiveMessage', (newMessage) => {
-            // Chỉ thêm tin nhắn nếu nó là của phòng này
-            setMessages(prev => [...prev, newMessage]);
+            setMessages(prev => {
+                // Xóa tin nhắn tạm nếu cùng tempId
+                const filtered = prev.filter(m => m.id !== newMessage.tempId);
+                // Thêm tin thật
+                return [...filtered, newMessage];
+            });
         });
 
         connection.start()
@@ -53,23 +57,20 @@ export default function ChatWidget({ token, currentUser }) {
         return () => {
             connection.stop();
         };
-    }, [token]); // Chỉ chạy lại khi token thay đổi
+    }, [token]); 
 
-    // --- EFFECT 2: Lấy/Tạo phòng và tải lịch sử chat ---
+    // --- EFFECT 2: Lấy/Tạo phòng và tải lịch sử chat (Giữ nguyên) ---
     useEffect(() => {
-        // Cần có Hub, ID user, và token
         if (!hubConnection || !currentUser?.accountId || !token) return;
 
-        // Hàm async tự gọi bên trong effect
         const setupChat = async () => {
             try {
                 // 1. Gọi API (POST /api/chat/rooms) để lấy/tạo phòng cho user này
-                // API này bạn đã có (CreateRoom)
                 const roomResponse = await fetch(`${API_URL}/rooms`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}` // Gửi token
+                        'Authorization': `Bearer ${token}` 
                     },
                     body: JSON.stringify({ customerId: currentUser.accountId })
                 });
@@ -77,7 +78,7 @@ export default function ChatWidget({ token, currentUser }) {
                 if (!roomResponse.ok) throw new Error('Failed to get or create chat room');
 
                 const roomData = await roomResponse.json();
-                const userRoomId = roomData.roomId; // Ví dụ: "CR4"
+                const userRoomId = roomData.roomId; 
                 setRoomId(userRoomId);
 
                 // 2. Join group SignalR
@@ -89,7 +90,7 @@ export default function ChatWidget({ token, currentUser }) {
                 });
 
                 if (!messagesResponse.ok) throw new Error('Failed to fetch messages');
-                
+
                 const history = await messagesResponse.json();
                 setMessages(history);
 
@@ -100,49 +101,73 @@ export default function ChatWidget({ token, currentUser }) {
 
         setupChat();
 
-    }, [hubConnection, currentUser, token]); // Chạy khi có kết nối VÀ có thông tin user
+    }, [hubConnection, currentUser, token]); 
 
+    // [BỔ SUNG] Xử lý chọn file
+    const handleFileChange = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+        event.target.value = null; // Reset input để cho phép chọn lại cùng một file
+    };
 
+    // [BỔ SUNG] Kích hoạt input file
+    const handleAttachClick = () => {
+        fileInputRef.current.click();
+    };
+
+    // --- CẬP NHẬT: Xử lý gửi tin nhắn/file ---
     const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (!message.trim() || !roomId || !hubConnection) return;
+        // Kiểm tra điều kiện gửi
+        if (!message.trim() && !selectedFile) return;
+        if (!roomId || !hubConnection) return;
 
-        // Vì API (SendMessage) của bạn dùng [FromForm], chúng ta phải gửi FormData
         const tempId = `temp_${Date.now()}`;
         
+        // Tạo URL tạm thời nếu có file (cho tin nhắn optimistic)
+        const tempAttachmentUrl = selectedFile ? URL.createObjectURL(selectedFile) : null;
+
         // 1. Dữ liệu tin nhắn tạm (cho Optimistic Update)
         const optimisticMessage = {
             id: tempId,
             roomId: roomId,
             senderId: currentUser.accountId,
             senderName: currentUser.fullName || currentUser.phone,
-            isAdmin: false, // User không phải admin
+            isAdmin: false, 
             message: message.trim(),
             timestamp: new Date().toISOString(),
-            isOptimistic: true // Đánh dấu tin nhắn tạm
+            isOptimistic: true, 
+            // [BỔ SUNG] thông tin file
+            attachmentUrl: tempAttachmentUrl,
+            attachmentType: selectedFile ? selectedFile.type : null,
         };
 
         // 2. Thêm tin nhắn tạm vào UI ngay lập tức
         setMessages(prev => [...prev, optimisticMessage]);
         setMessage(''); // Xóa ô input
+        setSelectedFile(null); // Xóa file đã chọn
 
         // 3. Chuẩn bị FormData để gửi lên API
         const formData = new FormData();
         formData.append('roomId', roomId);
         formData.append('senderId', currentUser.accountId);
+        formData.append('senderName', optimisticMessage.senderName); // Thêm senderName cho backend dễ dùng
         formData.append('message', optimisticMessage.message);
         formData.append('tempId', tempId);
-        // formData.append('file', ...); // (Có thể thêm file nếu muốn)
+        
+        // [BỔ SUNG] Thêm file vào FormData
+        if (selectedFile) {
+            formData.append('file', selectedFile, selectedFile.name);
+        }
 
         try {
             // 4. Gọi API để gửi
-            // (Tin nhắn thật sẽ được gửi lại qua SignalR và thay thế tin nhắn tạm)
             const res = await fetch(`${API_URL}/messages`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`
-                    // KHÔNG set 'Content-Type' khi dùng FormData,
-                    // trình duyệt sẽ tự set
                 },
                 body: formData
             });
@@ -150,9 +175,8 @@ export default function ChatWidget({ token, currentUser }) {
             if (!res.ok) {
                 throw new Error('Failed to send message');
             }
-            // API sẽ trigger SignalR, SignalR sẽ gửi 'ReceiveMessage'
-            // và cập nhật tin nhắn tạm (tempId) thành tin nhắn thật
-            
+            // Sau khi gửi thành công, SignalR sẽ gửi tin nhắn thật
+
         } catch (error) {
             console.error("Error sending message:", error);
             // Nếu lỗi, xóa tin nhắn tạm
@@ -160,9 +184,8 @@ export default function ChatWidget({ token, currentUser }) {
         }
     };
 
-    // Nếu chưa đăng nhập, không hiển thị gì cả
-    if (!token || !currentUser) {
-        return null; 
+    if (!token || !currentUser || currentUser.role !== "0") {
+        return null;
     }
 
     return (
@@ -183,30 +206,99 @@ export default function ChatWidget({ token, currentUser }) {
                                 key={msg.id}
                                 className={`message-bubble ${msg.isAdmin ? 'admin-bubble' : 'user-bubble'} ${msg.isOptimistic ? 'optimistic' : ''}`}
                             >
-                                <p className="message-text">{msg.message}</p>
+                                {/* [BỔ SUNG] Hiển thị ảnh nếu là attachment */}
+                                {msg.attachmentUrl && msg.attachmentType?.startsWith('image/') && (
+                                    <img 
+                                        src={msg.attachmentUrl} 
+                                        alt="Attachment" 
+                                        className="message-image" 
+                                        onLoad={(e) => {
+                                            // Chỉ revoke nếu là object URL (tin nhắn tạm)
+                                            if (msg.isOptimistic && msg.attachmentUrl.startsWith('blob:')) {
+                                                URL.revokeObjectURL(e.currentTarget.src);
+                                            }
+                                        }}
+                                    />
+                                )}
+
+                                {/* [BỔ SUNG] Hiển thị biểu tượng file nếu không phải ảnh */}
+                                {msg.attachmentUrl && !msg.attachmentType?.startsWith('image/') && !msg.message && (
+                                    <div className="file-attachment">
+                                        <Paperclip size={16} />
+                                        <span>File đính kèm</span>
+                                    </div>
+                                )}
+                                
+                                {msg.message && (
+                                    <p className="message-text">{msg.message}</p>
+                                )}
+                                
                                 <span className="message-time">
-                                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    {/* Format lại timestamp */}
+                                    {msg.isOptimistic ? 
+                                        new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 
+                                        (msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '')
+                                    }
                                 </span>
                             </div>
                         ))}
                         <div ref={messagesEndRef} />
                     </div>
 
+                    {/* [BỔ SUNG] Khu vực preview file */}
+                    {selectedFile && (
+                        <div className="file-preview-area">
+                            <div className="file-preview-item">
+                                <span className="file-preview-name">
+                                    {selectedFile.type.startsWith('image/') ? 'Image: ' : 'File: '}
+                                    {selectedFile.name}
+                                </span>
+                                <button onClick={() => setSelectedFile(null)} className="remove-file-button">
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* [CẬP NHẬT] Input Area */}
                     <form className="chat-input-area" onSubmit={handleSendMessage}>
+                        {/* [BỔ SUNG] Input File ẩn và Nút đính kèm */}
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            onChange={handleFileChange}
+                            accept="image/*,application/pdf" // Chỉ chấp nhận ảnh và PDF
+                            style={{ display: 'none' }} 
+                        />
+                        <button 
+                            type="button" // Quan trọng: Đặt type="button" để không submit form
+                            onClick={handleAttachClick} 
+                            className="chat-icon-button attach-button" 
+                            title="Đính kèm file"
+                        >
+                            <Paperclip size={18} />
+                        </button>
+                        
                         <input
                             type="text"
                             placeholder="Nhập tin nhắn..."
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                         />
-                        <button type="submit" className="chat-icon-button send-button" title="Gửi">
+                        <button 
+                            type="submit" 
+                            className="chat-icon-button send-button" 
+                            title="Gửi"
+                            // Vô hiệu hóa nút nếu không có tin nhắn hoặc file
+                            disabled={!message.trim() && !selectedFile} 
+                        >
                             <Send size={18} />
                         </button>
                     </form>
                 </div>
             )}
 
-            {/* Nút bong bóng (khi đóng) */}
+            {/* Nút bong bóng (Giữ nguyên) */}
             {!isOpen && (
                 <button onClick={() => setIsOpen(true)} className="chat-bubble" title="Hỗ trợ">
                     <MessageSquare size={30} />
