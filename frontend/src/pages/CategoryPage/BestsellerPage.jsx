@@ -73,7 +73,7 @@ const BestsellerPage = () => {
   return (
     <div className="category-page">
       <div className="category-header">
-        <h1 className="category-title">Sản phẩm bán chạy</h1>
+        <h1 className="category-title">SẢN PHẨM BÁN CHẠY</h1>
         <p className="category-subtitle">
           {products.length > 0
             ? `${products.length} sản phẩm được mua nhiều nhất`

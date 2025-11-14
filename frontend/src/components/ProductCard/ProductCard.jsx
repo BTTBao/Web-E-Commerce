@@ -11,13 +11,10 @@ const ProductCard = ({ product }) => {
   const { addItem } = useCart();
   const navigate = useNavigate();
 
-
-  // Lấy ảnh chính: tránh chuỗi rỗng -> dùng undefined để React không render attribute
   const primaryImage = useMemo(
     () => productImages.find(img => img?.isPrimary)?.imageUrl || undefined,
     [productImages]
   );
-
 
   const rating = Array.isArray(reviews) && reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
@@ -65,7 +62,6 @@ const ProductCard = ({ product }) => {
   };
 
 
-  //chuyển hướng sang chi tiết sản phẩm
   const handleClick = () => {
     navigate(`/product/${productId}`)
   }
@@ -92,14 +88,6 @@ const ProductCard = ({ product }) => {
               <FaStar className="star-filled" />
             </div>
           </div>
-
-          <button
-            className="add-to-cart-button"
-            aria-label="Thêm vào giỏ hàng"
-            onClick={handleAddToCart}
-          >
-            <FaShoppingCart className="cart-icon" />
-          </button>
         </div>
       </div>
     </div>
