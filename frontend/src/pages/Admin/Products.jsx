@@ -40,6 +40,7 @@ export default function Products() {
         }
         const data = await response.json();
         if (data.status === "success" && Array.isArray(data.data)) {
+          console.log(data.data);
           setProducts(data.data);
         } else {
           setProducts([]);
@@ -129,7 +130,6 @@ export default function Products() {
             <table>
               <thead>
                 <tr>
-                  <th>Ảnh</th>
                   <th>Tên sản phẩm</th>
                   <th>Danh mục</th>
                   <th>Giá</th>
@@ -142,16 +142,23 @@ export default function Products() {
                 {
                 filteredProducts.map((product) => {
                   const categoryName = categories.find(c => c.id === product.categoryId)?.name || '';
+
+                  const minPrice =
+                    product.productVariants && product.productVariants.length > 0
+                      ? Math.min(...product.productVariants.map(v => Number(v.price) || 0))
+                      : Number(product.price) || 0;
+
+                  const totalStock =
+                    product.productVariants && product.productVariants.length > 0
+                      ? product.productVariants.reduce((sum, v) => sum + (Number(v.stockQuantity) || 0), 0)
+                      : Number(product.stockQuantity) || 0;
+
+                  product.price = minPrice;
+                  product.stockQuantity = totalStock;
+
+                      
                   return(  
                   <tr key={product.id}>
-                    <td>
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="product-table-image"
-                        onError={(e) => e.target.src = 'https://via.placeholder.com/80'}
-                      />
-                    </td>
                     <td>{product.name}</td>
                     <td>{categoryName}</td>
                     <td>{product.price != null ? product.price.toLocaleString('vi-VN') + ' đ' : '-'}</td>

@@ -1,0 +1,212 @@
+/* ---- Import font cho trang web (Font này rất hợp thời trang) ---- */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --color-bg: #F0EEF0;
+  --color-white: #FFFFFF;
+  --color-black: #000000;
+  --color-text: #333333;
+  --color-border: #E0E0E0;
+}
+
+.contact-page-wrapper {
+  font-family: var(--font-main);
+  background-color: var(--color-bg); /* Nền xám nhạt bên ngoài */
+  color: var(--color-text);
+  padding: 60px 20px; /* Thêm padding trên dưới */
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.contact-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  background-color: var(--color-white); /* Nền trắng cho nội dung */
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  overflow: hidden; /* Đảm bảo bo góc hoạt động */
+}
+
+/* ---- Phần tiêu đề ---- */
+.contact-header {
+  text-align: center;
+  padding: 40px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.contact-header h1 {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--color-black);
+  margin: 0 0 10px;
+}
+
+.contact-header p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ---- Phần thân (Layout 2 cột) ---- */
+.contact-body {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr; /* Cột trái nhỏ, cột phải lớn */
+  gap: 40px;
+  padding: 40px;
+}
+
+/* ---- Cột trái: Thông tin liên hệ ---- */
+.contact-info {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.contact-info h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--color-black);
+  margin-bottom: 10px;
+}
+
+.contact-info p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 15px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  font-size: 1rem;
+}
+
+/* ---- Định dạng SVG icon (thay vì icon font) ---- */
+.info-item svg {
+  color: var(--color-black);
+  stroke: var(--color-black); /* Đảm bảo màu cho icon Phone, Email, Map */
+  flex-shrink: 0; /* Giữ kích thước icon ổn định */
+}
+
+.social-links {
+  display: flex;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.social-links a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+/* ---- Định dạng SVG icon mạng xã hội ---- */
+.social-links a svg {
+  fill: var(--color-black); /* Đặt màu fill cho icon Mạng xã hội */
+  transition: fill 0.3s ease;
+}
+
+/* ---- Hiệu ứng hover cho Mạng xã hội ---- */
+.social-links a:hover {
+  background-color: var(--color-black);
+  border-color: var(--color-black);
+}
+
+.social-links a:hover svg {
+  fill: var(--color-white); /* Đổi màu icon thành trắng khi hover */
+}
+
+/* ---- Cột phải: Form liên hệ ---- */
+.contact-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--color-black);
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 14px;
+  font-family: var(--font-main);
+  font-size: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 5px;
+  background-color: #FAFAFA; /* Màu nền input hơi xám nhẹ */
+  box-sizing: border-box; /* Fix lỗi padding */
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.form-group input::placeholder,
+.form-group textarea::placeholder {
+  color: #999;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: var(--color-black);
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+
+.form-group textarea {
+  resize: vertical; /* Cho phép thay đổi chiều cao */
+}
+
+/* ---- Nút Gửi ---- */
+.submit-btn {
+  padding: 15px;
+  font-family: var(--font-main);
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: var(--color-white);
+  background-color: var(--color-black);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.submit-btn:hover {
+  background-color: #333;
+}
+
+@media (max-width: 992px) {
+  .contact-body {
+    grid-template-columns: 1fr;
+    gap: 50px;
+  }
+}
+
+@media (max-width: 768px) {
+  .contact-header h1 {
+    font-size: 2.2rem;
+  }
+  
+  .contact-page-wrapper {
+    padding: 30px 15px;
+  }
+
+  .contact-body {
+    padding: 30px;
+  }
+}

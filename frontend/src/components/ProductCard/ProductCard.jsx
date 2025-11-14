@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 const ProductCard = ({ product }) => {
   if (!product) return null;
 
-  const { productId, name, price, productImages, reviews } = product;
+  const { productId, name, price, productImages, reviews,stockQuantity } = product;
   const { addItem } = useCart();
   const navigate = useNavigate();
 
@@ -69,6 +69,20 @@ const ProductCard = ({ product }) => {
   const handleClick = () => {
     navigate(`/product/${productId}`)
   }
+
+  const minPrice =
+  product.productVariants && product.productVariants.length > 0
+    ? Math.min(...product.productVariants.map(v => Number(v.price) || 0))
+    : Number(product.price) || 0;
+
+  const totalStock =
+    product.productVariants && product.productVariants.length > 0
+      ? product.productVariants.reduce((sum, v) => sum + (Number(v.stockQuantity) || 0), 0)
+      : Number(product.stockQuantity) || 0;
+
+  product.price = minPrice;
+  product.stockQuantity = totalStock;
+
   return (
     <div
       onClick={handleClick}

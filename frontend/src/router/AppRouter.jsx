@@ -25,6 +25,7 @@ import CategoryPage from "../pages/CategoryPage/CategoryPage";
 import BestsellerPage from "../pages/CategoryPage/BestsellerPage";
 import OrderSuccess from "../pages/OrderSuccess/OrderSuccess";
 import ProtectedRouter from "./ProtectedRouter";
+import Contact from "../pages/Contact/Contact";
 export default function AppRouter() {
   return (
     <Routes>
@@ -44,6 +45,7 @@ export default function AppRouter() {
         <Route path="search" element={<CategoryPage />} />
         <Route path="category/:categoryName" element={<CategoryPage />} />
         <Route path="shop" element={<CategoryPage />} />
+        <Route path="contact" element={<Contact />} />
       </Route>
 
       <Route path="/admin" element={

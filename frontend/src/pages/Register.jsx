@@ -20,71 +20,85 @@ export default function Register() {
     return date <= minBirth;
   };
 
+  const [loading, setLoading] = useState(false);
+
   const handleSubmit = async (e) => {
-    e.preventDefault();
+      e.preventDefault();
 
-    if (!isValidPhone(number)) {
-      setError('Số điện thoại phải là 10-12 chữ số, bắt đầu từ 0.');
-      return;
-    }
+      if (loading) return alert('Đang load dữ liệu!');
+      setLoading(true);
 
-    if (!isValidDate(birth)) {
-      setError('Ngày sinh không hợp lệ hoặc bạn chưa đủ 10 tuổi.');
-      return;
-    }
-
-    if (password.length < 6) {
-      setError('Mật khẩu phải có ít nhất 6 ký tự.');
-      return;
-    }
-
-    if (password !== passwordAgain) {
-      setError('Mật khẩu nhập lại không khớp!');
-      return;
-    }
-    
-    if (!email.includes('@') && !email) {
-      setError('Email phải chứa ký tự @ và không được để trống.');
-      return;
-    }
-
-    if (!gender) {
-      setError('Vui lòng chọn giới tính.');
-      return;
-    }
-
-    setError('');
-
-    const data = {
-      username: number,   // username = số điện thoại
-      password: password,
-      email: email,
-      phone: number,
-      fullName: fullName,
-      gender: gender,
-      dateOfBirth: birth,
-    };
-
-    try {
-      const res = await fetch('https://localhost:7132/api/account/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      if (!res.ok) {
-        const errData = await res.json();
-        setError(errData.message || 'Đăng ký thất bại');
+      if (!isValidPhone(number)) {
+        setError('Số điện thoại phải là 10-12 chữ số, bắt đầu từ 0.');
+        setLoading(false);
         return;
       }
 
-      alert('Đăng ký thành công! Vui lòng đăng nhập.');
-      window.location.href = '/login';
+      if (!isValidDate(birth)) {
+        setError('Ngày sinh không hợp lệ hoặc bạn chưa đủ 10 tuổi.');
+        setLoading(false);
+        return;
+      }
 
-    } catch (err) {
-      setError('Lỗi kết nối server!');
-    }
+      if (password.length < 6) {
+        setError('Mật khẩu phải có ít nhất 6 ký tự.');
+        setLoading(false);
+        return;
+      }
+
+      if (password !== passwordAgain) {
+        setError('Mật khẩu nhập lại không khớp!');
+        setLoading(false);
+        return;
+      }
+
+      if (!email || !email.includes('@')) {
+        setError('Email phải chứa ký tự @ và không được để trống.');
+        setLoading(false);
+        return;
+      }
+
+      if (!gender) {
+        setError('Vui lòng chọn giới tính.');
+        setLoading(false);
+        return;
+      }
+
+      setError('');
+
+      const data = {
+        username: number,
+        password,
+        email,
+        phone: number,
+        fullName,
+        gender,
+        dateOfBirth: birth,
+      };
+
+      try {
+        const res = await fetch('https://localhost:7132/api/account/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          setError(errData.message || 'Đăng ký thất bại');
+          return;
+        }
+
+        alert('Đăng ký thành công! Vui lòng đăng nhập.');
+        window.location.href = '/login';
+
+      } catch (err) {
+        setError('Lỗi kết nối server!');
+      } finally {
+        setLoading(false);
+      }
   };
+
 
   return (
     <div className="row justify-content-center">
