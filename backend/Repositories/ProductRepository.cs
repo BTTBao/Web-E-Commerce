@@ -59,6 +59,11 @@ namespace backend.Repositories
         public async Task<IEnumerable<Product>> GetByCategoryAsync(string categoryName)
         {
             return await _context.Products
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Reviews)
+                    .ThenInclude(r => r.Account)
+                        .ThenInclude(a => a.User)
                 .Where(p => p.Category.CategoryName.ToLower() == categoryName.ToLower())
                 .ToArrayAsync();
         }
