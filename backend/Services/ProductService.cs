@@ -144,31 +144,31 @@ namespace backend.Services
             return true;
         }
 
-        // ✅ Tìm kiếm sản phẩm theo keyword
-        public async Task<IEnumerable<ProductDto>> SearchProducts(string keyword)
-        {
-            if (string.IsNullOrWhiteSpace(keyword))
-            {
-                return new List<ProductDto>();
-            }
+        //// ✅ Tìm kiếm sản phẩm theo keyword
+        //public async Task<IEnumerable<ProductDto>> SearchProducts(string keyword)
+        //{
+        //    if (string.IsNullOrWhiteSpace(keyword))
+        //    {
+        //        return new List<ProductDto>();
+        //    }
 
-            var normalizedKeyword = keyword.Trim().ToLower();
+        //    var normalizedKeyword = keyword.Trim().ToLower();
 
-            var products = await _context.Products
-                .Include(p => p.ProductImages)
-                .Include(p => p.ProductVariants)
-                .Include(p => p.Reviews)
-                    .ThenInclude(r => r.Account)
-                        .ThenInclude(a => a.User)
-                .Where(p =>
-                    EF.Functions.Like(p.Name.ToLower(), $"%{normalizedKeyword}%") ||
-                    p.ProductVariants.Any(v => EF.Functions.Like(v.Sku.ToLower(), $"%{normalizedKeyword}%"))
-                )
-                .OrderBy(p => p.Name)
-                .ToListAsync();
+        //    var products = await _context.Products
+        //        .Include(p => p.ProductImages)
+        //        .Include(p => p.ProductVariants)
+        //        .Include(p => p.Reviews)
+        //            .ThenInclude(r => r.Account)
+        //                .ThenInclude(a => a.User)
+        //        .Where(p =>
+        //            EF.Functions.Like(p.Name.ToLower(), $"%{normalizedKeyword}%") ||
+        //            p.ProductVariants.Any(v => EF.Functions.Like(v.Sku.ToLower(), $"%{normalizedKeyword}%"))
+        //        )
+        //        .OrderBy(p => p.Name)
+        //        .ToListAsync();
 
-            return products.Select(MapToDto);
-        }
+        //    return products.Select(MapToDto);
+        //}
 
         // ✅ Lấy sản phẩm best seller
         public async Task<IEnumerable<ProductDto>> GetBestSellerProducts(int limit)
