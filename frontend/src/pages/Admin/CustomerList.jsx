@@ -1,31 +1,33 @@
-import React, { useState, useEffect, useMemo } from 'react'; // Thêm useState, useEffect
+import React, { useState, useEffect, useMemo } from 'react';
 import { Eye, Search, Lock, Unlock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
-// Import CSS
 import './Vouchers.css';
 import './CustomerList.css';
 
-// --- CẤU HÌNH API ---
-// (Sử dụng port 7132 mà bạn đã đề cập ở các lỗi trước)
 const API_URL = 'https://localhost:7132/api/customers';
 
 export default function CustomerList() {
-  // --- STATE MỚI ---
-  const [allCustomers, setAllCustomers] = useState([]); // State cho danh sách gốc
+  const [allCustomers, setAllCustomers] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
-  // --- 1. [EFFECT] GỌI API ĐỂ LẤY DỮ LIỆU ---
+  // ---------------------------
+  // PHÂN TRANG
+  // ---------------------------
+  const ITEMS_PER_PAGE = 10;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // ---------------------------
+  // LOAD DATA
+  // ---------------------------
   useEffect(() => {
     setLoading(true);
     fetch(API_URL)
       .then(res => {
-        if (!res.ok) {
-          throw new Error('Không thể tải danh sách khách hàng. Lỗi CORS hoặc server sập?');
-        }
+        if (!res.ok) throw new Error('Không thể tải danh sách khách hàng.');
         return res.json();
       })
       .then(data => {
@@ -37,73 +39,71 @@ export default function CustomerList() {
         setError(err.message);
         setLoading(false);
       });
-  }, []); // [] = Chỉ chạy 1 lần khi component mount
+  }, []);
 
-  // --- 2. [HÀM] GỌI API ĐỂ KHÓA/MỞ KHÓA ---
-  const handleToggleStatus = (customerId) => {
-    // Tìm customer hiện tại để biết trạng thái của nó
-    const customer = allCustomers.find(c => c.id === customerId);
-    if (!customer) return;
-
-    // Gửi yêu cầu PATCH đến API
-    fetch(`${API_URL}/${customerId}/toggle-status`, {
-      method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error('Cập nhật trạng thái thất bại.');
-      }
-      return res.json();
-    })
-    .then(data => {
-      // data trả về là { newStatus: true/false }
-      
-      // Cập nhật lại state của `allCustomers`
-      setAllCustomers(prevCustomers =>
-        prevCustomers.map(c =>
-          c.id === customerId
-            ? { ...c, isActive: data.newStatus } // Cập nhật trạng thái mới
-            : c
-        )
-      );
-    })
-    .catch(err => {
-      console.error('Lỗi khi cập nhật trạng thái:', err);
-      // (Trong tương lai, bạn có thể thêm thông báo toast tại đây)
-    });
-  };
-
-  // Logic lọc (dùng state 'allCustomers' thay vì mock data)
-  const filteredCustomers = useMemo(() => 
-    allCustomers.filter((customer) => {
-      const search = searchTerm.toLowerCase();
-      // (Dùng 'email' thay cho 'username' vì DB của bạn không có username)
+  // ---------------------------
+  // LỌC KHÁCH HÀNG
+  // ---------------------------
+  const filteredCustomers = useMemo(() =>
+    allCustomers.filter(customer => {
+      const s = searchTerm.toLowerCase();
       return (
-        customer.email.toLowerCase().includes(search) ||
-        (customer.fullName && customer.fullName.toLowerCase().includes(search)) ||
-        (customer.phone && customer.phone.includes(search))
+        customer.email.toLowerCase().includes(s) ||
+        (customer.fullName && customer.fullName.toLowerCase().includes(s)) ||
+        (customer.phone && customer.phone.includes(s))
       );
     }),
     [allCustomers, searchTerm]
   );
 
-  // Hàm điều hướng (giữ nguyên)
-  const handleViewCustomer = (customerId) => {
-    navigate(`/admin/customers/${customerId}`);
+  // ---------------------------
+  // PHÂN TRANG – TÍNH TOÁN
+  // ---------------------------
+  const totalPages = Math.ceil(filteredCustomers.length / ITEMS_PER_PAGE);
+
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+
+  const currentCustomers = filteredCustomers.slice(indexOfFirstItem, indexOfLastItem);
+
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= totalPages) setCurrentPage(page);
   };
 
-  // --- RENDER ---
-  
-  if (loading) {
-    return <div className="page-container">Đang tải dữ liệu khách hàng...</div>;
-  }
+  // Nếu tìm kiếm → reset về trang 1
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
-  if (error) {
-    return <div className="page-container error-message">Lỗi: {error}</div>;
-  }
+  // ---------------------------
+  // HÀM KHÓA / MỞ KHÓA
+  // ---------------------------
+  const handleToggleStatus = (customerId) => {
+    fetch(`${API_URL}/${customerId}/toggle-status`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Cập nhật trạng thái thất bại.');
+        return res.json();
+      })
+      .then(data => {
+        setAllCustomers(prev =>
+          prev.map(c =>
+            c.id === customerId ? { ...c, isActive: data.newStatus } : c
+          )
+        );
+      })
+      .catch(err => console.error(err));
+  };
+
+  const handleViewCustomer = (id) => navigate(`/admin/customers/${id}`);
+
+  // ---------------------------
+  // RENDER
+  // ---------------------------
+  if (loading) return <div className="page-container">Đang tải dữ liệu khách hàng...</div>;
+  if (error) return <div className="page-container error-message">Lỗi: {error}</div>;
 
   return (
     <div className="page-container">
@@ -127,6 +127,7 @@ export default function CustomerList() {
             />
           </div>
         </div>
+
         <div className="card-content">
           <div className="table-wrapper">
             <table>
@@ -142,7 +143,7 @@ export default function CustomerList() {
                 </tr>
               </thead>
               <tbody>
-                {filteredCustomers.map((customer) => (
+                {currentCustomers.map((customer) => (
                   <tr key={customer.id}>
                     <td>{customer.email}</td>
                     <td>{customer.phone || 'N/A'}</td>
@@ -150,11 +151,7 @@ export default function CustomerList() {
                     <td>{new Date(customer.registeredDate).toLocaleDateString('vi-VN')}</td>
                     <td>{customer.totalOrders}</td>
                     <td>
-                      <span
-                        className={`badge ${
-                          customer.isActive ? 'badge-green' : 'badge-red'
-                        }`}
-                      >
+                      <span className={`badge ${customer.isActive ? 'badge-green' : 'badge-red'}`}>
                         {customer.isActive ? 'Hoạt động' : 'Đã khóa'}
                       </span>
                     </td>
@@ -167,8 +164,8 @@ export default function CustomerList() {
                           <Eye width={16} height={16} />
                           Xem
                         </button>
-                        {/* Cập nhật onClick cho nút Khóa/Mở */}
-                        <button 
+
+                        <button
                           className="action-button"
                           onClick={() => handleToggleStatus(customer.id)}
                         >
@@ -191,6 +188,49 @@ export default function CustomerList() {
               </tbody>
             </table>
           </div>
+
+          {/* ---------------------------
+              PHÂN TRANG – FOOTER
+          --------------------------- */}
+          <div className="pagination-footer">
+            <span className="pagination-summary">
+              Hiển thị <strong>{indexOfFirstItem + 1}</strong> -
+              <strong>{Math.min(indexOfLastItem, filteredCustomers.length)}</strong> /
+              <strong>{filteredCustomers.length}</strong> khách hàng
+            </span>
+
+            <div className="pagination-controls">
+              <button
+                className={`page-btn ${currentPage === 1 ? "disabled" : ""}`}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                «
+              </button>
+
+              {[...Array(totalPages)].map((_, i) => {
+                const page = i + 1;
+                return (
+                  <button
+                    key={page}
+                    className={`page-number ${currentPage === page ? "active" : ""}`}
+                    onClick={() => handlePageChange(page)}
+                  >
+                    {page}
+                  </button>
+                );
+              })}
+
+              <button
+                className={`page-btn ${currentPage === totalPages ? "disabled" : ""}`}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                »
+              </button>
+            </div>
+          </div>
+
         </div>
       </div>
     </div>
