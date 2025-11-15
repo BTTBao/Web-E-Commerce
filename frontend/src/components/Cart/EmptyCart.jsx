@@ -12,7 +12,7 @@ function EmptyCart() {
             </p>
             <button
                 onClick={() => {
-                    window.location.href = "/";
+                    window.location.href = "/shop";
                 }}
                 className="empty-cart-button">
                 Tiếp tục mua sắm
