@@ -85,8 +85,8 @@ function Contact() {
       <div className="contact-container">
         
         <div className="contact-header">
-          <h1>Get In Touch</h1>
-          <p>We are here for you! How can we help?</p>
+          <h1>Liên hệ với chúng tôi</h1>
+          <p>Chúng tôi luôn ở đây vì bạn! Chúng tôi có thể giúp gì cho bạn?</p>
         </div>
 
         {/* === Phần Thân (Layout 2 cột) === */}
@@ -94,8 +94,8 @@ function Contact() {
 
           {/* Cột trái: Thông tin liên hệ */}
           <div className="contact-info">
-            <h3>Contact Information</h3>
-            <p>Fill up the form and our team will get back to you within 24 hours.</p>
+            <h3>Thông tin liên hệ</h3>
+            <p>Điền vào mẫu và nhóm của chúng tôi sẽ liên hệ lại với bạn trong vòng 24 giờ.</p>
             
             <div className="info-item">
               <PhoneIcon />
@@ -122,15 +122,15 @@ function Contact() {
             <form>
               <div className="form-group">
                 <label htmlFor="name">Name</label>
-                <input type="text" id="name" name="name" placeholder="Your Name" required onChange={(e) =>{setFormSend(prev=>({...prev,Name: e.target.value}))}}/>
+                <input type="text" id="name" name="name" placeholder="Name" required onChange={(e) =>{setFormSend(prev=>({...prev,Name: e.target.value}))}}/>
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Your Email" required onChange={(e) =>{setFormSend(prev=>({...prev,Email: e.target.value}))}}/>
+                <input type="email" id="email" name="email" placeholder="Email" required onChange={(e) =>{setFormSend(prev=>({...prev,Email: e.target.value}))}}/>
               </div>
               <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" rows="5" placeholder="Your Message..." required onChange={(e) =>{setFormSend(prev=>({...prev,Message: e.target.value}))}}></textarea>
+                <label htmlFor="message">Tin nhắn</label>
+                <textarea id="message" name="message" rows="5" placeholder="Tin nhắn..." required onChange={(e) =>{setFormSend(prev=>({...prev,Message: e.target.value}))}}></textarea>
               </div>
               <button type="submit" className="submit-btn" onClick={e => SendEmail(e)}>Send Message</button>
             </form>
