@@ -111,7 +111,7 @@ export default function Products() {
     }
   };
 
-  const updateAllProducts = async (product) => {
+  const updateProducts = async (product) => {
     try {
       // Tính minPrice và totalStock
       const minPrice = product.productVariants?.length
@@ -138,16 +138,16 @@ export default function Products() {
       return null;
     }
   };
-  useEffect(() => {
-    const syncProducts = async () => {
-      const updatedProducts = await Promise.all(
-        products.map(p => updateAllProducts(p))
-      );
-      setProducts(updatedProducts.filter(Boolean));
-    };
+  // useEffect(() => {
+  //   const syncProducts = async () => {
+  //     const updatedProducts = await Promise.all(
+  //       products.map(p => updateProducts(p))
+  //     );
+  //     setProducts(updatedProducts.filter(Boolean));
+  //   };
 
-    if (products.length) syncProducts();
-  }, [products]);
+  //   if (products.length) syncProducts();
+  // }, [products]);
 
   return (
     <div className="orders-container">
@@ -219,6 +219,7 @@ export default function Products() {
 
               <tbody>
                 {currentProducts.map((product) => {
+                  updateProducts(product);
                   const { productId, name, categoryId, status, price, stockQuantity, productVariants } = product;
 
                   const categoryName = categories.find((c) => c.id === categoryId)?.name || "";

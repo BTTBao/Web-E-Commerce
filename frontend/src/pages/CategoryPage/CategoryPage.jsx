@@ -53,7 +53,7 @@ const CategoryPage = () => {
       // Nếu không có từ khóa → fetch theo category hoặc tất cả sản phẩm
       const endpoint = categoryName
         ? `https://localhost:7132/api/product/category/${categoryName}`
-        : `https://localhost:7132/api/product`;
+        : `https://localhost:7132/product/active`;
 
       try {
         const response = await fetch(endpoint);
@@ -93,8 +93,8 @@ const CategoryPage = () => {
     const currentPath = location.pathname.startsWith('/search')
       ? '/search'
       : categoryName
-      ? `/category/${categoryName}`
-      : '/shop';
+        ? `/category/${categoryName}`
+        : '/shop';
 
     const newUrl = newTerm.trim()
       ? `${currentPath}?q=${encodeURIComponent(newTerm)}`
@@ -131,8 +131,8 @@ const CategoryPage = () => {
   const headerTitle = displaySearchTerm
     ? `KẾT QUẢ CHO "${displaySearchTerm.toUpperCase()}"`
     : categoryName
-    ? categoryName.toUpperCase()
-    : 'TẤT CẢ SẢN PHẨM';
+      ? categoryName.toUpperCase()
+      : 'TẤT CẢ SẢN PHẨM';
 
   return (
     <div className="category-page">
@@ -144,8 +144,8 @@ const CategoryPage = () => {
           {displaySearchTerm && !isSearching
             ? `Tìm thấy ${products.length} sản phẩm cho "${displaySearchTerm}"`
             : products.length > 0
-            ? `${products.length} sản phẩm có sẵn`
-            : 'Không có sản phẩm nào'}
+              ? `${products.length} sản phẩm có sẵn`
+              : 'Không có sản phẩm nào'}
         </p>
       </div>
 

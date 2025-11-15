@@ -41,7 +41,8 @@ export default function Home() {
         }
 
         const data = await response.json();
-
+        console.log(data);
+        
         if (data.status === "success" && Array.isArray(data.data)) {
           setProducts(data.data);
         } else {

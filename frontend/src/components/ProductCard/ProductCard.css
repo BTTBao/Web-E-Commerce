@@ -31,7 +31,7 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
+  width: 100% !important;
   height: 100%;
   object-fit: cover; /* Đảm bảo hình ảnh vừa khít và không bị biến dạng */
   display: block;
