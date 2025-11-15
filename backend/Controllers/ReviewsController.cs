@@ -1,12 +1,24 @@
-// Controllers/ReviewsController.cs
 using backend.Data;
 using backend.DTOs;
-using backend.Entities; // <-- Quan trọng: dùng Entities
+using backend.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace backend.Controllers
 {
+    // --- ĐỊNH NGHĨA DTO MỚI ĐỂ KHỚP VỚI FRONTEND ---
+    // DTO này sẽ chứa các trường mà React component mong đợi
+    public class ReviewAdminDto
+    {
+        public int Id { get; set; }
+        public string Product { get; set; }
+        public string Customer { get; set; }
+        public int Rating { get; set; }
+        public string Comment { get; set; }
+        public DateTime Date { get; set; }
+        public string Status { get; set; }
+    }
+    
     [Route("api/[controller]")]
     [ApiController]
     public class ReviewsController : ControllerBase
@@ -18,37 +30,33 @@ namespace backend.Controllers
             _context = context;
         }
 
-        // --- 1. LẤY TẤT CẢ ĐÁNH GIÁ ---
+        // --- 1. SỬA LẤY TẤT CẢ ĐÁNH GIÁ ---
         // GET: /api/reviews
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetReviews()
+        // Trả về DTO mới (ReviewAdminDto)
+        public async Task<ActionResult<IEnumerable<ReviewAdminDto>>> GetReviews()
         {
             var reviews = await _context.Reviews
                 .Include(r => r.Product) // Nạp Tên Sản phẩm
                 .Include(r => r.Account) // Nạp Tài khoản
                     .ThenInclude(a => a.User) // Nạp Tên User
                 .OrderByDescending(r => r.CreatedAt)
-                .Select(r => new ReviewDto
+                // Sửa Select để khớp với ReviewAdminDto
+                .Select(r => new ReviewAdminDto
                 {
-                    // ✔ 1. ĐÚNG THEO DTO — KHÔNG DÙNG STRING "R001"
-                    ReviewId = r.ReviewId,
-
-                    // ✔ 2. TRẢ VỀ ID chứ không trả về tên
-                    ProductId = r.ProductId,
-
-                    AccountId = r.AccountId,
-
-                    // ✔ 3. Rating nullable => giữ nguyên
-                    Rating = r.Rating,
-
-                    // ✔ 4. Comment giữ nguyên (có thể null)
-                    Comment = r.Comment,
-
-                    // ✔ 5. Trả đúng DateTime? theo DTO
-                    CreatedAt = r.CreatedAt,
-
-                    // ✔ 6. Status
-                    Status = r.Status
+                    Id = r.ReviewId, // Frontend dùng "id"
+                    Product = r.Product.Name, // Frontend dùng "product"
+                    Customer = r.Account.User.FullName, // Frontend dùng "customer"
+                    
+                    // SỬA LỖI 1: Nếu Rating là null, dùng 0 làm mặc định
+                    Rating = r.Rating ?? 0, // Frontend dùng "rating"
+                    
+                    Comment = r.Comment, // Frontend dùng "comment"
+                    
+                    // SỬA LỖI 2: Nếu CreatedAt là null, dùng giá trị ngày giờ nhỏ nhất làm mặc định
+                    Date = r.CreatedAt ?? DateTime.MinValue, // Frontend dùng "date"
+                    
+                    Status = r.Status // Frontend dùng "status"
                 })
                 .ToListAsync();
 
@@ -67,7 +75,7 @@ namespace backend.Controllers
                 return NotFound(new { status = "error", message = "Không tìm thấy đánh giá." });
             }
 
-            // ✔ Đổi trạng thái
+            // Đổi trạng thái
             review.Status = review.Status == "Pending" ? "Approved" : "Pending";
 
             await _context.SaveChangesAsync();
@@ -91,7 +99,8 @@ namespace backend.Controllers
 
             return Ok(new { status = "success", message = "Xóa đánh giá thành công." });
         }
-
+        
+        // --- 4. TẠO ĐÁNH GIÁ (GIỮ NGUYÊN) ---
         [HttpPost]
         public async Task<IActionResult> CreateReviews([FromBody] CreateReviewRequest request)
         {
@@ -142,9 +151,9 @@ namespace backend.Controllers
                 message = "Đánh giá đơn hàng thành công."
             });
         }
-
     }
-
+    
+    // --- CÁC LỚP REQUEST DTO (GIỮ NGUYÊN) ---
     public class CreateReviewRequest
     {
         public int OrderId { get; set; }
