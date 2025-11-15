@@ -26,6 +26,12 @@ namespace backend.Services
             var products = await _repository.GetAllAsync();
             return products.Select(MapToDto);
         }
+        // ✅ Lấy tất cả sản phẩm
+        public async Task<IEnumerable<ProductDto>> GetAllProductsActive()
+        {
+            var products = await _repository.GetAllAsyncActive();
+            return products.Select(MapToDto);
+        }
 
         // ✅ Lấy sản phẩm theo ID
         public async Task<ProductDto?> GetProductById(int id)
@@ -376,6 +382,19 @@ namespace backend.Services
                 //    Status = r.Status ?? "Pending"
                 //}).ToList() ?? new List<ReviewDto>()
             });
+
+
+
         }
+        public async Task<bool> UpdateProductStatus(int id, string status)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return false;
+
+            product.Status = status;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

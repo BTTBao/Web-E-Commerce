@@ -33,7 +33,7 @@ export default function Home() {
         setError(null);
 
         const response = await fetch(
-          "https://localhost:7132/api/product"
+          "https://localhost:7132/product/active"
         );
 
         if (!response.ok) {
@@ -144,7 +144,7 @@ export default function Home() {
         </div>
       </section>
 
-      
+
     </>
   );
 }

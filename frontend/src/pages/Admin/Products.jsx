@@ -95,24 +95,21 @@ export default function Products() {
   const handleAddProduct = () => navigate('/admin/products/add');
   const handleEditProduct = (productId) => navigate(`/admin/products/edit/${productId}`);
 
-  const handleChangeStatus = (product) => {
-    const updated = {
-      ...product,
-      status: product.status === "Active" ? "Hidden" : "Active",
-    };
+  const handleChangeStatus = async (product) => {
+  const newStatus = product.status === "Active" ? "Hidden" : "Active";
 
-    // UI update instantly
-    setProducts((prev) =>
-      prev.map((p) => (p.productId === product.productId ? updated : p))
-    );
+  setProducts(prev =>
+    prev.map(p => p.productId === product.productId ? { ...p, status: newStatus } : p)
+  );
 
-    // API update
-    fetch(`https://localhost:7132/api/product/${product.productId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updated),
-    }).catch((e) => console.log(e));
-  };
+  try {
+    await axios.put(`https://localhost:7132/api/product/${product.productId}/status`, {
+      status: newStatus
+    });
+  } catch (error) {
+    console.error("Lỗi cập nhật trạng thái:", error);
+  }
+};
 
   return (
     <div className="orders-container">

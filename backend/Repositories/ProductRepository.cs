@@ -14,10 +14,18 @@ namespace backend.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync()
+        public async Task<IEnumerable<Product>> GetAllAsyncActive()
         {
             return await _context.Products
                 .Where(p => p.Status == "Active")
+                .Include(p => p.ProductImages)
+                .Include(p => p.ProductVariants)
+                .Include(p => p.Reviews.Where(r => r.Status == "Approved"))
+                .ToListAsync();
+        }
+        public async Task<IEnumerable<Product>> GetAllAsync()
+        {
+            return await _context.Products
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariants)
                 .Include(p => p.Reviews.Where(r => r.Status == "Approved"))
