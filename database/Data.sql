@@ -335,114 +335,152 @@ INSERT INTO UserAddresses (AccountID, AddressName, ReceiverFullName, ReceiverPho
 
 
 -- 📂 4. CATEGORIES (GIỮ NGUYÊN)
+-- ============================================
+-- CATEGORIES - Cấu trúc theo Menu
+-- ============================================
+
+-- 1. Danh mục cha (Level 1)
 INSERT INTO Categories (CategoryName, ParentCategoryID) VALUES 
-('Top', NULL), ('Bottom', NULL), ('Accessories', NULL), ('Bag', NULL), ('Womenswear', NULL);
+('Top', NULL),           -- ID: 1
+('Bottom', NULL),        -- ID: 2
+('Accessories', NULL),   -- ID: 3
+('Bag', NULL);           -- ID: 4
+
+-- 2. Danh mục con của Top (Level 2)
 INSERT INTO Categories (CategoryName, ParentCategoryID) VALUES 
-('T-shirt & Polo shirt', 1), ('Shirt', 1), ('Sweater & Cardigan', 1), ('Sweatshirt & Hoodie', 1), ('Outerwear', 1),
-('Pants', 2), ('Shorts', 2), ('Dresses & Skirts', 2), 
-('Other accessories', 3), ('Cap/Hat', 3), ('Slides', 3), ('Wallet', 3), ('Underwear', 3), ('Mask', 3),
-('Backpacks', 4), ('Crossbody bag', 4), ('Bowler bag', 4), ('View all Womenswear', 5);
+('T-shirt', 1),              -- ID: 5
+('Polo', 1),                 -- ID: 6
+('Shirt', 1),                -- ID: 7
+('Sweater-Hoodies', 1);    -- ID: 8
+
+-- 3. Danh mục con của Bottom (Level 2)
+INSERT INTO Categories (CategoryName, ParentCategoryID) VALUES 
+('Pants', 2),    -- ID: 9
+('Shorts', 2);   -- ID: 10
+
+-- 4. Danh mục con của Accessories (Level 2)
+INSERT INTO Categories (CategoryName, ParentCategoryID) VALUES 
+('Cap/Hat', 3),  -- ID: 11
+('Slides', 3);   -- ID: 12
+
+-- Bag không có danh mục con
+
 GO
 
--- 👕 5. SẢN PHẨM (100 PRODUCTS)
+-- ============================================
+-- PRODUCTS - 100 sản phẩm
+-- ============================================
+
+-- === TOP > T-shirt (CategoryID: 5) ===
 INSERT INTO Products (CategoryID, Name, Description, Price, StockQuantity) VALUES
-(6, N'Áo Thun Cổ Tròn Basic', N'Cotton 100%, form rộng thoải mái', 199000, 150),
+(5, N'Áo Thun Cổ Tròn Basic', N'Cotton 100%, form rộng thoải mái', 199000, 150),
+(5, N'Áo Thun Oversize', N'Form rộng, unisex', 250000, 180),
+(5, N'Áo Tank Top Nam', N'Cotton mỏng, mùa hè', 150000, 200),
+(5, N'Áo Croptop Nữ', N'Cotton co giãn', 180000, 200),
+(5, N'Áo Thun Raglan', N'Tay màu khác thân', 220000, 140),
+(5, N'Áo Thun Tie Dye', N'Nhuộm màu độc đáo', 280000, 100),
+(5, N'Áo Thun Basic Trắng', N'Cotton 100%, thiết kế tối giản', 189000, 200),
+(5, N'Áo Thun Graphic', N'In hình nghệ thuật', 239000, 150),
+(5, N'Áo Thun Premium', N'Vải cao cấp, form đẹp', 299000, 120),
+(5, N'Áo Thun Dài Tay', N'Cotton, phong cách streetwear', 259000, 140),
+
+-- === TOP > Polo (CategoryID: 6) ===
 (6, N'Áo Polo Nam Cao Cấp', N'Vải cá sấu 4 chiều, co giãn tốt', 350000, 120),
+(6, N'Áo Polo Trơn', N'Nhiều màu basic', 320000, 150),
+(6, N'Áo Polo Thêu Logo', N'Vải pique cao cấp', 380000, 100),
+(6, N'Áo Polo Sọc Ngang', N'Phong cách năng động', 340000, 110),
+(6, N'Áo Polo Nữ', N'Form fitted, thanh lịch', 330000, 90),
+(6, N'Áo Polo Performance', N'Vải thấm hút mồ hôi', 390000, 80),
+(6, N'Áo Polo Contrast', N'Phối màu cổ áo', 360000, 95),
+(6, N'Áo Polo Classic', N'Kiểu dáng truyền thống', 345000, 105),
+
+-- === TOP > Shirt (CategoryID: 7) ===
 (7, N'Áo Sơ Mi Trắng Oxford', N'Vải Oxford cao cấp, không nhăn', 450000, 100),
 (7, N'Áo Sơ Mi Kẻ Sọc', N'Họa tiết sọc nhỏ, phong cách Hàn', 420000, 90),
-(8, N'Áo Len Nam Cổ Cao', N'Len mềm mại, giữ ấm tốt', 580000, 70),
-(8, N'Áo Cardigan Nữ', N'Len mỏng, phù hợp mùa thu', 520000, 80),
-(9, N'Hoodie Đen Unisex', N'Nỉ bông dày, có mũ trùm', 650000, 100),
-(9, N'Áo Nỉ Crewneck', N'Nỉ basic, nhiều màu', 480000, 110),
-(10, N'Áo Khoác Bomber', N'Vải dù chống gió, có lót', 850000, 60),
-(10, N'Áo Phao Nam', N'Lông vũ, nhẹ và ấm', 1200000, 50),
-(11, N'Quần Jean Nam Slim', N'Denim co giãn, màu xanh đậm', 650000, 90),
-(11, N'Quần Jean Đen Ống Rộng', N'Phong cách streetwear', 680000, 85),
-(11, N'Quần Kaki Ống Đứng', N'Vải kaki dày dặn, màu be', 550000, 100),
-(12, N'Quần Short Kaki', N'Màu xám, lịch sự', 380000, 120),
-(12, N'Quần Short Jean', N'Rách nhẹ, phong cách cá tính', 420000, 95),
-(13, N'Váy Midi Hoa Nhí', N'Họa tiết hoa vintage', 580000, 70),
-(13, N'Chân Váy Xếp Ly', N'Màu đen, dễ phối đồ', 450000, 80),
-(13, N'Đầm Suông Công Sở', N'Màu xanh navy, thanh lịch', 720000, 60),
-(14, N'Mũ Lưỡi Trai Thêu Logo', N'Cotton 100%, có thể điều chỉnh', 150000, 200),
-(14, N'Khăn Choàng Cổ Lụa', N'Lụa tơ tằm, họa tiết hoa', 280000, 100),
-(15, N'Nón Bucket Trơn', N'Vải canvas, nhiều màu', 180000, 150),
-(15, N'Mũ Beret Len', N'Phong cách Pháp, màu đen', 220000, 90),
-(16, N'Dép Slides Đen', N'Đế êm, chống trượt', 250000, 200),
-(16, N'Dép Quai Ngang', N'Họa tiết logo, unisex', 280000, 180),
-(17, N'Ví Da Nam Đứng', N'Da bò thật, nhiều ngăn', 450000, 100),
-(17, N'Ví Nữ Cầm Tay', N'Da PU, có dây đeo', 320000, 120),
-(18, N'Quần Lót Nam Boxer', N'Cotton thoáng mát, 3 cái/hộp', 180000, 300),
-(18, N'Áo Lót Nữ Ren', N'Ren mềm, thoải mái', 220000, 250),
-(19, N'Khẩu Trang Vải 3D', N'Vải kháng khuẩn, 10 cái/hộp', 100000, 500),
-(19, N'Khẩu Trang Than Hoạt Tính', N'Lọc bụi, 5 lớp', 150000, 400),
-(20, N'Balo Laptop 15.6 inch', N'Chống sốc, chống nước', 650000, 80),
-(20, N'Balo Du Lịch Lớn', N'Dung tích 40L', 850000, 60),
-(21, N'Túi Đeo Chéo Nữ', N'Da PU, nhỏ gọn', 350000, 100),
-(21, N'Túi Đeo Chéo Nam', N'Vải Canvas, phong cách thể thao', 380000, 90),
-(22, N'Túi Xách Tay Nữ', N'Da thật, sang trọng', 1200000, 50),
-(22, N'Túi Bowling Mini', N'Da PU, nhiều màu', 550000, 70),
-(6, N'Áo Thun Oversize', N'Form rộng, unisex', 250000, 180),
-(6, N'Áo Tank Top Nam', N'Cotton mỏng, mùa hè', 150000, 200),
 (7, N'Áo Sơ Mi Linen', N'Vải lanh, thoáng mát', 520000, 80),
 (7, N'Áo Sơ Mi Flannel', N'Vải flannel ấm, kẻ ca rô', 480000, 75),
-(8, N'Áo Sweater Cổ Tròn', N'Len mịn, nhiều màu', 550000, 85),
-(9, N'Hoodie Zip', N'Có khóa kéo, túi hai bên', 680000, 95),
-(10, N'Áo Khoác Jean', N'Denim dày, phong cách vintage', 780000, 70),
-(10, N'Áo Blazer Nữ', N'Vải poly, lịch sự', 950000, 55),
-(11, N'Quần Jogger Nam', N'Vải thun co giãn, có dây rút', 420000, 110),
-(11, N'Quần Cargo', N'Nhiều túi, phong cách quân đội', 680000, 80),
-(12, N'Quần Short Thể Thao', N'Vải dri-fit, thoáng khí', 280000, 150),
-(13, N'Váy Denim Ngắn', N'Jean xanh, trẻ trung', 480000, 90),
-(13, N'Váy Maxi Hoa', N'Dài qua gối, họa tiết hoa to', 650000, 65),
-(6, N'Áo Croptop Nữ', N'Cotton co giãn', 180000, 200),
 (7, N'Áo Sơ Mi Lụa Nữ', N'Lụa mềm, nhẹ nhàng', 580000, 70),
-(8, N'Áo Len Gile', N'Không tay, dễ phối', 380000, 95),
-(9, N'Áo Thun Hoodie', N'Nỉ mỏng, có mũ', 450000, 105),
-(10, N'Áo Khoác Da', N'Da PU, phong cách biker', 1350000, 40),
-(11, N'Quần Âu Nam', N'Vải tuyết mưa, lịch sự', 550000, 85),
-(11, N'Quần Legging Nữ', N'Co giãn 4 chiều, tập gym', 280000, 180),
-(12, N'Quần Short Chạy Bộ', N'Nhẹ, có túi nhỏ', 220000, 140),
-(13, N'Đầm Ôm Body', N'Tôn dáng, dự tiệc', 850000, 55),
-(13, N'Váy Tennis', N'Trắng, xếp ly', 420000, 100),
-(14, N'Khăn Quàng Len', N'Len dày, giữ ấm', 180000, 120),
-(15, N'Nón Snapback', N'Vành phẳng, thêu logo', 200000, 130),
-(16, N'Dép Foam Siêu Nhẹ', N'Xốp EVA, êm chân', 150000, 250),
-(17, N'Ví Da Mini', N'Nhỏ gọn, đựng card', 180000, 150),
-(18, N'Tất Nam Cổ Ngắn', N'Cotton, 5 đôi/hộp', 100000, 300),
-(19, N'Khẩu Trang Y Tế', N'4 lớp, hộp 50 cái', 80000, 600),
-(20, N'Balo Mini Nữ', N'Nhỏ xinh, đi chơi', 320000, 110),
-(21, N'Túi Đeo Hông', N'Hip bag, thể thao', 280000, 100),
-(22, N'Túi Tote Canvas', N'Vải bố, in hình', 180000, 200),
-(6, N'Áo Thun Raglan', N'Tay màu khác thân', 220000, 140),
 (7, N'Áo Sơ Mi Cuba', N'Cổ đức, ngắn tay', 380000, 90),
-(8, N'Áo Len Cổ Lọ', N'Ôm vừa, ấm áp', 520000, 75),
-(9, N'Hoodie Boxy', N'Form rộng, phong cách Hàn', 650000, 85),
-(10, N'Áo Khoác Gió', N'Nhẹ, gấp gọn được', 450000, 100),
-(11, N'Quần Jeans Baggy', N'Ống rộng, vintage', 720000, 70),
-(11, N'Quần Tây Nữ', N'Ống loe, công sở', 580000, 80),
-(12, N'Quần Short Linen', N'Vải lanh, mát mẻ', 350000, 95),
-(13, N'Váy Babydoll', N'Xòe nhẹ, ngọt ngào', 480000, 85),
-(13, N'Chân Váy Bút Chì', N'Ôm dáng, qua gối', 420000, 90),
-(14, N'Băng Đô Thể Thao', N'Thấm mồ hôi', 80000, 200),
-(15, N'Nón Tai Bèo', N'Chống nắng, rộng vành', 150000, 110),
-(16, N'Dép Xỏ Ngón', N'Đi biển, đế êm', 180000, 160),
-(17, N'Ví Cầm Tay Nam', N'Da bò, nhiều ngăn card', 520000, 80),
-(18, N'Quần Đùi Mặc Nhà', N'Vải cotton, thoải mái', 120000, 250),
-(19, N'Khẩu Trang KN95', N'Hộp 20 cái, chống bụi', 180000, 350),
-(20, N'Balo Thời Trang Nữ', N'Da PU, nhiều ngăn', 450000, 95),
-(21, N'Túi Đeo Vai Vải', N'Canvas, kiểu dáng tote', 220000, 130),
-(22, N'Túi Clutch Dự Tiệc', N'Ánh kim, sang trọng', 380000, 70),
-(6, N'Áo Thun Tie Dye', N'Nhuộm màu độc đáo', 280000, 100),
 (7, N'Áo Sơ Mi Denim', N'Jean mỏng, cá tính', 450000, 75),
+(7, N'Áo Sơ Mi Công Sở', N'Vải không nhăn, lịch sự', 470000, 85),
+(7, N'Áo Sơ Mi Họa Tiết', N'In hoa văn tinh tế', 430000, 95),
+(7, N'Áo Sơ Mi Oversize', N'Form rộng, phong cách', 440000, 100),
+
+-- === TOP > Sweater & Hoodies (CategoryID: 8) ===
+(8, N'Áo Len Nam Cổ Cao', N'Len mềm mại, giữ ấm tốt', 580000, 70),
+(8, N'Áo Cardigan Nữ', N'Len mỏng, phù hợp mùa thu', 520000, 80),
+(8, N'Hoodie Đen Unisex', N'Nỉ bông dày, có mũ trùm', 650000, 100),
+(8, N'Áo Nỉ Crewneck', N'Nỉ basic, nhiều màu', 480000, 110),
+(8, N'Áo Sweater Cổ Tròn', N'Len mịn, nhiều màu', 550000, 85),
+(8, N'Hoodie Zip', N'Có khóa kéo, túi hai bên', 680000, 95),
+(8, N'Áo Len Gile', N'Không tay, dễ phối', 380000, 95),
+(8, N'Áo Thun Hoodie', N'Nỉ mỏng, có mũ', 450000, 105),
+(8, N'Áo Len Cổ Lọ', N'Ôm vừa, ấm áp', 520000, 75),
+(8, N'Hoodie Boxy', N'Form rộng, phong cách Hàn', 650000, 85),
 (8, N'Áo Cardigan Dài', N'Len mỏng, qua hông', 580000, 70),
-(9, N'Hoodie Nỉ Bông', N'Dày dặn, mùa đông', 720000, 80),
-(10, N'Áo Parka Dài', N'Chống nước, có mũ lông', 1500000, 45),
-(11, N'Quần Chinos', N'Vải kaki mềm, nhiều màu', 480000, 100),
-(12, N'Quần Sooc Jeans', N'Rách gối, phong cách', 380000, 105),
-(13, N'Đầm Hoa Cổ Vuông', N'Nơ vai, nữ tính', 620000, 75),
-(13, N'Váy Len Dệt Kim', N'Ôm dáng, mùa đông', 550000, 65);
+(8, N'Hoodie Nỉ Bông', N'Dày dặn, mùa đông', 720000, 80),
+
+-- === BOTTOM > Pants (CategoryID: 9) ===
+(9, N'Quần Jean Nam Slim', N'Denim co giãn, màu xanh đậm', 650000, 90),
+(9, N'Quần Jean Đen Ống Rộng', N'Phong cách streetwear', 680000, 85),
+(9, N'Quần Kaki Ống Đứng', N'Vải kaki dày dặn, màu be', 550000, 100),
+(9, N'Quần Jogger Nam', N'Vải thun co giãn, có dây rút', 420000, 110),
+(9, N'Quần Cargo', N'Nhiều túi, phong cách quân đội', 680000, 80),
+(9, N'Quần Âu Nam', N'Vải tuyết mưa, lịch sự', 550000, 85),
+(9, N'Quần Legging Nữ', N'Co giãn 4 chiều, tập gym', 280000, 180),
+(9, N'Quần Jeans Baggy', N'Ống rộng, vintage', 720000, 70),
+(9, N'Quần Tây Nữ', N'Ống loe, công sở', 580000, 80),
+(9, N'Quần Chinos', N'Vải kaki mềm, nhiều màu', 480000, 100),
+(9, N'Quần Jean Rách Gối', N'Phong cách cá tính', 690000, 75),
+(9, N'Quần Ống Suông', N'Dáng đứng, dễ phối', 520000, 95),
+
+-- === BOTTOM > Shorts (CategoryID: 10) ===
+(10, N'Quần Short Kaki', N'Màu xám, lịch sự', 380000, 120),
+(10, N'Quần Short Jean', N'Rách nhẹ, phong cách cá tính', 420000, 95),
+(10, N'Quần Short Thể Thao', N'Vải dri-fit, thoáng khí', 280000, 150),
+(10, N'Quần Short Chạy Bộ', N'Nhẹ, có túi nhỏ', 220000, 140),
+(10, N'Quần Short Linen', N'Vải lanh, mát mẻ', 350000, 95),
+(10, N'Quần Sooc Jeans', N'Rách gối, phong cách', 380000, 105),
+(10, N'Quần Short Cargo', N'Nhiều túi tiện dụng', 390000, 100),
+(10, N'Quần Đùi Mặc Nhà', N'Vải cotton, thoải mái', 120000, 250),
+
+-- === ACCESSORIES > Cap/Hat (CategoryID: 11) ===
+(11, N'Mũ Lưỡi Trai Thêu Logo', N'Cotton 100%, có thể điều chỉnh', 150000, 200),
+(11, N'Nón Bucket Trơn', N'Vải canvas, nhiều màu', 180000, 150),
+(11, N'Mũ Beret Len', N'Phong cách Pháp, màu đen', 220000, 90),
+(11, N'Nón Snapback', N'Vành phẳng, thêu logo', 200000, 130),
+(11, N'Nón Tai Bèo', N'Chống nắng, rộng vành', 150000, 110),
+(11, N'Mũ Len Beanie', N'Giữ ấm mùa đông', 120000, 180),
+(11, N'Mũ Snapback Premium', N'Da lộn, cao cấp', 280000, 70),
+(11, N'Nón Kết Thể Thao', N'Thoáng khí, chống UV', 160000, 140),
+
+-- === ACCESSORIES > Slides (CategoryID: 12) ===
+(12, N'Dép Slides Đen', N'Đế êm, chống trượt', 250000, 200),
+(12, N'Dép Quai Ngang', N'Họa tiết logo, unisex', 280000, 180),
+(12, N'Dép Foam Siêu Nhẹ', N'Xốp EVA, êm chân', 150000, 250),
+(12, N'Dép Xỏ Ngón', N'Đi biển, đế êm', 180000, 160),
+(12, N'Dép Slides Massage', N'Đế có gai massage', 290000, 120),
+(12, N'Dép Thể Thao', N'Đế chống trượt cao cấp', 320000, 100),
+
+-- === BAG (CategoryID: 4) - Không có danh mục con ===
+(4, N'Balo Laptop 15.6 inch', N'Chống sốc, chống nước', 650000, 80),
+(4, N'Balo Du Lịch Lớn', N'Dung tích 40L', 850000, 60),
+(4, N'Túi Đeo Chéo Nữ', N'Da PU, nhỏ gọn', 350000, 100),
+(4, N'Túi Đeo Chéo Nam', N'Vải Canvas, phong cách thể thao', 380000, 90),
+(4, N'Túi Xách Tay Nữ', N'Da thật, sang trọng', 1200000, 50),
+(4, N'Túi Bowling Mini', N'Da PU, nhiều màu', 550000, 70),
+(4, N'Balo Mini Nữ', N'Nhỏ xinh, đi chơi', 320000, 110),
+(4, N'Túi Đeo Hông', N'Hip bag, thể thao', 280000, 100),
+(4, N'Túi Tote Canvas', N'Vải bố, in hình', 180000, 200),
+(4, N'Balo Thời Trang Nữ', N'Da PU, nhiều ngăn', 450000, 95),
+(4, N'Túi Đeo Vai Vải', N'Canvas, kiểu dáng tote', 220000, 130),
+(4, N'Túi Clutch Dự Tiệc', N'Ánh kim, sang trọng', 380000, 70),
+(4, N'Balo Unisex Basic', N'Đơn giản, nhiều ngăn', 420000, 140),
+(4, N'Túi Messenger', N'Đeo chéo, phong cách công sở', 490000, 85);
+
 GO
+
+
 
 -- 🖼️ 6. ẢNH SẢN PHẨM (100 PRODUCT IMAGES)
 INSERT INTO ProductImages (ProductID, ImageURL, IsPrimary) VALUES
@@ -532,23 +570,7 @@ INSERT INTO ProductImages (ProductID, ImageURL, IsPrimary) VALUES
 (81, 'https://example.com/products/81_main.jpg', 1),
 (82, 'https://example.com/products/82_main.jpg', 1),
 (83, 'https://example.com/products/83_main.jpg', 1),
-(84, 'https://example.com/products/84_main.jpg', 1),
-(85, 'https://example.com/products/85_main.jpg', 1),
-(86, 'https://example.com/products/86_main.jpg', 1),
-(87, 'https://example.com/products/87_main.jpg', 1),
-(88, 'https://example.com/products/88_main.jpg', 1),
-(89, 'https://example.com/products/89_main.jpg', 1),
-(90, 'https://example.com/products/90_main.jpg', 1),
-(91, 'https://example.com/products/91_main.jpg', 1),
-(92, 'https://example.com/products/92_main.jpg', 1),
-(93, 'https://example.com/products/93_main.jpg', 1),
-(94, 'https://example.com/products/94_main.jpg', 1),
-(95, 'https://example.com/products/95_main.jpg', 1),
-(96, 'https://example.com/products/96_main.jpg', 1),
-(97, 'https://example.com/products/97_main.jpg', 1),
-(98, 'https://example.com/products/98_main.jpg', 1),
-(99, 'https://example.com/products/99_main.jpg', 1),
-(100, 'https://example.com/products/100_main.jpg', 1);
+(84, 'https://example.com/products/84_main.jpg', 1);
 GO
 
 -- 🌈 7. BIẾN THỂ SẢN PHẨM (100 PRODUCT VARIANTS)

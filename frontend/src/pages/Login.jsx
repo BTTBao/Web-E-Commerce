@@ -66,10 +66,10 @@ export default function Login(){
   const [loadingForgot, setLoadingForgot] = useState(false);
 
   const HandleForgotPassword = async () => {
-      if (loadingForgot) return alert("Đang xử lý...");
+      if (loadingForgot) return toast.success("Đang xử lý...");
 
       if (!userName.trim()) {
-          return alert("Vui lòng nhập email để khôi phục!");
+          return toast.error("Vui lòng nhập email để khôi phục!");
       }
 
       setLoadingForgot(true);
@@ -84,15 +84,15 @@ export default function Login(){
           const data = await res.json();
 
           if (!res.ok) {
-              alert(data.message || "Không tìm thấy email!");
+              toast.error(data.message || "Không tìm thấy email!");
               return;
           }
 
-          alert("Đã gửi mail reset mật khẩu! Vui lòng kiểm tra hộp thư.");
+          toast.success("Đã gửi mail reset mật khẩu! Vui lòng kiểm tra hộp thư.");
 
       } catch (err) {
           console.error(err);
-          alert("Lỗi khi gửi yêu cầu khôi phục mật khẩu.");
+          toast.error("Lỗi khi gửi yêu cầu khôi phục mật khẩu.");
       } finally {
           setLoadingForgot(false);
       }
@@ -100,25 +100,25 @@ export default function Login(){
   return (
     <div className="row justify-content-center">
       <div className="col-md-4">
-        <h3 className='text-center'>Login</h3>
+        <h3 className='text-center'>Đăng nhập</h3>
         <form>
           <div className="mb-3">
             <label>Username</label>
-            <input className="form-control" value={userName} onChange={e => {setUser(e.target.value)}}/>
+            <input placeholder='Email của bạn' className="form-control" value={userName} onChange={e => {setUser(e.target.value)}}/>
           </div>
           <div className="mb-3">
             <label>Password</label>
-            <input type="password" className="form-control" value={passWord}  onChange={e => {setPass(e.target.value)}}/>
+            <input placeholder = 'Password của bạn' type="password" className="form-control" value={passWord}  onChange={e => {setPass(e.target.value)}}/>
           </div>
           <a className='text-decoration-none text-black' href='https://www.facebook.com/pham.thuan.954331'><span>Quên thông tin tài khoản?</span></a>
           <button className="btn btn-primary bg-black border-0 w-100 rounded-0"
-            style={{height:50, marginTop:20}} onClick={e =>{e.preventDefault();HandleLogin();}}>Login</button>
+            style={{height:50, marginTop:20}} onClick={e =>{e.preventDefault();HandleLogin();}}>Đăng nhập</button>
           <a href='/register' className='text-decoration-none text-black'><span style={{marginTop:20, display:'flex', justifyContent:'center'}}>Bạn chưa có tài khoản? Đăng ký ngay!</span></a>
           <a href="#" className='text-decoration-none text-black' onClick={e => { 
               e.preventDefault();
               if (userName) {
                   HandleForgotPassword();
-              }else alert('Nhập email để reset password!');
+              }else toast.error('Nhập email để reset password!');
           }}><span style={{marginTop:20, display:'flex', justifyContent:'center'}}>
               Quên mật khẩu?
               </span>

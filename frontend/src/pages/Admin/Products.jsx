@@ -96,20 +96,58 @@ export default function Products() {
   const handleEditProduct = (productId) => navigate(`/admin/products/edit/${productId}`);
 
   const handleChangeStatus = async (product) => {
-  const newStatus = product.status === "Active" ? "Hidden" : "Active";
+    const newStatus = product.status === "Active" ? "Hidden" : "Active";
 
-  setProducts(prev =>
-    prev.map(p => p.productId === product.productId ? { ...p, status: newStatus } : p)
-  );
+    setProducts(prev =>
+      prev.map(p => p.productId === product.productId ? { ...p, status: newStatus } : p)
+    );
 
-  try {
-    await axios.put(`https://localhost:7132/api/product/${product.productId}/status`, {
-      status: newStatus
-    });
-  } catch (error) {
-    console.error("Lỗi cập nhật trạng thái:", error);
-  }
-};
+    try {
+      await axios.put(`https://localhost:7132/api/product/${product.productId}/status`, {
+        status: newStatus
+      });
+    } catch (error) {
+      console.error("Lỗi cập nhật trạng thái:", error);
+    }
+  };
+
+  const updateAllProducts = async (product) => {
+    try {
+      // Tính minPrice và totalStock
+      const minPrice = product.productVariants?.length
+        ? Math.min(...product.productVariants.map(v => Number(v.price)))
+        : Number(product.price);
+
+      const totalStock = product.productVariants?.length
+        ? product.productVariants.reduce((sum, v) => sum + Number(v.stockQuantity), 0)
+        : Number(product.stockQuantity);
+
+      const dto = { ...product, price: minPrice, stockQuantity: totalStock };
+
+      const res = await fetch(`https://localhost:7132/api/product/${product.productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dto)
+      });
+
+      if (!res.ok) throw new Error('Cập nhật thất bại');
+
+      return dto;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+  useEffect(() => {
+    const syncProducts = async () => {
+      const updatedProducts = await Promise.all(
+        products.map(p => updateAllProducts(p))
+      );
+      setProducts(updatedProducts.filter(Boolean));
+    };
+
+    if (products.length) syncProducts();
+  }, [products]);
 
   return (
     <div className="orders-container">
@@ -181,49 +219,38 @@ export default function Products() {
 
               <tbody>
                 {currentProducts.map((product) => {
-                  const categoryName =
-                    categories.find((c) => c.id === product.categoryId)?.name || "";
+                  const { productId, name, categoryId, status, price, stockQuantity, productVariants } = product;
 
-                  const minPrice =
-                    product.productVariants?.length > 0
-                      ? Math.min(...product.productVariants.map((v) => Number(v.price)))
-                      : Number(product.price);
+                  const categoryName = categories.find((c) => c.id === categoryId)?.name || "";
 
-                  const totalStock =
-                    product.productVariants?.length > 0
-                      ? product.productVariants.reduce(
-                          (sum, v) => sum + Number(v.stockQuantity),
-                          0
-                        )
-                      : Number(product.stockQuantity);
+                  const badgeClass = `badge ${statusColors[status]}`;
 
                   return (
-                    <tr key={product.productId}>
-                      <td>{product.name}</td>
+                    <tr key={productId}>
+                      <td>{name}</td>
                       <td>{categoryName}</td>
-                      <td>{minPrice.toLocaleString("vi-VN")} đ</td>
-                      <td className={totalStock < 10 ? "stock-low" : "stock-normal"}>
-                        {totalStock}
+                      <td>{product.price?.toLocaleString("vi-VN")} đ</td>
+                      <td className={product.stockQuantity < 10 ? "stock-low" : "stock-normal"}>
+                        {product.stockQuantity || '-'}
                       </td>
                       <td>
-                        <span className={`badge ${statusColors[product.status]}`}>
-                          {product.status === "Active" ? "Hiển thị" : "Đã ẩn"}
+                        <span className={badgeClass}>
+                          {status === "Active" ? "Hiển thị" : "Đã ẩn"}
                         </span>
                       </td>
                       <td className="text-right">
                         <div className="action-buttons">
                           <button
                             className="action-button-icon"
-                            onClick={() => handleEditProduct(product.productId)}
+                            onClick={() => handleEditProduct(productId)}
                           >
                             <Edit width={16} height={16} />
                           </button>
-
                           <button
                             className="action-button-icon"
                             onClick={() => handleChangeStatus(product)}
                           >
-                            {product.status === "Active" ? (
+                            {status === "Active" ? (
                               <EyeOff width={16} height={16} />
                             ) : (
                               <Eye width={16} height={16} />
@@ -235,54 +262,56 @@ export default function Products() {
                   );
                 })}
               </tbody>
+
+
             </table>
           </div>
 
           {/* ------------------ PAGINATION ------------------ */}
           {/* PHÂN TRANG GIỐNG ORDERS */}
-<div className="pagination-footer">
-  <span className="pagination-summary">
-    Hiển thị <strong>{indexOfFirstItem + 1}</strong>
-    - <strong>{Math.min(indexOfLastItem, filteredProducts.length)}</strong>
-    {" "} của <strong>{filteredProducts.length}</strong> sản phẩm
-  </span>
+          <div className="pagination-footer">
+            <span className="pagination-summary">
+              Hiển thị <strong>{indexOfFirstItem + 1}</strong>
+              - <strong>{Math.min(indexOfLastItem, filteredProducts.length)}</strong>
+              {" "} của <strong>{filteredProducts.length}</strong> sản phẩm
+            </span>
 
-  <div className="pagination-controls">
+            <div className="pagination-controls">
 
-    {/* Nút Prev */}
-    <button
-      className={`page-btn ${currentPage === 1 ? "disabled" : ""}`}
-      onClick={() => handlePageChange(currentPage - 1)}
-      disabled={currentPage === 1}
-    >
-      <ChevronLeft size={18} />
-    </button>
+              {/* Nút Prev */}
+              <button
+                className={`page-btn ${currentPage === 1 ? "disabled" : ""}`}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={18} />
+              </button>
 
-    {/* Hiển thị danh sách số trang — giống Orders */}
-    {[...Array(totalPages)].map((_, index) => {
-      const pageNum = index + 1;
-      return (
-        <button
-          key={pageNum}
-          className={`page-number ${currentPage === pageNum ? "active" : ""}`}
-          onClick={() => handlePageChange(pageNum)}
-        >
-          {pageNum}
-        </button>
-      );
-    })}
+              {/* Hiển thị danh sách số trang — giống Orders */}
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNum = index + 1;
+                return (
+                  <button
+                    key={pageNum}
+                    className={`page-number ${currentPage === pageNum ? "active" : ""}`}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
 
-    {/* Nút Next */}
-    <button
-      className={`page-btn ${currentPage === totalPages ? "disabled" : ""}`}
-      onClick={() => handlePageChange(currentPage + 1)}
-      disabled={currentPage === totalPages}
-    >
-      <ChevronRight size={18} />
-    </button>
+              {/* Nút Next */}
+              <button
+                className={`page-btn ${currentPage === totalPages ? "disabled" : ""}`}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight size={18} />
+              </button>
 
-  </div>
-</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

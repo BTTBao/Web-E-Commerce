@@ -1,5 +1,6 @@
 import {useState} from 'react'
 import './Contact.css';
+import { toast } from 'sonner';
 
 const PhoneIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -53,10 +54,10 @@ function Contact() {
     const SendEmail = async (e) => {
         e.preventDefault();
 
-        if (loading) return alert('Đang load dữ liệu !!');
+        if (loading) return toast.error('Đang load dữ liệu !!');
 
         if (formSend.Name === '' || formSend.Email === '' || formSend.Message === '')
-            return alert('Không được để trống');
+            return toast.error('Không được để trống');
 
         try {
             setLoading(true);
@@ -67,13 +68,13 @@ function Contact() {
             });
 
             if (res.ok) {
-                alert('Gửi mail thành công <3');
+                toast.success('Gửi mail thành công <3');
             } else {
-                alert('Gửi thất bại');
+                toast.error('Gửi thất bại');
             }
         } catch (err) {
             console.log(err);
-            alert('Có lỗi xảy ra');
+            toast.error('Có lỗi xảy ra');
         } finally {
             setLoading(false); // tắt loading sau khi fetch xong
         }
@@ -84,8 +85,8 @@ function Contact() {
       <div className="contact-container">
         
         <div className="contact-header">
-          <h1>Get In Touch</h1>
-          <p>We are here for you! How can we help?</p>
+          <h1>Liên hệ với chúng tôi</h1>
+          <p>Chúng tôi luôn ở đây vì bạn! Chúng tôi có thể giúp gì cho bạn?</p>
         </div>
 
         {/* === Phần Thân (Layout 2 cột) === */}
@@ -93,8 +94,8 @@ function Contact() {
 
           {/* Cột trái: Thông tin liên hệ */}
           <div className="contact-info">
-            <h3>Contact Information</h3>
-            <p>Fill up the form and our team will get back to you within 24 hours.</p>
+            <h3>Thông tin liên hệ</h3>
+            <p>Điền vào mẫu và nhóm của chúng tôi sẽ liên hệ lại với bạn trong vòng 24 giờ.</p>
             
             <div className="info-item">
               <PhoneIcon />
@@ -121,15 +122,15 @@ function Contact() {
             <form>
               <div className="form-group">
                 <label htmlFor="name">Name</label>
-                <input type="text" id="name" name="name" placeholder="Your Name" required onChange={(e) =>{setFormSend(prev=>({...prev,Name: e.target.value}))}}/>
+                <input type="text" id="name" name="name" placeholder="Name" required onChange={(e) =>{setFormSend(prev=>({...prev,Name: e.target.value}))}}/>
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email</label>
-                <input type="email" id="email" name="email" placeholder="Your Email" required onChange={(e) =>{setFormSend(prev=>({...prev,Email: e.target.value}))}}/>
+                <input type="email" id="email" name="email" placeholder="Email" required onChange={(e) =>{setFormSend(prev=>({...prev,Email: e.target.value}))}}/>
               </div>
               <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" rows="5" placeholder="Your Message..." required onChange={(e) =>{setFormSend(prev=>({...prev,Message: e.target.value}))}}></textarea>
+                <label htmlFor="message">Tin nhắn</label>
+                <textarea id="message" name="message" rows="5" placeholder="Tin nhắn..." required onChange={(e) =>{setFormSend(prev=>({...prev,Message: e.target.value}))}}></textarea>
               </div>
               <button type="submit" className="submit-btn" onClick={e => SendEmail(e)}>Send Message</button>
             </form>
