@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text;
 
 namespace backend.Controllers
@@ -45,6 +46,50 @@ namespace backend.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Gửi mail thất bại", error = ex.Message });
+            }
+        }
+        [HttpGet("reset-password")]
+        public IActionResult ResetPassword([FromQuery] string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+                return BadRequest("Token không hợp lệ!");
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = Encoding.UTF8.GetBytes(_config["Jwt:Key"]);
+
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = _config["Jwt:Issuer"],
+                    ValidateAudience = true,
+                    ValidAudience = _config["Jwt:Audience"],
+                    ValidateLifetime = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuerSigningKey = true
+                }, out SecurityToken validatedToken);
+
+                var jwtToken = (JwtSecurityToken)validatedToken;
+                var email = jwtToken.Claims.First(x => x.Type == ClaimTypes.Name).Value;
+
+                var account = _context.Accounts.FirstOrDefault(a => a.Email == email);
+                if (account == null)
+                    return BadRequest("Tài khoản không tồn tại!");
+
+                string newPassword = Guid.NewGuid().ToString("n")[..10];
+                string hash = BCrypt.Net.BCrypt.HashPassword(newPassword);
+
+                account.PasswordHash = hash;
+                _context.SaveChanges();
+
+                SendMail.SendMailFor(account.Email, newPassword);
+
+                return Ok("Mật khẩu đã được đặt lại. Kiểm tra email để xem mật khẩu mới.");
+            }
+            catch
+            {
+                return BadRequest("Token không hợp lệ hoặc đã hết hạn.");
             }
         }
 

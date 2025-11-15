@@ -208,6 +208,29 @@ namespace backend.Controllers
                 account = updatedAccountResponse
             });
         }
+        [HttpPost("forgot-password")]
+        public IActionResult ForgotPassword([FromBody] string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return BadRequest(new { message = "Email không được để trống." });
+
+            var account = _context.Accounts.FirstOrDefault(a => a.Email == email);
+            if (account == null)
+            {
+                // Vẫn trả OK để tránh lộ email tồn tại hay không
+                return Ok(new { message = "Nếu email tồn tại, hệ thống đã gửi hướng dẫn reset mật khẩu." });
+            }
+
+            // Tạo token giống Register
+            var token = GenerateJwtToken(account.Email, account.Role);
+
+            var resetLink = $"{Request.Scheme}://{Request.Host}/api/email/reset-password?token={token}";
+
+            // Gửi email reset password
+            SendMail.SendMailFor(account.Email, resetLink);
+
+            return Ok(new { message = "Nếu email tồn tại, hệ thống đã gửi link reset mật khẩu." });
+        }
 
         [HttpPost("change-password")]
         [Authorize] // Bắt buộc người dùng phải đăng nhập
