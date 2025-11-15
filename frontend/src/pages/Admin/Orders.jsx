@@ -1,16 +1,10 @@
-// src/pages/Admin/Orders.jsx
-
-import React, { useState, useEffect } from 'react'; // <--- 1. Thêm useState, useEffect
+import React, { useState, useEffect } from 'react';
 import { Eye, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import './Orders.css';
 
-// --- 2. ĐỊNH NGHĨA API URL (Bạn hãy thay đổi cho đúng) ---
 const API_URL = 'https://localhost:7132/api/orders';
 
-// (Xóa mảng dữ liệu mẫu 'orders' ở đây)
-
-// Giữ nguyên các đối tượng mapping
 const statusColors = {
   Pending: 'status-pending',
   Confirmed: 'status-confirmed',
@@ -33,18 +27,19 @@ const paymentStatusLabels = {
   Refunded: 'Đã hoàn tiền',
 };
 
-
 export default function Orders() {
   const navigate = useNavigate();
   const [statusFilter, setStatusFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
 
-  // --- 3. THÊM STATE ĐỂ LƯU DỮ LIỆU TỪ API ---
-  const [orders, setOrders] = useState([]); // State cho danh sách đơn hàng
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // --- 4. GỌI API KHI COMPONENT TẢI LẦN ĐẦU ---
+  // --- Phân trang ---
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 10;
+
   useEffect(() => {
     setLoading(true);
     fetch(API_URL)
@@ -55,7 +50,7 @@ export default function Orders() {
         return res.json();
       })
       .then(data => {
-        setOrders(data); // Cập nhật state với dữ liệu từ API
+        setOrders(data);
         setLoading(false);
       })
       .catch(err => {
@@ -63,22 +58,33 @@ export default function Orders() {
         setError(err.message);
         setLoading(false);
       });
-  }, []); // [] = Chỉ chạy 1 lần
+  }, []);
 
-  // Logic lọc (giờ sẽ dùng 'orders' từ state)
   const filteredOrders = orders.filter((order) => {
     const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
     const matchesSearch =
       order.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.customerName.toLowerCase().includes(searchTerm.toLowerCase()); // <-- Lưu ý: đổi 'customer' thành 'customerName' hoặc tên trường đúng từ API
+      order.customerName.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesStatus && matchesSearch;
   });
+
+  // --- Tính phân trang ---
+  const indexOfLast = currentPage * ordersPerPage;
+  const indexOfFirst = indexOfLast - ordersPerPage;
+  const currentOrders = filteredOrders.slice(indexOfFirst, indexOfLast);
+
+  const totalPages = Math.ceil(filteredOrders.length / ordersPerPage);
+
+  const changePage = (page) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const handleViewOrder = (orderId) => {
     navigate(`/admin/orders/${orderId}`);
   };
 
-  // --- 5. THÊM HIỂN THỊ TRẠNG THÁI LOADING VÀ LỖI ---
   if (loading) {
     return <div className="orders-container">Đang tải dữ liệu đơn hàng...</div>;
   }
@@ -87,7 +93,6 @@ export default function Orders() {
     return <div className="orders-container error-message">Lỗi: {error}</div>;
   }
 
-  // --- Giao diện giữ nguyên, chỉ thay đổi nguồn dữ liệu ---
   return (
     <div className="orders-container">
       <div className="page-header">
@@ -106,13 +111,19 @@ export default function Orders() {
                 type="text"
                 placeholder="Tìm kiếm theo mã đơn hàng hoặc tên khách hàng..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1); // reset về trang đầu khi search
+                }}
                 className="search-input"
               />
             </div>
             <select
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setCurrentPage(1); // reset trang khi đổi filter
+              }}
               className="filter-select"
             >
               <option value="all">Tất cả trạng thái</option>
@@ -140,18 +151,16 @@ export default function Orders() {
                 </tr>
               </thead>
               <tbody>
-                {/* 6. Kiểm tra nếu không có đơn hàng */}
-                {filteredOrders.length === 0 ? (
+                {currentOrders.length === 0 ? (
                   <tr>
                     <td colSpan="7" style={{ textAlign: 'center' }}>
                       Không tìm thấy đơn hàng nào.
                     </td>
                   </tr>
                 ) : (
-                  filteredOrders.map((order) => (
+                  currentOrders.map((order) => (
                     <tr key={order.id}>
                       <td>{order.id}</td>
-                      {/* 7. Đảm bảo tên trường khớp với API (ví dụ: customerName) */}
                       <td>{order.customerName || 'N/A'}</td>
                       <td>{new Date(order.date).toLocaleDateString('vi-VN')}</td>
                       <td>{order.total.toLocaleString('vi-VN')} đ</td>
@@ -179,6 +188,33 @@ export default function Orders() {
                 )}
               </tbody>
             </table>
+          </div>
+
+          {/* --- PHÂN TRANG --- */}
+          <div className="pagination">
+            <button
+              onClick={() => changePage(currentPage - 1)}
+              disabled={currentPage === 1}
+            >
+              ‹ Trước
+            </button>
+
+            {[...Array(totalPages)].map((_, i) => (
+              <button
+                key={i}
+                onClick={() => changePage(i + 1)}
+                className={currentPage === i + 1 ? 'active' : ''}
+              >
+                {i + 1}
+              </button>
+            ))}
+
+            <button
+              onClick={() => changePage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+            >
+              Sau ›
+            </button>
           </div>
         </div>
       </div>
