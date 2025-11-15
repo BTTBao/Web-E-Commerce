@@ -8,6 +8,7 @@ import axios from 'axios';
 // Import file CSS
 import './Vouchers.css';
 import './ReviewList.css';
+import { toast } from 'sonner';
 
 // --- Cấu hình API ---
 const API_URL = 'https://localhost:7132/api/reviews';
@@ -55,7 +56,7 @@ export default function ReviewList() {
       })
       .catch(err => {
         console.error("Lỗi toggle status:", err);
-        alert("Không thể cập nhật trạng thái.");
+        toast.error("Không thể cập nhật trạng thái.");
       });
   };
 
@@ -69,7 +70,7 @@ export default function ReviewList() {
         })
         .catch(err => {
           console.error("Lỗi xóa review:", err);
-          alert("Không thể xóa đánh giá này.");
+          toast.error("Không thể xóa đánh giá này.");
         });
     }
   };

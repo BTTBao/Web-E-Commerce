@@ -6,6 +6,7 @@ import provinces from '../../../data/provinces.json';
 import districts from '../../../data/districts.json';
 import wards from '../../../data/wards.json';
 import { Eye, PencilLineIcon, SquarePen } from 'lucide-react';
+import { toast } from 'sonner';
 
 
 
@@ -157,11 +158,11 @@ export default function Profile() {
   const HandleDeleteAddress = async (id) => {
     if (!window.confirm("Xóa địa chỉ này?")) return;
     const res = await fetch(`https://localhost:7132/api/Address/delete?id=${id}`, { method: 'DELETE' });
-    if (res.ok) LoadAddress(); else alert("Xóa thất bại!");
+    if (res.ok) LoadAddress(); else toast.error("Xóa thất bại!");
   };
   const HandleSetDefault = async (id) => {
     const res = await fetch(`https://localhost:7132/api/Address/setdefault?id=${id}`, { method: 'PUT' });
-    if (res.ok) LoadAddress(); else alert("Cập nhật thất bại!");
+    if (res.ok) LoadAddress(); else toast.error("Cập nhật thất bại!");
   };
 
   const HandleAddAddress = async (e) => {
@@ -169,7 +170,7 @@ export default function Profile() {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+      toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
       navigate('/login');
       return;
     }
@@ -200,15 +201,15 @@ export default function Profile() {
       console.log('Phản hồi server:', data);
 
       if (res.ok) {
-        alert("Thêm địa chỉ thành công!");
+        toast.success("Thêm địa chỉ thành công!");
         resetAddressForm();
         LoadAddress();
       } else {
-        alert("Thêm thất bại: " + (data.message || JSON.stringify(data) || "Lỗi không rõ"));
+        toast.error("Thêm thất bại: " + (data.message || JSON.stringify(data) || "Lỗi không rõ"));
       }
     } catch (err) {
       console.error("Lỗi thêm địa chỉ:", err);
-      alert("Lỗi xảy ra, thử lại sau!");
+      toast.error("Lỗi xảy ra, thử lại sau!");
     }
   };
 
@@ -303,7 +304,7 @@ export default function Profile() {
     const token = localStorage.getItem('token');
 
     if (!token) {
-      alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
+      toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
       navigate('/login');
       return;
     }
@@ -330,7 +331,7 @@ export default function Profile() {
 
       if (res.ok) {
         // 5. CẬP NHẬT THÀNH CÔNG
-        alert(data.message); // Hiển thị "Cập nhật thông tin thành công!"
+        toast.success(data.message); // Hiển thị "Cập nhật thông tin thành công!"
 
         // Lấy token cũ, vì server không trả về token mới khi update info
         const updatedAccountData = { ...data.account, token: token };
@@ -344,13 +345,13 @@ export default function Profile() {
 
       } else {
         // 6. XỬ LÝ LỖI TỪ SERVER
-        alert("Cập nhật thất bại: " + (data.message || "Lỗi không rõ"));
+        toast.error("Cập nhật thất bại: " + (data.message || "Lỗi không rõ"));
       }
 
     } catch (err) {
       // 7. XỬ LÝ LỖI MẠNG
       console.error("Lỗi cập nhật thông tin:", err);
-      alert("Lỗi kết nối máy chủ. Vui lòng thử lại.");
+      toast.error("Lỗi kết nối máy chủ. Vui lòng thử lại.");
     }
   };
 

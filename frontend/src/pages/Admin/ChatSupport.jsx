@@ -159,7 +159,7 @@ export default function ChatSupport() {
             
         } catch (error) {
             console.error('Error closing chat room:', error);
-            alert('Có lỗi xảy ra khi đóng phòng chat.');
+            toast.error('Có lỗi xảy ra khi đóng phòng chat.');
         }
     }, [selectedRoom]);
 

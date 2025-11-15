@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Plus, Edit, Trash2, ChevronRight, ChevronDown } from 'lucide-react';
 import axios from 'axios';
 import './CategoryList.css';
+import { toast } from 'sonner';
 
 // --- Component con để render cây đệ quy ---
 function CategoryTreeItem({ category, level = 0, onDelete, onEdit }) {
@@ -107,7 +108,7 @@ export default function CategoryList() {
   // ✅ Xử lý thêm / sửa
   const handleSubmit = async () => {
     if (!categoryName.trim()) {
-      alert("Vui lòng nhập tên danh mục!");
+      toast.error("Vui lòng nhập tên danh mục!");
       return;
     }
 
@@ -125,15 +126,15 @@ export default function CategoryList() {
       }
 
       if (res.data.status === "success") {
-        alert(res.data.message);
+        toast.error(res.data.message);
         await loadCategories();
         handleCloseDialog();
       } else {
-        alert(res.data.message || "Có lỗi xảy ra!");
+        toast.error(res.data.message || "Có lỗi xảy ra!");
       }
     } catch (err) {
       console.error("Lỗi gửi dữ liệu:", err);
-      alert("Không thể kết nối tới server!");
+      toast.error("Không thể kết nối tới server!");
     }
   };
 
@@ -144,14 +145,14 @@ export default function CategoryList() {
     try {
       const res = await axios.delete(`https://localhost:7132/api/category/${id}`);
       if (res.data.status === "success") {
-        alert(res.data.message);
+        toast.success(res.data.message);
         await loadCategories();
       } else {
-        alert(res.data.message || "Không thể xóa danh mục này!");
+        toast.error(res.data.message || "Không thể xóa danh mục này!");
       }
     } catch (err) {
       console.error("Lỗi khi xóa:", err);
-      alert("Không thể kết nối tới server!");
+      toast.error("Không thể kết nối tới server!");
     }
   };
 

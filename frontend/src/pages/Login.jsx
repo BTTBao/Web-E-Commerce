@@ -2,6 +2,7 @@ import React, { useState, useEffect, } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from 'sonner';
 
 
 export default function Login(){
@@ -29,7 +30,7 @@ export default function Login(){
     })
     .then(res => {
       if (!res.ok) {
-        alert('sai mật khẩu hoặc user');
+        toast.success('sai mật khẩu hoặc user');
         throw new Error('sai mật khẩu/user');
       } else {
         return res.json();
@@ -37,7 +38,7 @@ export default function Login(){
 
     }).then(data =>{
       if(!data.account.isActive){
-        alert('Tài khoản chưa được xác thực, vui lòng vào email để xác thực!!');
+        toast.error('Tài khoản chưa được xác thực, vui lòng vào email để xác thực!!');
         return;
       }
       localStorage.setItem('token', data.token);

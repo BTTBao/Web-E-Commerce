@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'sonner';
 
 export default function Register() {
   const [fullName, setFullName] = useState('');
@@ -78,7 +79,7 @@ export default function Register() {
         return;
       }
 
-      alert('Đăng ký thành công! Vui lòng đăng nhập.');
+      toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
       window.location.href = '/login';
 
     } catch (err) {
