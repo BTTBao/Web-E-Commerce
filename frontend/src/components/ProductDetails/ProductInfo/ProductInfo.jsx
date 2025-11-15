@@ -13,9 +13,11 @@ function ProductInfo({ product }) {
   const { addItem, validateStock } = useCart();
 
   const { productId, name, price, productImages, reviews, soldCount } = product;
+  const [displayPrice, setDisplayPrice] = useState(price);
   const variants = product.productVariants && product.productVariants.length
     ? product.productVariants
     : [];
+
   // Khi product thay đổi, gán variantId mặc định
   useEffect(() => {
     if (variants.length > 0) {
@@ -29,15 +31,6 @@ function ProductInfo({ product }) {
     () => productImages.find(img => img?.isPrimary)?.imageUrl || undefined,
     [productImages]
   );
-  const singleItem = {
-    id: productId,
-    name: name,
-    price: price,
-    quantity: 1,
-    variantId: variantId ?? undefined,
-    variantName: selectedSize,
-    image
-  };
   const handleBuyNow = useCallback(async () => {
     // validate biến thể
     if (variantId == 0) {
@@ -45,6 +38,16 @@ function ProductInfo({ product }) {
       toast.warning("Vui lòng chọn biến thể");
       return;
     }
+
+    const singleItem = {
+      id: productId,
+      name: name,
+      price: displayPrice,
+      quantity: 1,
+      variantId: variantId ?? undefined,
+      variantName: selectedSize,
+      image
+    };
     // Kiểm tra tồn kho
     const isStockValid = await validateStock(
       singleItem.id || singleItem.productId,
@@ -65,8 +68,8 @@ function ProductInfo({ product }) {
       <div class="product-header">
         <h1>{name}</h1>
         <div class="price-section">
-          <span class="price">{formatPrice(price)}</span>
-          <span class="old-price">{formatPrice(price * 0.9)}</span>
+          <span class="price">{formatPrice(displayPrice)}</span>
+          <span class="old-price">{formatPrice(displayPrice * 0.9)}</span>
         </div>
         <p>Đã bán: {soldCount}+</p>
       </div>
@@ -83,7 +86,8 @@ function ProductInfo({ product }) {
               type="button"
               onClick={() => {
                 setVariantId(size.variantId);
-                setSelectedSize(size.size || size.color)
+                setSelectedSize(size.size || size.color);
+                setDisplayPrice(size.price || product.price);
               }}
               className={selectedSize === (size.size || size.color) ? 'size-btn active' : 'size-btn'}
             >
@@ -103,7 +107,7 @@ function ProductInfo({ product }) {
             addItem({
               id: productId,
               name: name,
-              price: price,
+              price: displayPrice,
               quantity: 1,
               variantId,
               variantName: selectedSize,

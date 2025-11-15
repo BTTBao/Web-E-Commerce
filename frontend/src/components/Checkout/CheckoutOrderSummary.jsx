@@ -13,7 +13,7 @@ function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive, ite
     const navigate = useNavigate();
     const { clearCart } = useCart();
     const { orderData, clearOrder } = useOrder();
-
+    
     const updatedItems = items.map(item => ({
         productId: item.productId || item.id,
         variantId: item.variantId,
@@ -21,7 +21,6 @@ function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive, ite
         unitPrice: item.price, // đổi tên price → unitPrice
     }));
     const newOrderData = { ...orderData, items: updatedItems }; // tạo object mới với items
-    const newItems = newOrderData.items;
 
     //Tính tổng tiền
     const subtotal = useMemo(() => {

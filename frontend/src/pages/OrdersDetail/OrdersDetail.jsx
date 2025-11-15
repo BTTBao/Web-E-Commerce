@@ -81,7 +81,7 @@ function OrdersDetail() {
               </p>
               <p>{order.shippingAddress.receiverPhone}</p>
               <p className="mt-2 pt-2 border-top">
-                {`${order.shippingAddress.addressLine} ${order.shippingAddress.ward} ${order.shippingAddress.district} ${order.shippingAddress.province}`}
+                {`${order.shippingAddress.addressLine}, ${order.shippingAddress.ward}, ${order.shippingAddress.district}, ${order.shippingAddress.province}`}
               </p>
             </InfoCard>
           </div>
@@ -97,12 +97,12 @@ function OrdersDetail() {
                 Trạng thái:{" "}
                 <span
                   className={`fw-semibold ${
-                    order.paymentMethod === "cod"
-                      ? "text-warning"
+                    order.paymentMethod.toLowerCase() === "cod"
+                      ? "text-danger"
                       : "text-success"
                   }`}
                 >
-                  {order.paymentMethod === "cod"
+                  {order.paymentMethod.toLowerCase() === "cod"
                     ? "Chưa thanh toán"
                     : "Đã thanh toán"}
                 </span>

@@ -17,6 +17,7 @@ function OrderSuccess() {
 
   if (!state?.order) return null;
   const { order } = state;
+  const getId = () => Number(order?.orderId?.replace("DH", "") ?? 0);
   const isCOD = order.paymentMethod === "COD"
   return (
     <div className="container order-success-page d-flex align-items-center justify-content-center min-vh-100">
@@ -92,7 +93,7 @@ function OrderSuccess() {
           </div>
           <div className="col-12 col-sm-6">
             <button
-              onClick={() => navigate("/profile", { replace: true, state: null })}
+              onClick={() => navigate(`/orders/${getId()}`, { replace: true, state: null })}
               className="btn btn-outline-secondary w-100 py-3 fw-semibold">
               Xem chi tiết đơn hàng
             </button>

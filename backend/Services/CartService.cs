@@ -33,7 +33,8 @@ namespace backend.Services
             {
                 // Lấy product tuần tự để tránh lỗi DbContext
                 var product = await _product.GetByIdAsync(item.ProductId);
-
+                var variant = product?.ProductVariants?
+                    .FirstOrDefault(v => v.VariantId == item.VariantId);
                 var cartItemDto = new CartItemDto
                 {
                     CartItemId = item.CartItemId,
@@ -45,19 +46,14 @@ namespace backend.Services
 
                     // Lấy thông tin từ Product
                     ProductName = product?.Name,
-                    Price = product?.Price,
+                    // Ưu tiên giá variant → fallback về giá gốc product
+                    Price = variant?.Price ?? product?.Price,
                     ImageUrl = product?.ProductImages?.FirstOrDefault()?.ImageUrl,
 
                     // Nếu có Variant
-                    VariantName = product?.ProductVariants?
-                        .Where(v => v.VariantId == item.VariantId)
-                        .Select(v =>
-                            (v.Color ?? "") +
-                            ((v.Color != null && v.Size != null) ? " - " : "") +
-                            (v.Size ?? "")
-                        )
-                        .FirstOrDefault()?.Trim()
-
+                    VariantName = variant == null 
+                        ? null
+                        : $"{variant.Color}{(variant.Color != null && variant.Size != null ? " - " : "")}{variant.Size}"
                 };
 
                 cartItemsDto.Add(cartItemDto);
