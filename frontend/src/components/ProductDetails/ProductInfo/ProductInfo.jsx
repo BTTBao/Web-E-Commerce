@@ -11,8 +11,8 @@ function ProductInfo({ product }) {
   const [selectedSize, setSelectedSize] = useState(null);
   const [variantId, setVariantId] = useState(undefined)
   const { addItem, validateStock } = useCart();
-
-  const { productId, name, price, productImages, reviews, soldCount } = product;
+  
+  const { productId, name, price, productImages, reviews, soldCount, description } = product;
   const [displayPrice, setDisplayPrice] = useState(price);
   const variants = product.productVariants && product.productVariants.length
     ? product.productVariants
@@ -128,10 +128,7 @@ function ProductInfo({ product }) {
       <div class="product-details">
         <h3>Chi tiết sản phẩm</h3>
         <ul>
-          <li>Kích thước: XS - S - M - L - XL</li>
-          <li>Chất liệu: Cotton</li>
-          <li>Regular fit</li>
-          <li>Artwork được áp dụng kỹ thuật in lụa và thêu đắp mảnh (Patches)</li>
+          <li>{description}</li>
         </ul>
       </div>
 

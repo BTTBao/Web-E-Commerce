@@ -270,7 +270,7 @@ function ShippingForm({ onFormValidityChange, account }) {
                         </SelectField>
                     </div>
 
-                    <div className="col-12">
+                    {/* <div className="col-12">
                         <label htmlFor="notes" className="form-label-custom">
                             Ghi chú (tùy chọn)
                         </label>
@@ -283,7 +283,7 @@ function ShippingForm({ onFormValidityChange, account }) {
                             className="form-input"
                             placeholder="Ghi chú thêm về đơn hàng..."
                         />
-                    </div>
+                    </div> */}
                 </div>
             )}
         </div>
