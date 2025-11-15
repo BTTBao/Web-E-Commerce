@@ -33,7 +33,7 @@ export default function Home() {
         setError(null);
 
         const response = await fetch(
-          "https://localhost:7132/api/product"
+          "https://localhost:7132/product/active"
         );
 
         if (!response.ok) {
@@ -41,7 +41,8 @@ export default function Home() {
         }
 
         const data = await response.json();
-
+        console.log(data);
+        
         if (data.status === "success" && Array.isArray(data.data)) {
           setProducts(data.data);
         } else {
@@ -144,7 +145,7 @@ export default function Home() {
         </div>
       </section>
 
-      
+
     </>
   );
 }

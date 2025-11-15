@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 const ProductCard = ({ product }) => {
   if (!product) return null;
 
-  const { productId, name, price, productImages, reviews,stockQuantity } = product;
+  const { productId, name, price, productImages, reviews, stockQuantity } = product;
   const { addItem } = useCart();
   const navigate = useNavigate();
 
@@ -16,7 +16,8 @@ const ProductCard = ({ product }) => {
     () => productImages.find(img => img?.isPrimary)?.imageUrl || undefined,
     [productImages]
   );
-
+  console.log(reviews);
+  
   const rating = Array.isArray(reviews) && reviews.length > 0
     ? (reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length).toFixed(1)
     : 0;

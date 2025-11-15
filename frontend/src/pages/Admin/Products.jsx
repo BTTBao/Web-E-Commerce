@@ -95,25 +95,23 @@ export default function Products() {
   const handleAddProduct = () => navigate('/admin/products/add');
   const handleEditProduct = (productId) => navigate(`/admin/products/edit/${productId}`);
 
-  const handleChangeStatus = (product) => {
-    const updated = {
-      ...product,
-      status: product.status === "Active" ? "Hidden" : "Active",
-    };
+  const handleChangeStatus = async (product) => {
+    const newStatus = product.status === "Active" ? "Hidden" : "Active";
 
-    setProducts((prev) =>
-      prev.map((p) => (p.productId === product.productId ? updated : p))
+    setProducts(prev =>
+      prev.map(p => p.productId === product.productId ? { ...p, status: newStatus } : p)
     );
 
-    // API update
-    fetch(`https://localhost:7132/api/product/${product.productId}`, {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(updated),
-    }).catch((e) => console.log(e));
+    try {
+      await axios.put(`https://localhost:7132/api/product/${product.productId}/status`, {
+        status: newStatus
+      });
+    } catch (error) {
+      console.error("Lỗi cập nhật trạng thái:", error);
+    }
   };
 
-  const updateAllProducts = async (product) => {
+  const updateProducts = async (product) => {
     try {
       // Tính minPrice và totalStock
       const minPrice = product.productVariants?.length
@@ -140,16 +138,16 @@ export default function Products() {
       return null;
     }
   };
-  useEffect(() => {
-    const syncProducts = async () => {
-      const updatedProducts = await Promise.all(
-        products.map(p => updateAllProducts(p))
-      );
-      setProducts(updatedProducts.filter(Boolean));
-    };
+  // useEffect(() => {
+  //   const syncProducts = async () => {
+  //     const updatedProducts = await Promise.all(
+  //       products.map(p => updateProducts(p))
+  //     );
+  //     setProducts(updatedProducts.filter(Boolean));
+  //   };
 
-    if (products.length) syncProducts();
-  }, [products]);
+  //   if (products.length) syncProducts();
+  // }, [products]);
 
   return (
     <div className="orders-container">
@@ -221,6 +219,7 @@ export default function Products() {
 
               <tbody>
                 {currentProducts.map((product) => {
+                  updateProducts(product);
                   const { productId, name, categoryId, status, price, stockQuantity, productVariants } = product;
 
                   const categoryName = categories.find((c) => c.id === categoryId)?.name || "";
@@ -271,49 +270,49 @@ export default function Products() {
 
           {/* ------------------ PAGINATION ------------------ */}
           {/* PHÂN TRANG GIỐNG ORDERS */}
-<div className="pagination-footer">
-  <span className="pagination-summary">
-    Hiển thị <strong>{indexOfFirstItem + 1}</strong>
-    - <strong>{Math.min(indexOfLastItem, filteredProducts.length)}</strong>
-    {" "} của <strong>{filteredProducts.length}</strong> sản phẩm
-  </span>
+          <div className="pagination-footer">
+            <span className="pagination-summary">
+              Hiển thị <strong>{indexOfFirstItem + 1}</strong>
+              - <strong>{Math.min(indexOfLastItem, filteredProducts.length)}</strong>
+              {" "} của <strong>{filteredProducts.length}</strong> sản phẩm
+            </span>
 
-  <div className="pagination-controls">
+            <div className="pagination-controls">
 
-    {/* Nút Prev */}
-    <button
-      className={`page-btn ${currentPage === 1 ? "disabled" : ""}`}
-      onClick={() => handlePageChange(currentPage - 1)}
-      disabled={currentPage === 1}
-    >
-      <ChevronLeft size={18} />
-    </button>
+              {/* Nút Prev */}
+              <button
+                className={`page-btn ${currentPage === 1 ? "disabled" : ""}`}
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                <ChevronLeft size={18} />
+              </button>
 
-    {/* Hiển thị danh sách số trang — giống Orders */}
-    {[...Array(totalPages)].map((_, index) => {
-      const pageNum = index + 1;
-      return (
-        <button
-          key={pageNum}
-          className={`page-number ${currentPage === pageNum ? "active" : ""}`}
-          onClick={() => handlePageChange(pageNum)}
-        >
-          {pageNum}
-        </button>
-      );
-    })}
+              {/* Hiển thị danh sách số trang — giống Orders */}
+              {[...Array(totalPages)].map((_, index) => {
+                const pageNum = index + 1;
+                return (
+                  <button
+                    key={pageNum}
+                    className={`page-number ${currentPage === pageNum ? "active" : ""}`}
+                    onClick={() => handlePageChange(pageNum)}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
 
-    {/* Nút Next */}
-    <button
-      className={`page-btn ${currentPage === totalPages ? "disabled" : ""}`}
-      onClick={() => handlePageChange(currentPage + 1)}
-      disabled={currentPage === totalPages}
-    >
-      <ChevronRight size={18} />
-    </button>
+              {/* Nút Next */}
+              <button
+                className={`page-btn ${currentPage === totalPages ? "disabled" : ""}`}
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                <ChevronRight size={18} />
+              </button>
 
-  </div>
-</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

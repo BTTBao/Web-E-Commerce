@@ -26,6 +26,12 @@ namespace backend.Services
             var products = await _repository.GetAllAsync();
             return products.Select(MapToDto);
         }
+        // ✅ Lấy tất cả sản phẩm
+        public async Task<IEnumerable<ProductDto>> GetAllProductsActive()
+        {
+            var products = await _repository.GetAllAsyncActive();
+            return products.Select(MapToDto);
+        }
 
         // ✅ Lấy sản phẩm theo ID
         public async Task<ProductDto?> GetProductById(int id)
@@ -174,6 +180,7 @@ namespace backend.Services
         public async Task<IEnumerable<ProductDto>> GetBestSellerProducts(int limit)
         {
             var products = await _context.Products
+                .Where(p => p.Status == "Active")
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariants)
                 .Include(p => p.Reviews)
@@ -317,6 +324,7 @@ namespace backend.Services
 
             // Tìm kiếm trong Name (ProductName) và SKU của ProductVariant
             var products = await _context.Products
+                .Where(p => p.Status == "Active")
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariants)
                 .Include(p => p.Reviews)
@@ -365,17 +373,30 @@ namespace backend.Services
                 }).ToList() ?? new List<ProductVariantDto>(),
 
                 // Map Reviews (lấy tên khách hàng từ Account thông qua AccountId)
-                //Reviews = p.Reviews?.Select(r => new ReviewDto
-                //{
-                //    Id = r.ReviewId.ToString(),
-                //    Product = p.Name,
-                //    Customer = r.Account?.User?.FullName ?? "Anonymous", // Lấy từ relation Account
-                //    Rating = (int) r.Rating,
-                //    Comment = r.Comment ?? string.Empty,
-                //    Date = r.CreatedAt?.ToString("yyyy-MM-dd") ?? DateTime.Now.ToString("yyyy-MM-dd"),
-                //    Status = r.Status ?? "Pending"
-                //}).ToList() ?? new List<ReviewDto>()
+                Reviews = p.Reviews?.Select(r => new ReviewDto
+                {
+                    ReviewId = r.ReviewId, // <-- LỖI
+                    ProductId = r.ProductId, // <-- LỖI
+                    AccountId = r.AccountId, // <-- LỖI
+                    Rating = r.Rating,
+                    Comment = r.Comment,
+                    CreatedAt = r.CreatedAt, // <-- LỖI
+                    Status = r.Status
+                }).ToList() ?? new List<ReviewDto>()
             });
+
+
+
         }
+        public async Task<bool> UpdateProductStatus(int id, string status)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null) return false;
+
+            product.Status = status;
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

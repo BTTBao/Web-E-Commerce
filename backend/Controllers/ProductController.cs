@@ -51,6 +51,41 @@ namespace backend.Controllers
             }
         }
 
+        [HttpGet("/product/active")]
+        public async Task<IActionResult> GetProductsActive()
+        {
+            try
+            {
+                var products = await _service.GetAllProductsActive();
+
+                if (products == null || !products.Any())
+                {
+                    return Ok(new
+                    {
+                        status = "success",
+                        message = "Hiện chưa có sản phẩm nào.",
+                        data = new List<ProductDto>()
+                    });
+                }
+
+                return Ok(new
+                {
+                    status = "success",
+                    message = "Lấy danh sách sản phẩm thành công.",
+                    data = products
+                });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new
+                {
+                    status = "error",
+                    message = $"Lỗi server: {ex.Message}"
+                });
+            }
+        }
+
+
         [HttpGet("category/{categoryName}")]
         public async Task<IActionResult> GetProductByCategory(string categoryName)
         {
@@ -303,6 +338,32 @@ namespace backend.Controllers
                     message = $"Lỗi server: {ex.Message}"
                 });
             }
+        }
+
+        [HttpPut("{id}/status")]
+        public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusDto dto)
+        {
+            var result = await _service.UpdateProductStatus(id, dto.Status);
+
+            if (!result)
+            {
+                return NotFound(new
+                {
+                    status = "error",
+                    message = "Không tồn tại sản phẩm để cập nhật trạng thái."
+                });
+            }
+
+            return Ok(new
+            {
+                status = "success",
+                message = "Cập nhật trạng thái sản phẩm thành công."
+            });
+        }
+
+        public class UpdateStatusDto
+        {
+            public string Status { get; set; }
         }
     }
 }

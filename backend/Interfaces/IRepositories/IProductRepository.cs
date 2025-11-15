@@ -7,6 +7,7 @@ namespace backend.Interfaces.IRepositories
         Task<IEnumerable<Product>> GetAllAsync();
         Task<Product?> GetByIdAsync(int id);
         Task<IEnumerable<Product>> GetByCategoryAsync(string categoryName);
+        Task<IEnumerable<Product>> GetAllAsyncActive();
         Task AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(Product product);

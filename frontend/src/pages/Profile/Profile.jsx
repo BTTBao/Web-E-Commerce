@@ -478,7 +478,7 @@ export default function Profile() {
       <div className='row bg-pr'>
         <div className='col-12 col-sm-3 bg-menu'>
           <div className='bg-hi'>
-            <img src='https://static-cse.canva.com/blob/2198173/1600w-vkBvE1d_xYA.jpg' alt='' />
+            <img style={{ borderRadius: 100 }} src='https://cdn1.iconfinder.com/data/icons/ui-next-2020-shopping-and-e-commerce-1/12/75_user-circle-512.png' alt='' />
             <h1>Xin chào</h1>
             <h2>{user.user?.fullName ?? 'Ẩn danh'}</h2>
           </div>
