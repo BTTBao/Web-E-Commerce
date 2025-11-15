@@ -1,4 +1,5 @@
 ﻿using backend.Data;
+using backend.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +8,12 @@ using System.Text;
 
 namespace backend.Controllers
 {
+    public class EmailDto
+    {
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Message { get; set; }
+    }
     [ApiController]
     [Route("api/[controller]")]
     public class EmailController : ControllerBase
@@ -19,6 +26,28 @@ namespace backend.Controllers
             _context = context;
             _config = config;
         }
+        [HttpPost]
+        public IActionResult SendEmailToShop([FromBody] EmailDto body)
+        {
+            if (body == null ||
+                string.IsNullOrWhiteSpace(body.Name) ||
+                string.IsNullOrWhiteSpace(body.Email) ||
+                string.IsNullOrWhiteSpace(body.Message))
+            {
+                return BadRequest("Tên, Email và Message không được để trống!");
+            }
+
+            try
+            {
+                SendMail.SendMailFromCustomer(body.Name, body.Email, body.Message);
+                return Ok(new { message = "Gửi mail thành công" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Gửi mail thất bại", error = ex.Message });
+            }
+        }
+
         [HttpGet("confirm-email")]
         public IActionResult ConfirmEmail([FromQuery] string token)
         {

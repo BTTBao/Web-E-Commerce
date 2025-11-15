@@ -17,7 +17,60 @@ public class OrdersController : ControllerBase
     {
         _context = context;
     }
+    [HttpPatch("{id}")]
+    public async Task<IActionResult> CancelOrder(int id)
+    {
+        var order = await _context.Orders
+            .Include(o => o.OrderDetails)
+                .ThenInclude(od => od.Product)
+                    .ThenInclude(p => p.ProductVariants)
+            .Include(o => o.Payments)
+            .FirstOrDefaultAsync(o => o.OrderId == id);
 
+        if (order == null)
+        {
+            return NotFound(new { message = "Không tìm thấy đơn hàng." });
+        }
+
+        if (order.Status == "Cancelled")
+        {
+            return BadRequest(new { message = "Đơn hàng đã bị hủy trước đó." });
+        }
+
+        // 1. Trả lại tồn kho cho sản phẩm/variant
+        foreach (var detail in order.OrderDetails)
+        {
+            if (detail.VariantId.HasValue && detail.VariantId.Value > 0)
+            {
+                var variant = detail.Product.ProductVariants.FirstOrDefault(v => v.VariantId == detail.VariantId);
+                if (variant != null)
+                {
+                    variant.StockQuantity += detail.Quantity.GetValueOrDefault();
+                }
+            }
+            else
+            {
+                detail.Product.StockQuantity += detail.Quantity.GetValueOrDefault();
+            }
+        }
+        order.Status = "Cancelled";
+
+        // 3. Cập nhật trạng thái thanh toán nếu muốn (ví dụ, nếu đang Pending thì hủy luôn)
+        foreach (var payment in order.Payments)
+        {
+            if (payment.PaymentStatus == "Pending")
+            {
+                payment.PaymentStatus = "Failed";
+            }
+        }
+
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            message = $"Đơn hàng #{id} đã bị hủy thành công."
+        });
+    }
     // 2. API CHO TRANG DANH SÁCH (Orders.jsx)
     [HttpGet]
     public async Task<ActionResult<IEnumerable<OrderListDto>>> GetOrders()

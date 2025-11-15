@@ -14,46 +14,55 @@ export default function Login(){
   const location = useLocation();
 
 
-  const HandleLogin = () => {
-    const from = location.state?.from || "/";
-    const loginData = {
-      Email: userName,
-      Password: passWord
-    };
+  const [loading, setLoading] = useState(false);
 
-    fetch(`https://localhost:7132/api/Account/login`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(loginData)
-    })
-    .then(res => {
-      if (!res.ok) {
-        toast.success('sai mật khẩu hoặc user');
-        throw new Error('sai mật khẩu/user');
-      } else {
-        return res.json();
-      }
+  const HandleLogin = async () => {
+      if (loading) return toast.warning('Đang load dữ liệu');
+      setLoading(true);
 
-    }).then(data =>{
-      if(!data.account.isActive){
-        toast.error('Tài khoản chưa được xác thực, vui lòng vào email để xác thực!!');
-        return;
+      const from = location.state?.from || "/";
+      const loginData = {
+        Email: userName,
+        Password: passWord
+      };
+
+      try {
+          const res = await fetch('https://localhost:7132/api/Account/login', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(loginData)
+          });
+
+          if (!res.ok) {
+              toast.error('Sai mật khẩu hoặc user');
+              return;
+          }
+
+          const data = await res.json();
+
+          if(!data.account.isActive){
+              toast.error('Tài khoản chưa được xác thực, vui lòng vào email để xác thực!!');
+              return;
+          }
+
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('account', JSON.stringify(data.account));
+
+          if (data.account.role === '1') {
+              window.location.href = '/admin';
+              return;
+          }
+
+          onLogin(data.account.accountId);
+          navigate(from);
+
+      } catch(err) {
+          console.log(err);
+          toast.error('Có lỗi xảy ra khi đăng nhập');
+      } finally {
+          setLoading(false);
       }
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('account', JSON.stringify(data.account));
-      
-      if (data.account.role === '1') {
-        window.location.href = '/admin';
-      }
-      onLogin(data.account.accountId);
-      navigate(from);
-    })
-    .catch(error => {
-      console.log(error);
-    });
-  }
+  };
   
   return (
     <div className="row justify-content-center">

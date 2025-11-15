@@ -28,6 +28,7 @@ import NotFound from "../pages/NotFound/NotFound";
 import ProductReview from "../pages/Product/ProductReview";
 import ProductDetail from "../pages/Product/ProductDetail";
 import OrdersDetail from "../pages/OrdersDetail/OrdersDetail";
+import Contact from "../pages/Contact/Contact";
 
 export default function AppRouter() {
   return (
@@ -50,6 +51,7 @@ export default function AppRouter() {
         <Route path="search" element={<CategoryPage />} />
         <Route path="category/:categoryName" element={<CategoryPage />} />
         <Route path="shop" element={<CategoryPage />} />
+        <Route path="contact" element={<Contact />} />
       </Route>
 
       <Route path="/admin" element={

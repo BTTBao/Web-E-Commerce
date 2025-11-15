@@ -39,7 +39,7 @@ function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive, ite
             clearCart();
             clearOrder();
         } catch (err) {
-            console.error(err);
+            console.error("l"+ err);
             toast.error("Không thể đặt hàng !!");
         }
     };
