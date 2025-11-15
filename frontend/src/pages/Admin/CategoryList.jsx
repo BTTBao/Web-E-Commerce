@@ -177,14 +177,17 @@ export default function CategoryList() {
         <div className="card-content" style={{ padding: 0 }}>
           <div className="category-tree-wrapper">
             {categories.length > 0 ? (
-              categories.map((category) => (
-                <CategoryTreeItem
-                  key={category.id}
-                  category={category}
-                  onDelete={handleDeleteCategory}
-                  onEdit={(cat) => handleOpenDialog(true, cat)}
-                />
-              ))
+              // ✅ CHỈ RENDER DANH MỤC GỐC (parentId === null hoặc parentName === null)
+              categories
+                .filter(cat => !cat.parentId && !cat.parentName) // Lọc danh mục gốc
+                .map((category) => (
+                  <CategoryTreeItem
+                    key={category.id}
+                    category={category}
+                    onDelete={handleDeleteCategory}
+                    onEdit={(cat) => handleOpenDialog(true, cat)}
+                  />
+                ))
             ) : (
               <p style={{ padding: '16px', color: '#666' }}>Chưa có danh mục nào</p>
             )}
