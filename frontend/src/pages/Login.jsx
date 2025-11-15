@@ -62,7 +62,40 @@ export default function Login(){
           setLoading(false);
       }
   };
-  
+  const [loadingForgot, setLoadingForgot] = useState(false);
+
+  const HandleForgotPassword = async () => {
+      if (loadingForgot) return alert("Đang xử lý...");
+
+      if (!userName.trim()) {
+          return alert("Vui lòng nhập email để khôi phục!");
+      }
+
+      setLoadingForgot(true);
+
+      try {
+          const res = await fetch("https://localhost:7132/api/Account/forgot-password", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(userName)
+          });
+
+          const data = await res.json();
+
+          if (!res.ok) {
+              alert(data.message || "Không tìm thấy email!");
+              return;
+          }
+
+          alert("Đã gửi mail reset mật khẩu! Vui lòng kiểm tra hộp thư.");
+
+      } catch (err) {
+          console.error(err);
+          alert("Lỗi khi gửi yêu cầu khôi phục mật khẩu.");
+      } finally {
+          setLoadingForgot(false);
+      }
+  };
   return (
     <div className="row justify-content-center">
       <div className="col-md-4">
@@ -80,6 +113,15 @@ export default function Login(){
           <button className="btn btn-primary bg-black border-0 w-100 rounded-0"
             style={{height:50, marginTop:20}} onClick={e =>{e.preventDefault();HandleLogin();}}>Login</button>
           <a href='/register' className='text-decoration-none text-black'><span style={{marginTop:20, display:'flex', justifyContent:'center'}}>Bạn chưa có tài khoản? Đăng ký ngay!</span></a>
+          <a href="#" className='text-decoration-none text-black' onClick={e => { 
+              e.preventDefault();
+              if (userName) {
+                  HandleForgotPassword();
+              }else alert('Nhập email để reset password!');
+          }}><span style={{marginTop:20, display:'flex', justifyContent:'center'}}>
+              Quên mật khẩu?
+              </span>
+          </a>
         </form>
       </div>
     </div>

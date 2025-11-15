@@ -11,9 +11,9 @@ namespace backend.Entities
         static public void SendMailFor(string toEmail, string link)
         {
             var message = new MailMessage();
-            message.From = new MailAddress(fromEmail, "My App");
+            message.From = new MailAddress(fromEmail, "Skynet");
             message.To.Add(toEmail);
-            message.Subject = "Xác thực email";
+            message.Subject = "Email Gửi Đến (Skynet)";
 
             string html = @"
             <div style='font-family: Arial, sans-serif; background: #f5f6fa; padding: 20px;'>
@@ -45,10 +45,9 @@ namespace backend.Entities
 
                 </div>
             </div>";
-
+            html = html.Replace("{URL}", link);
             message.Body = html;
             message.IsBodyHtml = true;
-
             var smtp = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
