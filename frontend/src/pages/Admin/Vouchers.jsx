@@ -4,6 +4,7 @@ import React, { useState , useEffect} from 'react';
 import { Plus, Edit, Trash2 } from 'lucide-react';
 
 import './Vouchers.css';
+import { toast } from 'sonner';
 
 // Hàm lấy class CSS (thay cho Tailwind)
 const getStatusColor = (status) => {
@@ -62,11 +63,11 @@ const handleOpenDialog = (isEditing = false, vou = null) => {
 
 function handleUpdateDialog(voucher) {
   if(voucher.code.length < 6)
-    return alert('Code phải 6 ký tự trở lên');
+    return toast.error('Code phải 6 ký tự trở lên');
   if(voucher.startDate === '' || voucher.endDate === '')
-    return alert('Ngày kết thúc và bắt đầu không dược trống');
+    return toast.error('Ngày kết thúc và bắt đầu không dược trống');
   if(voucher.startDate > voucher.endDate)
-    return alert('Ngày kết thúc phải sau ngày bắt đầu');
+    return toast.error('Ngày kết thúc phải sau ngày bắt đầu');
   fetch(`https://localhost:7132/api/Voucher/${voucher.voucherId}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
@@ -86,20 +87,20 @@ function handleUpdateDialog(voucher) {
         )
       );
       setDialogOpen(false);
-      alert('Cập nhật voucher thành công!');
+      toast.success('Cập nhật voucher thành công!');
     })
     .catch((err) => {
-      alert('Lỗi: ' + err.message);
+      toast.error('Lỗi: ' + err.message);
     });
 }
 
   function handleCreateDialog(voucher) {
     if(voucher.code.length < 6)
-      return alert('Code phải 6 ký tự trở lên');
+      return toast.error('Code phải 6 ký tự trở lên');
     if(voucher.startDate === '' || voucher.endDate === '')
-      return alert('Ngày kết thúc và bắt đầu không dược trống');
+      return toast.error('Ngày kết thúc và bắt đầu không dược trống');
     if(voucher.startDate > voucher.endDate)
-      return alert('Ngày kết thúc phải sau ngày bắt đầu');
+      return toast.error('Ngày kết thúc phải sau ngày bắt đầu');
     fetch(`https://localhost:7132/api/Voucher`, {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
@@ -113,7 +114,7 @@ function handleUpdateDialog(voucher) {
       setVoucher(prev => [...prev, newVoucher]);
       setDialogOpen(false);
     })
-    .catch(err => alert(err));
+    .catch(err => toast.error(err));
   }
   function handleDeleteVoucher(voucherId) {
     if (!window.confirm("Bạn có chắc muốn xoá voucher này không?")) return;
@@ -128,9 +129,9 @@ function handleUpdateDialog(voucher) {
         throw new Error(data?.message || "Xoá voucher thất bại");
       }
       setVoucher(prev => prev.filter(v => v.voucherId !== voucherId));
-      alert("Xoá thành công");
+      toast.success("Xoá thành công");
     })
-    .catch(err => alert(err.message));
+    .catch(err => toast.error(err.message));
   }
 
   const [vouchers, setVoucher] = useState([]);

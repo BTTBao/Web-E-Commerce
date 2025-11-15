@@ -91,7 +91,7 @@ export function CartProvider({ children }) {
       await loadCartFromServer(accountId);
     } catch (error) {
       console.error('Lỗi khi đồng bộ giỏ hàng:', error);
-      toast.error('Không thể đồng bộ giỏ hàng');
+      // toast.error('Không thể đồng bộ giỏ hàng');
     } finally {
       setLoading(false);
     }

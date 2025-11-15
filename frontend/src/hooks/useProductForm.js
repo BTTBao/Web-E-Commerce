@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { toast } from 'sonner';
 
 // --- SỬA 1: Bỏ config Cloudinary ---
 const API_BASE_URL = 'https://localhost:7132/api';
@@ -121,7 +122,7 @@ export function useProductForm(productId) {
     } catch (err) {
       console.error(err);
       const errorMsg = err.response?.data?.message || err.message || "Lỗi khi tải ảnh lên server.";
-      alert(errorMsg);
+      toast.error(errorMsg);
     } 
     // (finally: setIsUploading đã nằm trong component con)
   };
@@ -140,7 +141,7 @@ export function useProductForm(productId) {
       v.LocalId !== editingLocalId
     );
     if (isDuplicateSKU) {
-      alert('SKU đã tồn tại trong danh sách.');
+      toast.error('SKU đã tồn tại trong danh sách.');
       return false;
     }
     if (editingLocalId) {
@@ -162,8 +163,8 @@ export function useProductForm(productId) {
 
   // --- 6. Logic Submit chính (CẬP NHẬT) ---
   const handleSubmit = async () => {
-    if (!name.trim()) { alert('Vui lòng nhập tên sản phẩm'); return; }
-    if (!variants.length && (basePrice ?? 0) < 0) { alert('Giá không hợp lệ'); return; }
+    if (!name.trim()) { toast.error('Vui lòng nhập tên sản phẩm'); return; }
+    if (!variants.length && (basePrice ?? 0) < 0) { toast.error('Giá không hợp lệ'); return; }
 
     setIsSaving(true);
 
@@ -211,17 +212,17 @@ export function useProductForm(productId) {
 
         const payloadFull = buildPayload(Number(newId));
         await axios.put(`${API_BASE_URL}/product/${newId}`, payloadFull);
-        alert('Tạo sản phẩm thành công');
+        toast.success('Tạo sản phẩm thành công');
 
       } else { 
         const payloadFull = buildPayload(Number(productId));
         await axios.put(`${API_BASE_URL}/product/${productId}`, payloadFull);
-        alert('Cập nhật sản phẩm thành công');
+        toast.success('Cập nhật sản phẩm thành công');
       }
       navigate('/admin/products');
     } catch (err) {
       console.error('Lỗi lưu sản phẩm:', err?.response?.data || err);
-      alert(err?.response?.data?.message || 'Có lỗi xảy ra khi lưu sản phẩm');
+      toast.success(err?.response?.data?.message || 'Có lỗi xảy ra khi lưu sản phẩm');
     } finally {
       setIsSaving(false);
     }

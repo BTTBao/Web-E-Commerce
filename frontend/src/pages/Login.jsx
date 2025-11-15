@@ -2,6 +2,7 @@ import React, { useState, useEffect, } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useCart } from '../hooks/useCart';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from 'sonner';
 
 
 export default function Login(){
@@ -16,7 +17,7 @@ export default function Login(){
   const [loading, setLoading] = useState(false);
 
   const HandleLogin = async () => {
-      if (loading) return alert('Đang load dữ liệu');
+      if (loading) return toast.warning('Đang load dữ liệu');
       setLoading(true);
 
       const from = location.state?.from || "/";
@@ -33,14 +34,14 @@ export default function Login(){
           });
 
           if (!res.ok) {
-              alert('Sai mật khẩu hoặc user');
+              toast.error('Sai mật khẩu hoặc user');
               return;
           }
 
           const data = await res.json();
 
           if(!data.account.isActive){
-              alert('Tài khoản chưa được xác thực, vui lòng vào email để xác thực!!');
+              toast.error('Tài khoản chưa được xác thực, vui lòng vào email để xác thực!!');
               return;
           }
 
@@ -57,7 +58,7 @@ export default function Login(){
 
       } catch(err) {
           console.log(err);
-          alert('Có lỗi xảy ra khi đăng nhập');
+          toast.error('Có lỗi xảy ra khi đăng nhập');
       } finally {
           setLoading(false);
       }

@@ -1,5 +1,6 @@
 import React from "react";
 import { jwtDecode } from 'jwt-decode'; // (Giữ nguyên import đúng)
+import { toast } from "sonner";
 
 // Đây là tên claim "role" mà backend của bạn đang dùng
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
@@ -24,7 +25,7 @@ const ProtectedRouter = ({ children, requiredRole }) => {
     }
 
   } catch (err) {
-    alert('lỗi');
+    toast.error('lỗi');
     localStorage.removeItem("token");
     localStorage.removeItem("account");
     window.location.href = "/login";

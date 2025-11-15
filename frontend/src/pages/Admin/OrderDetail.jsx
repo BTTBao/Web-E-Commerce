@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react'; // <-- Thêm useEffect
 import { ArrowLeft } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './OrderDetail.css'; // <-- Import CSS của bạn
+import { toast } from 'sonner';
 
 // --- ĐỊNH NGHĨA API (Giống như trang Orders.jsx) ---
 const API_URL = 'https://localhost:7132/api/orders';
@@ -89,11 +90,11 @@ export default function OrderDetail() {
     .then(data => {
       // Cập nhật lại trạng thái trong state 'order'
       setOrder(prevOrder => ({ ...prevOrder, status: status }));
-      alert(data.message || 'Cập nhật trạng thái thành công!');
+      toast.success(data.message || 'Cập nhật trạng thái thành công!');
     })
     .catch(err => {
       console.error("Lỗi cập nhật trạng thái:", err);
-      alert(`Lỗi: ${err.message}`);
+      toast.error(`Lỗi: ${err.message}`);
     });
   };
 

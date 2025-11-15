@@ -6,6 +6,7 @@ import provinces from '../../../data/provinces.json';
 import districts from '../../../data/districts.json';
 import wards from '../../../data/wards.json';
 import { Eye, PencilLineIcon, SquarePen } from 'lucide-react';
+import { toast } from 'sonner';
 
 
 
@@ -176,10 +177,10 @@ const LoadOrders = async (type = 'all') => {
       try {
         const res = await fetch(`https://localhost:7132/api/Address/delete?id=${id}`, { method: 'DELETE' });
         if (res.ok) LoadAddress(); 
-        else alert("Xóa thất bại!");
+        else toast.error("Xóa thất bại!");
       } catch (err) {
         console.error(err);
-        alert("Lỗi xảy ra!");
+        toast.error("Lỗi xảy ra!");
       } finally {
         setLoading(false);
       }
@@ -190,10 +191,10 @@ const LoadOrders = async (type = 'all') => {
       try {
         const res = await fetch(`https://localhost:7132/api/Address/setdefault?id=${id}`, { method: 'PUT' });
         if (res.ok) LoadAddress(); 
-        else alert("Cập nhật thất bại!");
+        else toast.error("Cập nhật thất bại!");
       } catch (err) {
         console.error(err);
-        alert("Lỗi xảy ra!");
+        toast.error("Lỗi xảy ra!");
       } finally {
         setLoading(false);
       }
@@ -206,7 +207,7 @@ const LoadOrders = async (type = 'all') => {
 
     const token = localStorage.getItem('token');
     if (!token) {
-      alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
+      toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại.");
       navigate('/login');
       return;
     }
@@ -236,15 +237,15 @@ const LoadOrders = async (type = 'all') => {
         const data = await res.json();
 
         if (res.ok) {
-          alert("Thêm địa chỉ thành công!");
+          toast.success("Thêm địa chỉ thành công!");
           resetAddressForm();
           LoadAddress();
         } else {
-          alert("Thêm thất bại: " + (data.message || JSON.stringify(data) || "Lỗi không rõ"));
+          toast.error("Thêm thất bại: " + (data.message || JSON.stringify(data) || "Lỗi không rõ"));
         }
       } catch (err) {
         console.error(err);
-        alert("Lỗi xảy ra, thử lại sau!");
+        toast.error("Lỗi xảy ra, thử lại sau!");
       } finally {
         setLoading(false);
       }
@@ -338,29 +339,29 @@ const LoadOrders = async (type = 'all') => {
 
     const accountData = JSON.parse(localStorage.getItem('account'));
   if (!formData.fullName.trim()) {
-    alert("Họ tên không được để trống!");
+    toast.error("Họ tên không được để trống!");
     return;
   }
 
   if (!formData.gender) {
-    alert("Vui lòng chọn giới tính!");
+    toast.error("Vui lòng chọn giới tính!");
     return;
   }
 
   if (!formData.dateOfBirth) {
-    alert("Vui lòng chọn ngày sinh!");
+    toast.error("Vui lòng chọn ngày sinh!");
     return;
   }
 
   const d = new Date(formData.dateOfBirth);
   if (isNaN(d.getTime())) {
-    alert("Ngày sinh không hợp lệ!");
+    toast.error("Ngày sinh không hợp lệ!");
     return;
   }
 
   const today = new Date();
   if (d > today) {
-    alert("Ngày sinh không được lớn hơn hôm nay!");
+    toast.error("Ngày sinh không được lớn hơn hôm nay!");
     return;
   }
 
@@ -368,19 +369,19 @@ const LoadOrders = async (type = 'all') => {
   const m = today.getMonth() - d.getMonth();
   if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
   if (age < 10) {
-    alert("Bạn phải ít nhất 10 tuổi.");
+    toast.error("Bạn phải ít nhất 10 tuổi.");
     return;
   }
 
   const phoneRegex = /^(0[0-9]{9})$/;
   if (!phoneRegex.test(formData.phone)) {
-    alert("Số điện thoại không hợp lệ! Phải 10 số và bắt đầu bằng 0.");
+    toast.error("Số điện thoại không hợp lệ! Phải 10 số và bắt đầu bằng 0.");
     return;
   }
   const token = localStorage.getItem('token');
 
   if (!token) {
-    alert("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
+    toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
     navigate('/login');
     return;
   }
@@ -407,7 +408,7 @@ const LoadOrders = async (type = 'all') => {
 
       if (res.ok) {
         // 5. CẬP NHẬT THÀNH CÔNG
-        alert(data.message); // Hiển thị "Cập nhật thông tin thành công!"
+        toast.success(data.message); // Hiển thị "Cập nhật thông tin thành công!"
 
         // Lấy token cũ, vì server không trả về token mới khi update info
         const updatedAccountData = { ...data.account, token: token };
@@ -421,13 +422,13 @@ const LoadOrders = async (type = 'all') => {
 
       } else {
         // 6. XỬ LÝ LỖI TỪ SERVER
-        alert("Cập nhật thất bại: " + (data.message || "Lỗi không rõ"));
+        toast.error("Cập nhật thất bại: " + (data.message || "Lỗi không rõ"));
       }
 
     } catch (err) {
       // 7. XỬ LÝ LỖI MẠNG
       console.error("Lỗi cập nhật thông tin:", err);
-      alert("Lỗi kết nối máy chủ. Vui lòng thử lại.");
+      toast.error("Lỗi kết nối máy chủ. Vui lòng thử lại.");
     }
   };
 
@@ -449,14 +450,14 @@ const HandleCancelOrder = async (orderId) => {
     const data = await res.json();
 
     if (res.ok) {
-      alert("Hủy đơn thành công!");
+      toast.success("Hủy đơn thành công!");
       LoadOrders(activeOrder);
     } else {
-      alert("Hủy đơn thất bại: " + (data.message || "Lỗi không rõ"));
+      toast.error("Hủy đơn thất bại: " + (data.message || "Lỗi không rõ"));
     }
   } catch (err) {
     console.error(err);
-    alert("Lỗi kết nối máy chủ.");
+    toast.error("Lỗi kết nối máy chủ.");
   } finally {
     setCancelingOrderId(null);
   }

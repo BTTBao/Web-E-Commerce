@@ -3,6 +3,7 @@ import { useCart } from '../../hooks/useCart';
 import './ProductCard.css';
 import { FaStar, FaShoppingCart } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const ProductCard = ({ product }) => {
   if (!product) return null;
@@ -34,7 +35,7 @@ const ProductCard = ({ product }) => {
       }
 
       localStorage.setItem('cart', JSON.stringify(cart));
-      alert(`🛒 Đã thêm sản phẩm "${name}" vào giỏ hàng (guest mode)`);
+      toast.success(`🛒 Đã thêm sản phẩm "${name}" vào giỏ hàng (guest mode)`);
     } else {
       try {
         const response = await fetch('http://localhost:7132/cart/add', {
@@ -51,7 +52,7 @@ const ProductCard = ({ product }) => {
         });
 
         if (response.ok) {
-          alert(`✅ Đã thêm "${name}" vào giỏ hàng của bạn`);
+          toast.success(`✅ Đã thêm "${name}" vào giỏ hàng của bạn`);
         } else {
           console.error('Lỗi khi thêm vào DB');
         }

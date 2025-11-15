@@ -13,6 +13,45 @@
     margin-bottom: 20px;
 }
 
+.btn-address {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.25s ease;
+    border: none;
+}
+
+/* Nút Thêm địa chỉ */
+.btn-address.add {
+    background: #2563eb;
+    /* xanh */
+    color: white;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+}
+
+.btn-address.add:hover {
+    background: #1d4ed8;
+    box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
+}
+
+/* Nút Chỉnh sửa địa chỉ */
+.btn-address.edit {
+    background: #f3f4f6;
+    /* xám nhạt */
+    color: #111827;
+    border: 1px solid #d1d5db;
+}
+
+.btn-address.edit:hover {
+    background: #e5e7eb;
+    border-color: #cbd5e1;
+}
+
 /* Label chung */
 .form-label-custom {
     font-size: 14px;
