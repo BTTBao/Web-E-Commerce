@@ -66,10 +66,10 @@ export default function Login(){
   const [loadingForgot, setLoadingForgot] = useState(false);
 
   const HandleForgotPassword = async () => {
-      if (loadingForgot) return alert("Đang xử lý...");
+      if (loadingForgot) return toast.success("Đang xử lý...");
 
       if (!userName.trim()) {
-          return alert("Vui lòng nhập email để khôi phục!");
+          return toast.error("Vui lòng nhập email để khôi phục!");
       }
 
       setLoadingForgot(true);
@@ -84,15 +84,15 @@ export default function Login(){
           const data = await res.json();
 
           if (!res.ok) {
-              alert(data.message || "Không tìm thấy email!");
+              toast.error(data.message || "Không tìm thấy email!");
               return;
           }
 
-          alert("Đã gửi mail reset mật khẩu! Vui lòng kiểm tra hộp thư.");
+          toast.success("Đã gửi mail reset mật khẩu! Vui lòng kiểm tra hộp thư.");
 
       } catch (err) {
           console.error(err);
-          alert("Lỗi khi gửi yêu cầu khôi phục mật khẩu.");
+          toast.error("Lỗi khi gửi yêu cầu khôi phục mật khẩu.");
       } finally {
           setLoadingForgot(false);
       }
@@ -118,7 +118,7 @@ export default function Login(){
               e.preventDefault();
               if (userName) {
                   HandleForgotPassword();
-              }else alert('Nhập email để reset password!');
+              }else toast.error('Nhập email để reset password!');
           }}><span style={{marginTop:20, display:'flex', justifyContent:'center'}}>
               Quên mật khẩu?
               </span>

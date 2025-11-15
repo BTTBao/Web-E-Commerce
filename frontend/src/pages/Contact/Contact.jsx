@@ -1,5 +1,6 @@
 import {useState} from 'react'
 import './Contact.css';
+import { toast } from 'sonner';
 
 const PhoneIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -53,10 +54,10 @@ function Contact() {
     const SendEmail = async (e) => {
         e.preventDefault();
 
-        if (loading) return alert('Đang load dữ liệu !!');
+        if (loading) return toast.error('Đang load dữ liệu !!');
 
         if (formSend.Name === '' || formSend.Email === '' || formSend.Message === '')
-            return alert('Không được để trống');
+            return toast.error('Không được để trống');
 
         try {
             setLoading(true);
@@ -67,13 +68,13 @@ function Contact() {
             });
 
             if (res.ok) {
-                alert('Gửi mail thành công <3');
+                toast.success('Gửi mail thành công <3');
             } else {
-                alert('Gửi thất bại');
+                toast.error('Gửi thất bại');
             }
         } catch (err) {
             console.log(err);
-            alert('Có lỗi xảy ra');
+            toast.error('Có lỗi xảy ra');
         } finally {
             setLoading(false); // tắt loading sau khi fetch xong
         }

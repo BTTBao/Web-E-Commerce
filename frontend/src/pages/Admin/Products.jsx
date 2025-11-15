@@ -101,7 +101,6 @@ export default function Products() {
       status: product.status === "Active" ? "Hidden" : "Active",
     };
 
-    // UI update instantly
     setProducts((prev) =>
       prev.map((p) => (p.productId === product.productId ? updated : p))
     );
@@ -113,6 +112,44 @@ export default function Products() {
       body: JSON.stringify(updated),
     }).catch((e) => console.log(e));
   };
+
+  const updateAllProducts = async (product) => {
+    try {
+      // Tính minPrice và totalStock
+      const minPrice = product.productVariants?.length
+        ? Math.min(...product.productVariants.map(v => Number(v.price)))
+        : Number(product.price);
+
+      const totalStock = product.productVariants?.length
+        ? product.productVariants.reduce((sum, v) => sum + Number(v.stockQuantity), 0)
+        : Number(product.stockQuantity);
+
+      const dto = { ...product, price: minPrice, stockQuantity: totalStock };
+
+      const res = await fetch(`https://localhost:7132/api/product/${product.productId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dto)
+      });
+
+      if (!res.ok) throw new Error('Cập nhật thất bại');
+
+      return dto;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
+  };
+  useEffect(() => {
+    const syncProducts = async () => {
+      const updatedProducts = await Promise.all(
+        products.map(p => updateAllProducts(p))
+      );
+      setProducts(updatedProducts.filter(Boolean));
+    };
+
+    if (products.length) syncProducts();
+  }, [products]);
 
   return (
     <div className="orders-container">
@@ -184,49 +221,38 @@ export default function Products() {
 
               <tbody>
                 {currentProducts.map((product) => {
-                  const categoryName =
-                    categories.find((c) => c.id === product.categoryId)?.name || "";
+                  const { productId, name, categoryId, status, price, stockQuantity, productVariants } = product;
 
-                  const minPrice =
-                    product.productVariants?.length > 0
-                      ? Math.min(...product.productVariants.map((v) => Number(v.price)))
-                      : Number(product.price);
+                  const categoryName = categories.find((c) => c.id === categoryId)?.name || "";
 
-                  const totalStock =
-                    product.productVariants?.length > 0
-                      ? product.productVariants.reduce(
-                          (sum, v) => sum + Number(v.stockQuantity),
-                          0
-                        )
-                      : Number(product.stockQuantity);
+                  const badgeClass = `badge ${statusColors[status]}`;
 
                   return (
-                    <tr key={product.productId}>
-                      <td>{product.name}</td>
+                    <tr key={productId}>
+                      <td>{name}</td>
                       <td>{categoryName}</td>
-                      <td>{minPrice.toLocaleString("vi-VN")} đ</td>
-                      <td className={totalStock < 10 ? "stock-low" : "stock-normal"}>
-                        {totalStock}
+                      <td>{product.price?.toLocaleString("vi-VN")} đ</td>
+                      <td className={product.stockQuantity < 10 ? "stock-low" : "stock-normal"}>
+                        {product.stockQuantity || '-'}
                       </td>
                       <td>
-                        <span className={`badge ${statusColors[product.status]}`}>
-                          {product.status === "Active" ? "Hiển thị" : "Đã ẩn"}
+                        <span className={badgeClass}>
+                          {status === "Active" ? "Hiển thị" : "Đã ẩn"}
                         </span>
                       </td>
                       <td className="text-right">
                         <div className="action-buttons">
                           <button
                             className="action-button-icon"
-                            onClick={() => handleEditProduct(product.productId)}
+                            onClick={() => handleEditProduct(productId)}
                           >
                             <Edit width={16} height={16} />
                           </button>
-
                           <button
                             className="action-button-icon"
                             onClick={() => handleChangeStatus(product)}
                           >
-                            {product.status === "Active" ? (
+                            {status === "Active" ? (
                               <EyeOff width={16} height={16} />
                             ) : (
                               <Eye width={16} height={16} />
@@ -238,6 +264,8 @@ export default function Products() {
                   );
                 })}
               </tbody>
+
+
             </table>
           </div>
 
