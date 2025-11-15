@@ -17,9 +17,10 @@ namespace backend.Repositories
         public async Task<IEnumerable<Product>> GetAllAsync()
         {
             return await _context.Products
+                .Where(p => p.Status == "Active")
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariants)
-                .Include(p => p.Reviews)
+                .Include(p => p.Reviews.Where(r => r.Status == "Approved"))
                 .ToListAsync();
         }
 
@@ -28,9 +29,10 @@ namespace backend.Repositories
             //Find: dựa theo mỗi khoá chính
             //FirstOrDefault: dựa theo bất kì cột nào
             return await _context.Products
+                .Where(p => p.Status == "Active")
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariants)
-                .Include(p => p.Reviews)
+                .Include(p => p.Reviews.Where(r => r.Status == "Approved"))
                 .FirstOrDefaultAsync(p => p.ProductId == id);
         }
 
@@ -59,13 +61,15 @@ namespace backend.Repositories
         public async Task<IEnumerable<Product>> GetByCategoryAsync(string categoryName)
         {
             return await _context.Products
+                .Where(p => p.Status == "Active")
                 .Include(p => p.ProductImages)
                 .Include(p => p.ProductVariants)
-                .Include(p => p.Reviews)
+                .Include(p => p.Reviews.Where(r => r.Status == "Approved"))
                     .ThenInclude(r => r.Account)
                         .ThenInclude(a => a.User)
                 .Where(p => p.Category.CategoryName.ToLower() == categoryName.ToLower())
                 .ToArrayAsync();
         }
+    
     }
 }
