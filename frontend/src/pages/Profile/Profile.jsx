@@ -131,79 +131,79 @@ export default function Profile() {
     setAvailableWards([]);
   };
 
-const LoadOrders = async (type = 'all') => {
-      setLoading(true);
-      const token = localStorage.getItem('token');
-      setPage(1);
-      setActiveOrder(type);
+  const LoadOrders = async (type = 'all') => {
+    setLoading(true);
+    const token = localStorage.getItem('token');
+    setPage(1);
+    setActiveOrder(type);
 
-      try {
-        const res = await fetch(`https://localhost:7132/api/Order/getall?accountId=${user.accountId}`, {
-          method: 'GET',
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+    try {
+      const res = await fetch(`https://localhost:7132/api/Order/getall?accountId=${user.accountId}`, {
+        method: 'GET',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
 
-        if (res.ok) {
-          const data = await res.json();
-          setOrders(data);
-        } else {
-          console.error("Lỗi load đơn hàng!");
-        }
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
+      if (res.ok) {
+        const data = await res.json();
+        setOrders(data);
+      } else {
+        console.error("Lỗi load đơn hàng!");
       }
-    };
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const LoadAddress = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch(`https://localhost:7132/api/Address/get?accountId=${user.accountId}`);
-        if (res.ok) {
-          const data = await res.json();
-          setAddress(data);
-        } else console.error("Lỗi load địa chỉ!");
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const LoadAddress = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch(`https://localhost:7132/api/Address/get?accountId=${user.accountId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setAddress(data);
+      } else console.error("Lỗi load địa chỉ!");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const HandleDeleteAddress = async (id) => {
-      if (!window.confirm("Xóa địa chỉ này?")) return;
-      setLoading(true);
-      try {
-        const res = await fetch(`https://localhost:7132/api/Address/delete?id=${id}`, { method: 'DELETE' });
-        if (res.ok) LoadAddress(); 
-        else toast.error("Xóa thất bại!");
-      } catch (err) {
-        console.error(err);
-        toast.error("Lỗi xảy ra!");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const HandleDeleteAddress = async (id) => {
+    if (!window.confirm("Xóa địa chỉ này?")) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`https://localhost:7132/api/Address/delete?id=${id}`, { method: 'DELETE' });
+      if (res.ok) LoadAddress();
+      else toast.error("Xóa thất bại!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Lỗi xảy ra!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const HandleSetDefault = async (id) => {
-      setLoading(true);
-      try {
-        const res = await fetch(`https://localhost:7132/api/Address/setdefault?id=${id}`, { method: 'PUT' });
-        if (res.ok) LoadAddress(); 
-        else toast.error("Cập nhật thất bại!");
-      } catch (err) {
-        console.error(err);
-        toast.error("Lỗi xảy ra!");
-      } finally {
-        setLoading(false);
-      }
-    };
+  const HandleSetDefault = async (id) => {
+    setLoading(true);
+    try {
+      const res = await fetch(`https://localhost:7132/api/Address/setdefault?id=${id}`, { method: 'PUT' });
+      if (res.ok) LoadAddress();
+      else toast.error("Cập nhật thất bại!");
+    } catch (err) {
+      console.error(err);
+      toast.error("Lỗi xảy ra!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const HandleAddAddress = async (e) => {
-      e.preventDefault();
-      if (loading) return; // tránh spam
-      setLoading(true);
+  const HandleAddAddress = async (e) => {
+    e.preventDefault();
+    if (loading) return; // tránh spam
+    setLoading(true);
 
     const token = localStorage.getItem('token');
     if (!token) {
@@ -211,7 +211,7 @@ const LoadOrders = async (type = 'all') => {
       navigate('/login');
       return;
     }
-    
+
     const body = {
       AccountId: user.accountId,
       ReceiverFullName: newAddress.receiverFullName,
@@ -223,33 +223,33 @@ const LoadOrders = async (type = 'all') => {
       IsDefault: newAddress.isDefault,
     };
     console.log('Gửi địa chỉ:', body);
-    
+
     try {
       const res = await fetch(`https://localhost:7132/api/Address/add`, {
         method: "POST",
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(body)
       });
 
-        const data = await res.json();
+      const data = await res.json();
 
-        if (res.ok) {
-          toast.success("Thêm địa chỉ thành công!");
-          resetAddressForm();
-          LoadAddress();
-        } else {
-          toast.error("Thêm thất bại: " + (data.message || JSON.stringify(data) || "Lỗi không rõ"));
-        }
-      } catch (err) {
-        console.error(err);
-        toast.error("Lỗi xảy ra, thử lại sau!");
-      } finally {
-        setLoading(false);
+      if (res.ok) {
+        toast.success("Thêm địa chỉ thành công!");
+        resetAddressForm();
+        LoadAddress();
+      } else {
+        toast.error("Thêm thất bại: " + (data.message || JSON.stringify(data) || "Lỗi không rõ"));
       }
-    };
+    } catch (err) {
+      console.error(err);
+      toast.error("Lỗi xảy ra, thử lại sau!");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const HandleExit = () => {
     localStorage.clear();
@@ -338,53 +338,53 @@ const LoadOrders = async (type = 'all') => {
     e.preventDefault();
 
     const accountData = JSON.parse(localStorage.getItem('account'));
-  if (!formData.fullName.trim()) {
-    toast.error("Họ tên không được để trống!");
-    return;
-  }
+    if (!formData.fullName.trim()) {
+      toast.error("Họ tên không được để trống!");
+      return;
+    }
 
-  if (!formData.gender) {
-    toast.error("Vui lòng chọn giới tính!");
-    return;
-  }
+    if (!formData.gender) {
+      toast.error("Vui lòng chọn giới tính!");
+      return;
+    }
 
-  if (!formData.dateOfBirth) {
-    toast.error("Vui lòng chọn ngày sinh!");
-    return;
-  }
+    if (!formData.dateOfBirth) {
+      toast.error("Vui lòng chọn ngày sinh!");
+      return;
+    }
 
-  const d = new Date(formData.dateOfBirth);
-  if (isNaN(d.getTime())) {
-    toast.error("Ngày sinh không hợp lệ!");
-    return;
-  }
+    const d = new Date(formData.dateOfBirth);
+    if (isNaN(d.getTime())) {
+      toast.error("Ngày sinh không hợp lệ!");
+      return;
+    }
 
-  const today = new Date();
-  if (d > today) {
-    toast.error("Ngày sinh không được lớn hơn hôm nay!");
-    return;
-  }
+    const today = new Date();
+    if (d > today) {
+      toast.error("Ngày sinh không được lớn hơn hôm nay!");
+      return;
+    }
 
-  let age = today.getFullYear() - d.getFullYear();
-  const m = today.getMonth() - d.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
-  if (age < 10) {
-    toast.error("Bạn phải ít nhất 10 tuổi.");
-    return;
-  }
+    let age = today.getFullYear() - d.getFullYear();
+    const m = today.getMonth() - d.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < d.getDate())) age--;
+    if (age < 10) {
+      toast.error("Bạn phải ít nhất 10 tuổi.");
+      return;
+    }
 
-  const phoneRegex = /^(0[0-9]{9})$/;
-  if (!phoneRegex.test(formData.phone)) {
-    toast.error("Số điện thoại không hợp lệ! Phải 10 số và bắt đầu bằng 0.");
-    return;
-  }
-  const token = localStorage.getItem('token');
+    const phoneRegex = /^(0[0-9]{9})$/;
+    if (!phoneRegex.test(formData.phone)) {
+      toast.error("Số điện thoại không hợp lệ! Phải 10 số và bắt đầu bằng 0.");
+      return;
+    }
+    const token = localStorage.getItem('token');
 
-  if (!token) {
-    toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
-    navigate('/login');
-    return;
-  }
+    if (!token) {
+      toast.error("Phiên đăng nhập hết hạn. Vui lòng đăng nhập lại." + token);
+      navigate('/login');
+      return;
+    }
 
     const body = {
       fullName: formData.fullName,
@@ -432,36 +432,36 @@ const LoadOrders = async (type = 'all') => {
     }
   };
 
-const [cancelingOrderId, setCancelingOrderId] = useState(null);
-const HandleCancelOrder = async (orderId) => {
-  if (!window.confirm("Bạn có chắc muốn hủy đơn này?")) return;
+  const [cancelingOrderId, setCancelingOrderId] = useState(null);
+  const HandleCancelOrder = async (orderId) => {
+    if (!window.confirm("Bạn có chắc muốn hủy đơn này?")) return;
 
-  setCancelingOrderId(orderId);
-  const token = localStorage.getItem('token');
+    setCancelingOrderId(orderId);
+    const token = localStorage.getItem('token');
 
-  try {
-    const res = await fetch(`https://localhost:7132/api/orders/${orderId}`, {
-      method: 'PATCH',
-      headers: {
-        'Authorization': `Bearer ${token}`
+    try {
+      const res = await fetch(`https://localhost:7132/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        toast.success("Hủy đơn thành công!");
+        LoadOrders(activeOrder);
+      } else {
+        toast.error("Hủy đơn thất bại: " + (data.message || "Lỗi không rõ"));
       }
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
-      toast.success("Hủy đơn thành công!");
-      LoadOrders(activeOrder);
-    } else {
-      toast.error("Hủy đơn thất bại: " + (data.message || "Lỗi không rõ"));
+    } catch (err) {
+      console.error(err);
+      toast.error("Lỗi kết nối máy chủ.");
+    } finally {
+      setCancelingOrderId(null);
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Lỗi kết nối máy chủ.");
-  } finally {
-    setCancelingOrderId(null);
-  }
-};
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -470,7 +470,7 @@ const HandleCancelOrder = async (orderId) => {
     }
     if (activeTab === 'order') LoadOrders();
     if (activeTab === 'address') LoadAddress();
-  }, [activeTab, user.accountId, navigate]); 
+  }, [activeTab, user.accountId, navigate]);
 
 
   return (
@@ -624,14 +624,36 @@ const HandleCancelOrder = async (orderId) => {
                               ))}
                             </tbody>
                           </table>
-                          {o.status === 'Pending' && (
-                            <button 
-                              className='btn btn-dark' 
-                              onClick={() => HandleCancelOrder(o.orderId)}
+                          <div className='mt-3 d-flex justify-content-center gap-2'>
+                            <button
+                              className="btn btn-outline-dark"
+                              onClick={() => navigate(`/orders/${o.orderId}`)}
                             >
-                              Hủy đơn
+                              <Eye /> Xem chi tiết
                             </button>
-                          )}
+
+                            {o.status.toLowerCase() === "delivered" && !o.isReviewed && (
+                              <button
+                                className="btn btn-outline-primary"
+                                onClick={() => {
+                                  console.log(o);
+
+                                  navigate(`/review/${o.orderId}`)
+                                }}
+                              >
+                                Viết đánh giá
+                              </button>
+                            )}
+
+                            {o.status === 'Pending' && (
+                              <button
+                                className='btn btn-dark'
+                                onClick={() => HandleCancelOrder(o.orderId)}
+                              >
+                                Hủy đơn
+                              </button>
+                            )}
+                          </div>
                         </div>
                       ))}
                       <div className='d-flex justify-content-center gap-2 mt-3'>
