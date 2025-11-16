@@ -16,11 +16,13 @@ namespace backend.Extensions
             //Cart
             services.AddScoped<ICartRepository, CartRepository>();
             services.AddScoped<ICartService, CartService>();
-            //User
-            //...
 
             //Dashboard
             services.AddScoped<IDashboardService, DashboardService>();
+
+            //VnPay
+            services.AddScoped<IVnPayService, VnPayService>();
+
             return services;
         }
     }
