@@ -24,7 +24,9 @@ namespace backend.Extensions
                     vnPay.AddResponseData(key, value);
                 }
             }
-            var orderId = int.Parse(vnPay.GetResponseData("vnp_OrderInfo"));
+            var txnRef = vnPay.GetResponseData("vnp_TxnRef"); 
+            var orderIdString = txnRef.Split('_')[0];
+            var orderId = int.Parse(orderIdString);
             var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
             var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
             string paymentStatus = vnpResponseCode switch

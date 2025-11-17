@@ -29,10 +29,10 @@ namespace backend.Services
             pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
             pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
-            pay.AddRequestData("vnp_OrderInfo", $"{model.OrderId}");
+            pay.AddRequestData("vnp_OrderInfo", $"Thanh toan don hang {model.OrderId}");
             pay.AddRequestData("vnp_OrderType", "other");
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
-            pay.AddRequestData("vnp_TxnRef", tick);
+            pay.AddRequestData("vnp_TxnRef", $"{model.OrderId}_{tick}");
             pay.AddRequestData("vnp_ExpireDate", DateTime.Now.AddMinutes(5).ToString("yyyyMMddHHmmss"));
 
             var paymentUrl =

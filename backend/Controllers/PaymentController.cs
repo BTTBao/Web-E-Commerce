@@ -43,27 +43,33 @@ namespace backend.Controllers
             // Nếu thanh toán thành công thì lưu DB
             if (response.Success == true)
             {
+
+                // Cập nhật trạng thái Order
+                var order = _context.Orders.FirstOrDefault(o => o.OrderId == response.OrderId);
+                if (order == null)
+                {
+                    return BadRequest($"Order not found {response.OrderId}");
+                }
+
                 var payment = new Payment
                 {
                     OrderId = response.OrderId,
-                    Method = response.PaymentMethod,
+                    Method = response.PaymentMethod.ToUpper(),
                     Amount = response.Amount,
                     PaymentStatus = response.PaymentStatus,
                     CreatedAt = DateTime.Now
                 };
 
-                // Cập nhật trạng thái Order
-                var order = _context.Orders.FirstOrDefault(o => o.OrderId == payment.OrderId);
                 if (order != null)
                 {
-                    order.Status = "Cancelled";
+                    order.Status = "Pending";
                 }
 
                 _context.Payments.Add(payment);
                 _context.SaveChanges();
             }
 
-            return Ok(response);
+            return Redirect($"http://localhost:5173/order-success/DH{response.OrderId}");
         }
     }
 

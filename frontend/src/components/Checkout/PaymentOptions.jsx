@@ -23,17 +23,13 @@ const paymentMethods = [
 function PaymentOptions({ disabled = false }) {
     const [selectedMethod, setSelectedMethod] = useState("cod")
     const { updateOrderData } = useOrder();
-    
+
     const handleSelectMethod = id => {
-        if (disabled) return
-        if (id == 'vnpay') {
-            setSelectedMethod('cod');
-            toast.warning("Đang cập nhật ...");
-        } else {
-            setSelectedMethod(id);
-        }
-        updateOrderData("paymentMethod", selectedMethod)
+        if (disabled) return;
+        setSelectedMethod(id);
+        updateOrderData("paymentMethod", id);
     }
+    
     return (
         <div className={`payment-options ${disabled ? "disabled" : ""}`}>
             <h2 className="payment-options-title">

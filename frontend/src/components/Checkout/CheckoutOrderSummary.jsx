@@ -10,10 +10,11 @@ import { useNavigate } from "react-router-dom";
 
 function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive, items }) {
     const [isItemListVisible, setIsItemListVisible] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
     const { clearCart } = useCart();
     const { orderData, clearOrder } = useOrder();
-    
+
     const updatedItems = items.map(item => ({
         productId: item.productId || item.id,
         variantId: item.variantId,
@@ -27,25 +28,53 @@ function CheckoutOrderSummary({ shippingFee, onPlaceOrder, isCheckoutActive, ite
         return items.reduce((acc, item) => acc + item.price * item.quantity, 0);
     }, [items]);
     const total = subtotal + shippingFee;
-    
+
     const handleCheckout = async () => {
         console.log(newOrderData)
         try {
-            const res = await axiosClient.post("/Orders", newOrderData);
-            toast.success(`Đặt hàng thành công`);
-            // Chuyển sang trang xác nhận, gửi dữ liệu qua state
-            const order = res.data
-            navigate(`/order-success/${order.orderId}`, { replace: true, state: { order } });
-            clearCart();
-            clearOrder();
+            setIsLoading(true);
+            const resOrder = await axiosClient.post("/Orders", newOrderData);
+            const getId = () => Number(resOrder?.data.orderId?.replace("DH", "") ?? 0);
+            // Nếu thanh toán qua VNPAY
+            if (newOrderData.paymentMethod.toLowerCase() === "vnpay") {
+                const res = await axiosClient.post("/Payment/create-payment", {
+                    amount: total,
+                    orderId: getId(),
+                });
+
+                const paymentUrl = res.data.paymentUrl;
+                if (paymentUrl) {
+                    console.log("Tạo đơn hàng" + resOrder.data)
+                    clearCart();
+                    clearOrder();
+                    window.location.href = paymentUrl;
+                    return;
+                } else {
+                    toast.error("Không lấy được URL thanh toán VNPAY!");
+                    return;
+                }
+            }
+            setTimeout(() => {
+                setIsLoading(false);
+                navigate(`/order-success/DH${getId()}`)
+                clearCart();
+                clearOrder();
+                // navigate(`/order-success/DH${getId()}`, { replace: true, state: { resOrder.data } });
+            }, 3000);
         } catch (err) {
-            console.error("l"+ err);
+            console.error("Checkout error:" + err);
             toast.error("Không thể đặt hàng !!");
+            setIsLoading(false);
         }
     };
 
     return (
         <div className="order-summary-box">
+            {isLoading && (
+                <div className="checkout-loading-overlay">
+                    <div className="spinner"></div>
+                </div>
+            )}
             <h2 className="order-title">Thông tin đơn hàng</h2>
 
             <button
