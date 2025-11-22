@@ -1,18 +1,20 @@
 import React from "react";
 import { jwtDecode } from 'jwt-decode'; // (Giữ nguyên import đúng)
 import { toast } from "sonner";
-
+import { Navigate } from "react-router-dom";
 // Đây là tên claim "role" mà backend của bạn đang dùng
 const ROLE_CLAIM = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role";
 
 const ProtectedRouter = ({ children, requiredRole }) => {
   const token = localStorage.getItem("token");
-
+  const currentPath = window.location.pathname;
   if (!token) {
     window.location.href = "/login";
-    return null; 
-  }
-
+    return null;
+  } 
+  // else if (currentPath === "/login") {
+  //   window.location.href = "/";
+  // }
   try {
     const decoded = jwtDecode(token);
     

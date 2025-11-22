@@ -59,6 +59,7 @@ export default function AppRouter() {
           <AdminLayout />
         </ProtectedRouter>
       }>
+
         <Route index element={<Dashboard />} />
         <Route path="products" element={<Products />} />
         <Route path="products/add" element={<ProductForm />} /> {/* Trang thêm mới */}

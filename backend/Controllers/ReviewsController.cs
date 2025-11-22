@@ -156,7 +156,7 @@ namespace backend.Controllers
                     AccountId = dto.AccountId,
                     Rating = dto.Rating ?? 5,
                     Comment = dto.Comment ?? "",
-                    Status = "Pending",
+                    Status = "Approved",
                     CreatedAt = DateTime.Now
                 };
                 _context.Reviews.Add(review);
