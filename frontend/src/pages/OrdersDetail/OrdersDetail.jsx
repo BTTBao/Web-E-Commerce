@@ -97,12 +97,12 @@ function OrdersDetail() {
                 Trạng thái:{" "}
                 <span
                   className={`fw-semibold ${
-                    order.paymentMethod.toLowerCase() === "cod"
+                    order.paymentMethod.toLowerCase() === "cod" && order.status.toLowerCase() != "delivered"
                       ? "text-danger"
                       : "text-success"
                   }`}
                 >
-                  {order.paymentMethod.toLowerCase() === "cod"
+                  {order.paymentMethod.toLowerCase() === "cod" && order.status.toLowerCase() != "delivered"
                     ? "Chưa thanh toán"
                     : "Đã thanh toán"}
                 </span>

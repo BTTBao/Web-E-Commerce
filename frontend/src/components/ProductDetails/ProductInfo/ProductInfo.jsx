@@ -68,8 +68,8 @@ function ProductInfo({ product }) {
       <div class="product-header">
         <h1>{name}</h1>
         <div class="price-section">
-          <span class="price">{formatPrice(displayPrice)}</span>
-          <span class="old-price">{formatPrice(displayPrice * 0.9)}</span>
+          <span class="price">{formatPrice(displayPrice * 0.9 )}</span>
+          <span class="old-price">{formatPrice(displayPrice)}</span>
         </div>
         <p>Đã bán: {soldCount}+</p>
       </div>

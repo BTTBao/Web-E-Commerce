@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import './ProductGrid.css';
 import ProductCard from '../ProductCard/ProductCard';
 
-const ROWS_PER_PAGE = 7; 
+const ROWS_PER_PAGE = 8; 
 const MAX_VISIBLE_PAGES = 4; 
 
 const ProductGrid = ({ products, rows }) => {

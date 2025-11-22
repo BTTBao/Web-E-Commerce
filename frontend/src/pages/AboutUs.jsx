@@ -18,7 +18,6 @@ export default function AboutUs() {
                     <img src="https://bizweb.dktcdn.net/100/369/010/files/artboard-3-ad8ceb62-b4c0-4135-9fed-3b720456f592.jpg?v=1722481569908" alt="" />
                 </div>
             </section>
-            <Footer />
         </div>
     );
 }

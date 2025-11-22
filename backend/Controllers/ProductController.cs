@@ -34,6 +34,10 @@ namespace backend.Controllers
                     });
                 }
 
+                products = products
+                    .OrderByDescending(p => p.CreatedAt)
+                    .ToList();
+
                 return Ok(new
                 {
                     status = "success",
@@ -67,6 +71,10 @@ namespace backend.Controllers
                         data = new List<ProductDto>()
                     });
                 }
+
+                products = products
+                    .OrderByDescending(p => p.CreatedAt)
+                    .ToList();
 
                 return Ok(new
                 {
@@ -102,6 +110,10 @@ namespace backend.Controllers
                         data = new List<ProductDto>()
                     });
                 }
+
+                products = products
+                    .OrderByDescending(p => p.CreatedAt)
+                    .ToList();
 
                 return Ok(new
                 {
@@ -289,6 +301,10 @@ namespace backend.Controllers
                     });
                 }
 
+                products = products
+                    .OrderByDescending(p => p.CreatedAt)
+                    .ToList();
+
                 return Ok(new
                 {
                     status = "success",
@@ -322,6 +338,10 @@ namespace backend.Controllers
                         data = new List<ProductDto>()
                     });
                 }
+
+                products = products
+                    .OrderByDescending(p => p.CreatedAt)
+                    .ToList();
 
                 return Ok(new
                 {

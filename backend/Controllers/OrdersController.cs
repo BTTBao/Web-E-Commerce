@@ -36,8 +36,6 @@ public class OrdersController : ControllerBase
         {
             return BadRequest(new { message = "Đơn hàng đã bị hủy trước đó." });
         }
-
-        // 1. Trả lại tồn kho cho sản phẩm/variant
         foreach (var detail in order.OrderDetails)
         {
             if (detail.VariantId.HasValue && detail.VariantId.Value > 0)
@@ -181,34 +179,48 @@ public class OrdersController : ControllerBase
     [HttpPatch("{id}/status")]
     public async Task<IActionResult> UpdateOrderStatus(string id, [FromBody] UpdateOrderStatusDto dto)
     {
-        // Parse ID từ "DH00001" (string) về 1 (int)
+        // Parse ID từ "DH00001" thành 1
         if (string.IsNullOrEmpty(id) || !id.StartsWith("DH") || !int.TryParse(id.Substring(2), out int orderId))
         {
             return BadRequest(new { message = "Mã đơn hàng không hợp lệ." });
         }
 
-        // Kiểm tra xem status gửi lên có hợp lệ không
+        // Kiểm tra trạng thái hợp lệ
         var validStatuses = new[] { "Pending", "Confirmed", "Shipped", "Delivered", "Cancelled" };
         if (string.IsNullOrEmpty(dto.status) || !validStatuses.Contains(dto.status))
         {
             return BadRequest(new { message = "Trạng thái đơn hàng không hợp lệ." });
         }
 
-        // Tìm đơn hàng trong CSDL
+        // Lấy đơn hàng
         var order = await _context.Orders.FindAsync(orderId);
-
         if (order == null)
         {
             return NotFound(new { message = "Không tìm thấy đơn hàng." });
         }
 
-        // Cập nhật trạng thái và lưu thay đổi
+        // Cập nhật trạng thái đơn hàng
         order.Status = dto.status;
+
+        // Nếu đơn hàng đã giao → cập nhật payment
+        if (dto.status == "Delivered")
+        {
+            // Lấy payment theo orderId
+            var payment = await _context.Payments
+                .FirstOrDefaultAsync(p => p.OrderId == orderId);
+
+            if (payment != null && payment.Method == "COD")
+            {
+                payment.PaymentStatus = "Paid";
+            }
+        }
+
+        // Lưu thay đổi
         await _context.SaveChangesAsync();
 
-        // Trả về thông báo thành công
         return Ok(new { message = $"Đã cập nhật trạng thái đơn hàng #{id} thành {dto.status}." });
     }
+
 
     [HttpPost]
     public async Task<ActionResult> CreateOrder([FromBody] CreateOrderDto dto)
