@@ -41,6 +41,7 @@ export default function Products() {
 
         const data = await response.json();
         setProducts(data.data || []);
+        
       } catch (err) {
         console.error("Lỗi khi tải sản phẩm:", err);
         setError(err.message);
@@ -183,7 +184,7 @@ export default function Products() {
             >
               <option value="all">Tất cả danh mục</option>
               {categories
-                .filter((c) => c.parentId !== null)
+                // .filter((c) => c.parentId !== null)
                 .map((c) => (
                   <option key={c.id} value={c.id}>
                     {c.name}

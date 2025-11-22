@@ -89,9 +89,10 @@ export default function Register() {
           setError(errData.message || 'Đăng ký thất bại');
           return;
         }
-        window.location.href = '/login';
         toast.success('Đăng ký thành công! Vui lòng đăng nhập.');
-
+        setTimeout(() => {
+          window.location.href = '/login';
+        }, 1000)
       } catch (err) {
         setError('Lỗi kết nối server!');
       } finally {

@@ -2,7 +2,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, ShoppingCart, Package, FolderTree, 
-  Users, Tag, MessageSquare, X 
+  Users, Tag, MessageSquare, X , Star, LogOut
 } from 'lucide-react';
 // Import file CSS (chúng ta sẽ tạo ở Bước 6)
 import './Sidebar.css';
@@ -14,9 +14,9 @@ const menuItems = [
   { id: 'categories', label: 'Quản lý Danh mục', icon: FolderTree, path: '/admin/categories' },
   { id: 'customers', label: 'Quản lý Khách hàng', icon: Users, path: '/admin/customers' },
   { id: 'vouchers', label: 'Quản lý Vouchers', icon: Tag, path: '/admin/vouchers' },
-  { id: 'reviews', label: 'Quản lý Đánh giá', icon: Tag, path: '/admin/reviews' },
+  { id: 'reviews', label: 'Quản lý Đánh giá', icon: Star, path: '/admin/reviews' },
   { id: 'chat', label: 'Hỗ trợ Trực tuyến', icon: MessageSquare, path: '/admin/chat' },
-  { id: 'logout', label: 'Đăng xuất', icon: Tag, action: 'logout' },
+  { id: 'logout', label: 'Đăng xuất', icon: LogOut, action: 'logout' },
 ];
 
 export default function Sidebar({ sidebarOpen, setSidebarOpen }) {
