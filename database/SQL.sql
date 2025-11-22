@@ -152,7 +152,7 @@ CREATE TABLE OrderDetails (
 CREATE TABLE Payments (
     PaymentID INT IDENTITY(1,1) PRIMARY KEY,
     OrderID INT NOT NULL,
-    Method NVARCHAR(20) CHECK (Method IN ('COD','CreditCard','BankTransfer')) DEFAULT 'COD',
+    Method NVARCHAR(20) CHECK (Method IN ('COD','VNPAY','OTHER')) DEFAULT 'COD',
     Amount DECIMAL(12,2) CHECK (Amount >= 0),
     PaymentStatus NVARCHAR(20) CHECK (PaymentStatus IN ('Pending','Paid','Failed')) DEFAULT 'Pending',
     CreatedAt DATETIME DEFAULT GETDATE(),
